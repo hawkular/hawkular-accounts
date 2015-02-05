@@ -25,6 +25,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import org.hawkular.accounts.backend.entity.HawkularUser;
 import org.hawkular.accounts.backend.entity.HawkularUser_;
+import org.keycloak.KeycloakPrincipal;
 
 /**
  *
@@ -37,7 +38,7 @@ public class UserService {
   EntityManager em;
 
   /**
-   * Retrieves an {@link HawkularUser} based in its ID
+   * Retrieves an {@link HawkularUser} based in its ID.
    * @param id the user ID
    * @return the existing user with the given ID or null if the user is not found.
    */
@@ -58,6 +59,15 @@ public class UserService {
     }
 
     return null;
+  }
+
+  /**
+   * Retrieves an {@link HawkularUser} based on the {@link KeycloakPrincipal}.
+   * @param principal the {@link KeycloakPrincipal}
+   * @return an {@link HawkularUser} instance representing the user for the {@link KeycloakPrincipal}. It's never null.
+   */
+  public HawkularUser getByPrincipal(KeycloakPrincipal principal) {
+    return getOrCreateById(principal.getName());
   }
 
   /**
