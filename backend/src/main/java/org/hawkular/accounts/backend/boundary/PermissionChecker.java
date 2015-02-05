@@ -84,8 +84,8 @@ public class PermissionChecker {
      * @param principal the {@link KeycloakPrincipal} representing the current user
      * @param owner     the owner of the resource
      * @return true if the user is the owner or if the user belongs to an organization that owns the resource
-     * @see PermissionChecker#hasAccessTo(
-     *org.hawkular.accounts.backend.entity.User, org.hawkular.accounts.backend.entity.Owner)
+     * @see PermissionChecker#hasAccessTo(org.hawkular.accounts.backend.entity.HawkularUser,
+     * org.hawkular.accounts.backend.entity.Owner)
      */
     public boolean hasAccessTo(KeycloakPrincipal principal, Owner owner) {
         // Here's a bit of explanation: judging by the name of this class, we wouldn't expect any record to be created.
@@ -133,6 +133,7 @@ public class PermissionChecker {
 
         // if the member is part of a child organization, then it's a member of this one
         // example: jdoe is member of emca, emca is member of acme, therefore, jdoe is member of acme
+        // TODO: is this appropriate? should jdoe really have access to data from acme? if not, just remove this part
         for (Owner organizationMember : organization.getMembers()) {
             if (organizationMember instanceof Organization) {
                 return isMemberOf(member, (Organization) organizationMember);

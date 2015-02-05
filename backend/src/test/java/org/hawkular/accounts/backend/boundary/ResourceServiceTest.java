@@ -21,6 +21,7 @@ import org.hawkular.accounts.backend.entity.Owner;
 import org.hawkular.accounts.backend.entity.Resource;
 import org.junit.Before;
 import org.junit.Test;
+import org.keycloak.KeycloakPrincipal;
 
 import java.util.UUID;
 
@@ -58,7 +59,7 @@ public class ResourceServiceTest extends BaseEntityManagerEnabledTest {
     }
 
     @Test
-    public void nonExistingResourceIsCreated() {
+    public void nonExistingResourceIsCreatedWithUser() {
         entityManager.getTransaction().begin();
         Owner user = new HawkularUser(UUID.randomUUID().toString());
         entityManager.persist(user);
@@ -66,6 +67,24 @@ public class ResourceServiceTest extends BaseEntityManagerEnabledTest {
 
         entityManager.getTransaction().begin();
         Resource resource = resourceService.getOrCreateById(UUID.randomUUID().toString(), user);
+        entityManager.getTransaction().commit();
+
+        entityManager.getTransaction().begin();
+        assertNotNull(resourceService.getById(resource.getId()));
+        entityManager.getTransaction().commit();
+    }
+
+    @Test
+    public void nonExistingResourceIsCreatedWithPrincipal() {
+        entityManager.getTransaction().begin();
+        String userId = UUID.randomUUID().toString();
+        KeycloakPrincipal principal = new KeycloakPrincipal(userId, null);
+        Owner user = new HawkularUser(userId);
+        entityManager.persist(user);
+        entityManager.getTransaction().commit();
+
+        entityManager.getTransaction().begin();
+        Resource resource = resourceService.getOrCreateById(UUID.randomUUID().toString(), principal);
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();

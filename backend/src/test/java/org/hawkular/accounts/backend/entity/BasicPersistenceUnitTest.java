@@ -24,7 +24,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import java.time.ZonedDateTime;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
@@ -62,8 +65,34 @@ public class BasicPersistenceUnitTest {
         assertEquals("Timezone should be kept", fromDatabase.getCreatedAt(), baseEntityTest.getCreatedAt());
     }
 
+    @Test
+    public void updatedAtIsRefreshed() {
+        BaseEntityTest baseEntityTest = new BaseEntityTest();
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(baseEntityTest);
+        entityManager.getTransaction().commit();
+        ZonedDateTime updatedAt = baseEntityTest.getUpdatedAt();
+
+        entityManager.getTransaction().begin();
+        baseEntityTest.setName("different name");
+        entityManager.persist(baseEntityTest);
+        entityManager.getTransaction().commit();
+
+        assertNotEquals("Updated at should have been changed", updatedAt, baseEntityTest.getUpdatedAt());
+    }
+
     @Entity
     public class BaseEntityTest extends BaseEntity {
+        private String name;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
 }
