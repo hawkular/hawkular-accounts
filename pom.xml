@@ -102,6 +102,7 @@
   </distributionManagement>
 
   <properties>
+    <version.keycloak>1.1.0.Final</version.keycloak>
     <failOnMissingWebXml>false</failOnMissingWebXml>
     <jboss.releases.repo.url>
       https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/
@@ -120,6 +121,24 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <dependency>
+        <groupId>org.jboss.logging</groupId>
+        <artifactId>jboss-logging</artifactId>
+        <version>${version.org.jboss.logging}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-core</artifactId>
+        <version>${version.keycloak}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <scope>test</scope>
+        <version>1.4.185</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -131,4 +150,13 @@
       </modules>
     </profile>
   </profiles>
+
+  <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+    </testResources>
+  </build>
 </project>
