@@ -16,53 +16,54 @@
  */
 package org.hawkular.accounts.backend.entity;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+
 import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
- *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 public class BasicPersistenceUnitTest {
-  private EntityManager entityManager;
+    private EntityManager entityManager;
 
-  @Before
-  public void setup() {
-    EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("backend-unittest-pu");
-    this.entityManager = entityManagerFactory.createEntityManager();
-  }
+    @Before
+    public void setup() {
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("backend-unittest-pu");
+        this.entityManager = entityManagerFactory.createEntityManager();
+    }
 
-  @Test
-  public void testIsAbleToPersist() {
-    BaseEntityTest baseEntityTest = new BaseEntityTest();
+    @Test
+    public void testIsAbleToPersist() {
+        BaseEntityTest baseEntityTest = new BaseEntityTest();
 
-    entityManager.getTransaction().begin();
-    entityManager.persist(baseEntityTest);
-    entityManager.getTransaction().commit();
-  }
+        entityManager.getTransaction().begin();
+        entityManager.persist(baseEntityTest);
+        entityManager.getTransaction().commit();
+    }
 
-  @Test
-  public void createdAtIsConsistent() {
-    BaseEntityTest baseEntityTest = new BaseEntityTest();
+    @Test
+    public void createdAtIsConsistent() {
+        BaseEntityTest baseEntityTest = new BaseEntityTest();
 
-    entityManager.getTransaction().begin();
-    entityManager.persist(baseEntityTest);
-    entityManager.getTransaction().commit();
+        entityManager.getTransaction().begin();
+        entityManager.persist(baseEntityTest);
+        entityManager.getTransaction().commit();
 
-    entityManager.getTransaction().begin();
-    BaseEntityTest fromDatabase = entityManager.find(BaseEntityTest.class, baseEntityTest.getId());
-    entityManager.getTransaction().commit();
+        entityManager.getTransaction().begin();
+        BaseEntityTest fromDatabase = entityManager.find(BaseEntityTest.class, baseEntityTest.getId());
+        entityManager.getTransaction().commit();
 
-    assertEquals("Timezone should be kept", fromDatabase.getCreatedAt(), baseEntityTest.getCreatedAt());
-  }
+        assertEquals("Timezone should be kept", fromDatabase.getCreatedAt(), baseEntityTest.getCreatedAt());
+    }
 
-  @Entity
-  public class BaseEntityTest extends BaseEntity {
-  }
+    @Entity
+    public class BaseEntityTest extends BaseEntity {
+    }
 
 }

@@ -16,16 +16,16 @@
  */
 package org.hawkular.accounts.backend.boundary;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
 import org.hawkular.accounts.backend.entity.HawkularUser;
 import org.hawkular.accounts.backend.entity.Organization;
 import org.hawkular.accounts.backend.entity.Owner;
 import org.hawkular.accounts.backend.entity.Resource;
 import org.keycloak.KeycloakPrincipal;
 
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
 /**
- *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 @Stateless
@@ -38,7 +38,7 @@ public class PermissionChecker {
      * Determines whether the current {@link HawkularUser} has access to the {@link Resource}
      *
      * @param currentUser the user to be checked
-     * @param resource the resource to be checked
+     * @param resource    the resource to be checked
      * @return true if the user is the owner or if the user belongs to an organization that owns the resource
      */
     public boolean hasAccessTo(HawkularUser currentUser, Resource resource) {
@@ -49,7 +49,7 @@ public class PermissionChecker {
      * Determines whether the current {@KeycloakPrincipal} has access to the {@link Resource}.
      *
      * @param principal the {@link KeycloakPrincipal} representing the current user
-     * @param resource the resource to be checked
+     * @param resource  the resource to be checked
      * @return true if the user is the owner or if the user belongs to an organization that owns the resource
      * @see PermissionChecker#hasAccessTo(org.keycloak.KeycloakPrincipal, org.hawkular.accounts.backend.entity.Owner)
      */
@@ -61,7 +61,7 @@ public class PermissionChecker {
      * Determines whether the current {@link HawkularUser} has access to the resource owned by {@link Owner}
      *
      * @param currentUser the user to be checked
-     * @param owner the owner of the resource
+     * @param owner       the owner of the resource
      * @return true if the user is the owner or if the user belongs to an organization that owns the resource
      */
     public boolean hasAccessTo(HawkularUser currentUser, Owner owner) {
@@ -82,10 +82,10 @@ public class PermissionChecker {
      * Determines whether the current {@link KeycloakPrincipal} has access to the resources owned by {@link Owner}.
      *
      * @param principal the {@link KeycloakPrincipal} representing the current user
-     * @param owner the owner of the resource
+     * @param owner     the owner of the resource
      * @return true if the user is the owner or if the user belongs to an organization that owns the resource
      * @see PermissionChecker#hasAccessTo(
-     *  org.hawkular.accounts.backend.entity.User, org.hawkular.accounts.backend.entity.Owner)
+     *org.hawkular.accounts.backend.entity.User, org.hawkular.accounts.backend.entity.Owner)
      */
     public boolean hasAccessTo(KeycloakPrincipal principal, Owner owner) {
         // Here's a bit of explanation: judging by the name of this class, we wouldn't expect any record to be created.
@@ -97,13 +97,13 @@ public class PermissionChecker {
 
     /**
      * Recursively checks whether an user is a member or owner of an organization. Examples:
-     *
+     * <p/>
      * jdoe is owner of acme -> true
      * jdoe is member of acme -> true
      * jdoe is member of emca which is member of acme -> true
      * emca is member of acme -> true
      *
-     * @param member the member to be checked
+     * @param member       the member to be checked
      * @param organization the organization that might contain the user
      * @return true if the user belongs to the organization recursively
      */
@@ -146,7 +146,7 @@ public class PermissionChecker {
      * Recursively checks if the specified owner is a direct or indirect owner of the given organization. For instance,
      * if jdoe is the owner of acme, and acme owns emca, then jdoe owns emca indirectly.
      *
-     * @param owner the {@link Owner} to check. In our example above, it would be jdoe or acme.
+     * @param owner        the {@link Owner} to check. In our example above, it would be jdoe or acme.
      * @param organization the {@link Organization} to verify ownership of. In our example above, it would be emca.
      * @return whether or not the specified owner is directly or indirectly the owner of the given organization.
      */

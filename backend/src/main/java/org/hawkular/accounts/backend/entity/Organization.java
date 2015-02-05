@@ -16,12 +16,12 @@
  */
 package org.hawkular.accounts.backend.entity;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Represents an non-user entity that can own resources. It has itself an owner.
@@ -31,42 +31,42 @@ import javax.persistence.ManyToOne;
 @Entity
 public class Organization extends Owner {
 
-  @ManyToOne
-  private Owner owner;
+    @ManyToOne
+    private Owner owner;
 
-  @ManyToMany
-  private final List<Owner> members = new ArrayList<>();
+    @ManyToMany
+    private final List<Owner> members = new ArrayList<>();
 
-  protected Organization() { // jpa happy
-    super();
-  }
-
-  public Organization(String id, Owner owner) {
-    super(id);
-    this.owner = owner;
-  }
-
-  public Owner getOwner() {
-    return owner;
-  }
-
-  public List<Owner> getMembers() {
-    return Collections.unmodifiableList(members);
-  }
-
-  public void addMember(Owner member) {
-    if (members.contains(member)) {
-      return;
+    protected Organization() { // jpa happy
+        super();
     }
 
-    members.add(member);
-  }
-
-  public void removeMember(Owner member) {
-    if (!members.contains(member)) {
-      return;
+    public Organization(String id, Owner owner) {
+        super(id);
+        this.owner = owner;
     }
 
-    members.remove(member);
-  }
+    public Owner getOwner() {
+        return owner;
+    }
+
+    public List<Owner> getMembers() {
+        return Collections.unmodifiableList(members);
+    }
+
+    public void addMember(Owner member) {
+        if (members.contains(member)) {
+            return;
+        }
+
+        members.add(member);
+    }
+
+    public void removeMember(Owner member) {
+        if (!members.contains(member)) {
+            return;
+        }
+
+        members.remove(member);
+    }
 }

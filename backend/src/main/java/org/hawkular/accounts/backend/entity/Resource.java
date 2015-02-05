@@ -20,28 +20,27 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
 /**
- *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 @Entity
 public class Resource extends BaseEntity {
 
-  @ManyToOne
-  private Owner owner;
+    @ManyToOne
+    private Owner owner;
 
-  protected Resource() { // JPA happy
-  }
+    protected Resource() { // JPA happy
+    }
 
-  public Resource(Owner owner) {
-    this.owner = owner;
-  }
+    public Resource(Owner owner) {
+        this.owner = owner;
+    }
 
-  public Resource(String id, Owner owner) {
-    super(id);
-    this.owner = owner;
-  }
+    public Resource(String id, Owner owner) {
+        super(id);
+        this.owner = owner;
+    }
 
-  public Owner getOwner() {
-    return owner;
-  }
+    public Owner getOwner() {
+        return owner;
+    }
 }

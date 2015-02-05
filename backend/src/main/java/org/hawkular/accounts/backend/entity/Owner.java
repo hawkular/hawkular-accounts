@@ -28,10 +28,10 @@ import javax.persistence.InheritanceType;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Owner extends BaseEntity {
-  protected Owner() { // JPA happy
-  }
+    protected Owner() { // JPA happy
+    }
 
-  public Owner(String id) {
-    super(id);
-  }
+    public Owner(String id) {
+        super(id);
+    }
 }

@@ -16,59 +16,60 @@
  */
 package org.hawkular.accounts.backend.boundary;
 
-import java.util.UUID;
 import org.hawkular.accounts.backend.entity.HawkularUser;
 import org.hawkular.accounts.backend.entity.Owner;
 import org.hawkular.accounts.backend.entity.Resource;
-import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.UUID;
+
+import static org.junit.Assert.assertNotNull;
+
 /**
- *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 public class ResourceServiceTest extends BaseEntityManagerEnabledTest {
-  private ResourceService resourceService;
-  private UserService userService;
+    private ResourceService resourceService;
+    private UserService userService;
 
-  @Before
-  public void prepareServices() {
-    this.resourceService = new ResourceService();
-    this.userService = new UserService();
-    this.userService.em = entityManager;
-    this.resourceService.em = entityManager;
-    this.resourceService.userService = this.userService;
-  }
+    @Before
+    public void prepareServices() {
+        this.resourceService = new ResourceService();
+        this.userService = new UserService();
+        this.userService.em = entityManager;
+        this.resourceService.em = entityManager;
+        this.resourceService.userService = this.userService;
+    }
 
-  @Test
-  public void existingResourceIsRetrieved() {
-    entityManager.getTransaction().begin();
-    Owner user = new HawkularUser(UUID.randomUUID().toString());
-    String resourceId = UUID.randomUUID().toString();
-    Resource resource = new Resource(resourceId, user);
-    entityManager.persist(user);
-    entityManager.persist(resource);
-    entityManager.getTransaction().commit();
+    @Test
+    public void existingResourceIsRetrieved() {
+        entityManager.getTransaction().begin();
+        Owner user = new HawkularUser(UUID.randomUUID().toString());
+        String resourceId = UUID.randomUUID().toString();
+        Resource resource = new Resource(resourceId, user);
+        entityManager.persist(user);
+        entityManager.persist(resource);
+        entityManager.getTransaction().commit();
 
-    entityManager.getTransaction().begin();
-    assertNotNull(resourceService.getById(resourceId));
-    entityManager.getTransaction().commit();
-  }
+        entityManager.getTransaction().begin();
+        assertNotNull(resourceService.getById(resourceId));
+        entityManager.getTransaction().commit();
+    }
 
-  @Test
-  public void nonExistingResourceIsCreated() {
-    entityManager.getTransaction().begin();
-    Owner user = new HawkularUser(UUID.randomUUID().toString());
-    entityManager.persist(user);
-    entityManager.getTransaction().commit();
+    @Test
+    public void nonExistingResourceIsCreated() {
+        entityManager.getTransaction().begin();
+        Owner user = new HawkularUser(UUID.randomUUID().toString());
+        entityManager.persist(user);
+        entityManager.getTransaction().commit();
 
-    entityManager.getTransaction().begin();
-    Resource resource = resourceService.getOrCreateById(UUID.randomUUID().toString(), user);
-    entityManager.getTransaction().commit();
+        entityManager.getTransaction().begin();
+        Resource resource = resourceService.getOrCreateById(UUID.randomUUID().toString(), user);
+        entityManager.getTransaction().commit();
 
-    entityManager.getTransaction().begin();
-    assertNotNull(resourceService.getById(resource.getId()));
-    entityManager.getTransaction().commit();
-  }
+        entityManager.getTransaction().begin();
+        assertNotNull(resourceService.getById(resource.getId()));
+        entityManager.getTransaction().commit();
+    }
 }

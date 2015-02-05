@@ -16,21 +16,21 @@
  */
 package org.hawkular.accounts.backend.boundary;
 
+import org.junit.Before;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import org.junit.Before;
 
 /**
- *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 public class BaseEntityManagerEnabledTest {
-  EntityManager entityManager;
+    EntityManager entityManager;
 
-  @Before
-  public void initializeEntityManager() {
-    EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("backend-unittest-pu");
-    this.entityManager = entityManagerFactory.createEntityManager();
-  }
+    @Before
+    public void initializeEntityManager() {
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("backend-unittest-pu");
+        this.entityManager = entityManagerFactory.createEntityManager();
+    }
 }

@@ -21,13 +21,12 @@ import org.jboss.logging.annotations.MessageLogger;
 import org.jboss.logging.annotations.ValidIdRange;
 
 /**
- *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 @MessageLogger(projectCode = "HAWKACC")
 @ValidIdRange(min = 100000, max = 109999)
 public interface HawkularAccountsMessageLogger {
-  HawkularAccountsMessageLogger LOGGER = Logger.getMessageLogger
-        (HawkularAccountsMessageLogger.class, HawkularAccountsMessageLogger.class.getPackage().getName());
+    HawkularAccountsMessageLogger LOGGER = Logger.getMessageLogger
+            (HawkularAccountsMessageLogger.class, HawkularAccountsMessageLogger.class.getPackage().getName());
 
 }

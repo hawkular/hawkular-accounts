@@ -27,10 +27,10 @@ import javax.persistence.Entity;
 @Entity
 public class HawkularUser extends Owner {
 
-  protected HawkularUser() { // JPA happy
-  }
+    protected HawkularUser() { // JPA happy
+    }
 
-  public HawkularUser(String id) {
-    super(id);
-  }
+    public HawkularUser(String id) {
+        super(id);
+    }
 }

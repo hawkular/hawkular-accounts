@@ -21,13 +21,12 @@ import javax.enterprise.inject.Produces;
 import javax.persistence.PersistenceContext;
 
 /**
- *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 @ApplicationScoped
 public class ApplicationResources {
-  @Produces
-  @PersistenceContext
-  private static javax.persistence.EntityManager em;
+    @Produces
+    @PersistenceContext
+    private static javax.persistence.EntityManager em;
 
 }

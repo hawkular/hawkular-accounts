@@ -16,16 +16,17 @@
  */
 package org.hawkular.accounts.backend.boundary;
 
-import java.util.UUID;
 import org.hawkular.accounts.backend.entity.HawkularUser;
 import org.hawkular.accounts.backend.entity.Organization;
 import org.hawkular.accounts.backend.entity.Resource;
-import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.keycloak.KeycloakPrincipal;
 
+import java.util.UUID;
+
+import static org.junit.Assert.assertTrue;
+
 /**
- *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 public class PermissionCheckerTest extends BaseEntityManagerEnabledTest {

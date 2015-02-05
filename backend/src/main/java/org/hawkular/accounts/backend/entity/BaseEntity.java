@@ -16,74 +16,73 @@
  */
 package org.hawkular.accounts.backend.entity;
 
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.PreUpdate;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.UUID;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.PreUpdate;
 
 /**
- *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 @MappedSuperclass
 public class BaseEntity implements Serializable {
 
-  @Id
-  private String id = UUID.randomUUID().toString();
+    @Id
+    private String id = UUID.randomUUID().toString();
 
-  private final ZonedDateTime createdAt = ZonedDateTime.now();
-  private ZonedDateTime updatedAt = ZonedDateTime.now();
+    private final ZonedDateTime createdAt = ZonedDateTime.now();
+    private ZonedDateTime updatedAt = ZonedDateTime.now();
 
-  protected BaseEntity() {
-  }
-
-  public BaseEntity(String id) {
-    this.id = id;
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  public ZonedDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public ZonedDateTime getUpdatedAt() {
-    return updatedAt;
-  }
-
-  @PreUpdate
-  public void setUpdatedAt() {
-    this.updatedAt = ZonedDateTime.now();
-  }
-
-  @Override
-  public String toString() {
-    return "BaseEntity{" + "id=" + id + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + '}';
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 5;
-    hash = 71 * hash + Objects.hashCode(this.id);
-    return hash;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
+    protected BaseEntity() {
     }
-    if (getClass() != obj.getClass()) {
-      return false;
+
+    public BaseEntity(String id) {
+        this.id = id;
     }
-    final BaseEntity other = (BaseEntity) obj;
-    return Objects.equals(this.id, other.id);
-  }
+
+    public String getId() {
+        return id;
+    }
+
+    public ZonedDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public ZonedDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    @PreUpdate
+    public void setUpdatedAt() {
+        this.updatedAt = ZonedDateTime.now();
+    }
+
+    @Override
+    public String toString() {
+        return "BaseEntity{" + "id=" + id + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + '}';
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 71 * hash + Objects.hashCode(this.id);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final BaseEntity other = (BaseEntity) obj;
+        return Objects.equals(this.id, other.id);
+    }
 
 
 }

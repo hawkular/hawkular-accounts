@@ -16,14 +16,13 @@
  */
 package org.hawkular.accounts.backend.entity.adapter;
 
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 
 /**
- *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 @Converter(autoApply = true)
