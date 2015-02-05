@@ -36,8 +36,6 @@
 
   <modules>
     <module>backend</module>
-    <module>example</module>
-    <module>ui</module>
   </modules>
 
   <inceptionYear>2015</inceptionYear>
