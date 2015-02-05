@@ -130,6 +130,46 @@
         <artifactId>keycloak-core</artifactId>
         <version>${version.keycloak}</version>
       </dependency>
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-war-dist-all</artifactId>
+        <version>${version.keycloak}</version>
+        <type>zip</type>
+        <exclusions>
+          <exclusion>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-tomcat7-adapter-dist</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-example-themes-dist</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-eap6-adapter-dist</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-wildfly-adapter-dist</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-as7-adapter-dist</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-wildfly-adapter-dist</artifactId>
+        <version>${version.keycloak}</version>
+        <type>zip</type>
+        <exclusions>
+          <exclusion>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-undertow-adapter</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
 
       <dependency>
         <groupId>com.h2database</groupId>
