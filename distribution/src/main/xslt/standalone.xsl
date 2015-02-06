@@ -18,7 +18,6 @@
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:xalan="http://xml.apache.org/xalan"
-                xmlns:j="urn:jboss:domain:1.3"
                 version="2.0"
                 exclude-result-prefixes="xalan j">
 
@@ -27,6 +26,7 @@
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes" xalan:indent-amount="4" standalone="no"/>
   <xsl:strip-space elements="*"/>
 
+  <!-- Add our data source -->
   <xsl:template match="node()[name(.)='datasources']">
     <xsl:copy>
       <xsl:apply-templates select="node()[name(.)='datasource']"/>
@@ -40,6 +40,25 @@
       <xsl:apply-templates select="node()[name(.)='drivers']"/>
     </xsl:copy>
   </xsl:template>
+
+  <!-- Add a secure-deployment to the keycloak subsystem -->
+  <xsl:template match="node()[name(.)='auth-server']">
+    <xsl:copy>
+      <xsl:copy-of select="node()|@*"/>
+    </xsl:copy>
+    <realm name="hawkular">
+      <auth-server-url>http://localhost:8080/auth</auth-server-url>
+      <ssl-required>none</ssl-required>
+    </realm>
+    <secure-deployment name="hawkular-accounts.war">
+      <realm>hawkular</realm>
+      <resource>hawkular-accounts-backend</resource>
+      <use-resource-role-mappings>true</use-resource-role-mappings>
+      <enable-cors>true</enable-cors>
+    </secure-deployment>
+  </xsl:template>
+
+  <!-- Everything else remains the same -->
   <xsl:template match="@*|node()">
     <xsl:copy>
       <xsl:apply-templates select="@*|node()" />

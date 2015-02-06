@@ -1,0 +1,39 @@
+{
+  "id" : "hawkular-realm",
+  "realm" : "hawkular",
+  "enabled" : true,
+  "sslRequired" : "none",
+  "passwordCredentialGrantAllowed" : true,
+  "registrationAllowed" : true,
+  "requiredCredentials" : [ "password" ],
+  "applications" : [
+    {
+      "name": "hawkular-accounts-backend",
+      "enabled": true,
+      "bearerOnly" : true,
+      "publicClient": false,
+      "secret" : "${uuid.hawkular.accounts.backend}"
+    },
+    {
+      "name": "hawkular-accounts-ui",
+      "enabled": true,
+      "bearerOnly" : false,
+      "publicClient": true,
+      "secret": "${uuid.hawkular.accounts.ui}",
+      "fullScopeAllowed" : false,
+      "redirectUris": [
+        "http://localhost:9000/*",
+        "http://localhost:2772/*"
+      ],
+      "webOrigins": [
+        "http://localhost:9000",
+        "http://localhost:2772"
+      ],
+      "claims": {
+        "username": true,
+        "name": true,
+        "email": true
+      }
+    }
+  ]
+}
