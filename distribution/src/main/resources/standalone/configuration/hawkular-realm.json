@@ -6,6 +6,48 @@
   "passwordCredentialGrantAllowed" : true,
   "registrationAllowed" : true,
   "requiredCredentials" : [ "password" ],
+  "defaultRoles" : [ "user" ],
+  "roles" : {
+    "realm" : [
+      {
+        "name": "user",
+        "description": "User privileges",
+        "composite": true,
+        "composites": {
+          "application": {
+            "hawkular-accounts-backend": ["user"]
+          }
+        }
+      },
+      {
+        "name": "admin",
+        "description": "Admin privileges",
+        "composite": true,
+        "composites": {
+          "application": {
+            "hawkular-accounts-backend": ["admin"]
+          },
+          "realm": ["user"]
+        }
+      }
+    ],
+    "application": {
+      "hawkular-accounts-backend": [
+        {
+          "name": "user"
+        },
+        {
+          "name": "admin"
+        }
+      ]
+    }
+  },
+  "scopeMappings": [
+    {
+      "client": "hawkular-accounts-ui",
+      "roles": ["user"]
+    }
+  ],
   "applications" : [
     {
       "name": "hawkular-accounts-backend",
