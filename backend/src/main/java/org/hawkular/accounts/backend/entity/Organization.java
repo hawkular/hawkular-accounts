@@ -22,6 +22,7 @@ import javax.persistence.ManyToOne;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Represents an non-user entity that can own resources. It has itself an owner.
@@ -34,8 +35,11 @@ public class Organization extends Owner {
     @ManyToOne
     private Owner owner;
 
+    private String name;
+    private String description;
+
     @ManyToMany
-    private final List<Owner> members = new ArrayList<>();
+    private final transient List<Owner> members = new ArrayList<>();
 
     protected Organization() { // jpa happy
         super();
@@ -46,12 +50,33 @@ public class Organization extends Owner {
         this.owner = owner;
     }
 
+    public Organization(Owner owner) {
+        super(UUID.randomUUID().toString());
+        this.owner = owner;
+    }
+
     public Owner getOwner() {
         return owner;
     }
 
     public List<Owner> getMembers() {
         return Collections.unmodifiableList(members);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void addMember(Owner member) {

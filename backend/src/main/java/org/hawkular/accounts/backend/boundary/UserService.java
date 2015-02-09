@@ -20,6 +20,7 @@ import org.hawkular.accounts.backend.entity.HawkularUser;
 import org.hawkular.accounts.backend.entity.HawkularUser_;
 import org.keycloak.KeycloakPrincipal;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -32,6 +33,7 @@ import java.util.List;
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 @Stateless
+@PermitAll
 public class UserService {
 
     @Inject

@@ -22,13 +22,16 @@ import org.hawkular.accounts.backend.entity.Owner;
 import org.hawkular.accounts.backend.entity.Resource;
 import org.keycloak.KeycloakPrincipal;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 /**
+ * // TODO: this should probably be refactored into an "api" module
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 @Stateless
+@PermitAll
 public class PermissionChecker {
 
     @Inject
