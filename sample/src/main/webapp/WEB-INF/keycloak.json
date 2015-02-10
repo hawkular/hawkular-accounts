@@ -1,0 +1,9 @@
+{
+  "realm": "hawkular",
+  "auth-server-url": "http://localhost:8080/auth",
+  "bearer-only": true,
+  "ssl-required": "none",
+  "resource": "hawkular-accounts-backend",
+  "use-resource-role-mappings": true,
+  "enable-cors": true
+}

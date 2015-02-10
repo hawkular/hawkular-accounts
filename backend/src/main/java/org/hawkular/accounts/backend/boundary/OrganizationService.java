@@ -16,9 +16,11 @@
  */
 package org.hawkular.accounts.backend.boundary;
 
-import org.hawkular.accounts.backend.entity.HawkularUser;
-import org.hawkular.accounts.backend.entity.Organization;
-import org.hawkular.accounts.backend.entity.Organization_;
+import org.hawkular.accounts.api.PermissionChecker;
+import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.model.HawkularUser;
+import org.hawkular.accounts.api.model.Organization;
+import org.hawkular.accounts.api.model.Organization_;
 import org.hawkular.accounts.backend.entity.rest.OrganizationRequest;
 
 import javax.annotation.Resource;
@@ -44,14 +46,14 @@ import javax.ws.rs.core.Response;
 @PermitAll
 @Stateless
 public class OrganizationService {
-    @Inject
+    @Inject @HawkularAccounts
     EntityManager em;
 
     @Resource
     SessionContext sessionContext;
 
     @Inject
-    UserService userService;
+    HawkularUser user;
 
     @Inject
     PermissionChecker permissionChecker;
@@ -59,8 +61,6 @@ public class OrganizationService {
     @GET
     @Path("/")
     public Response getOrganizations() {
-        HawkularUser user = userService.getOrCreateById(sessionContext.getCallerPrincipal().getName());
-
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<Organization> query = builder.createQuery(Organization.class);
         Root<Organization> root = query.from(Organization.class);
@@ -73,7 +73,6 @@ public class OrganizationService {
     @POST
     @Path("/")
     public Response createOrganization(OrganizationRequest request) {
-        HawkularUser user = userService.getOrCreateById(sessionContext.getCallerPrincipal().getName());
         Organization organization = new Organization(user);
 
         organization.setName(request.getName());
@@ -87,7 +86,6 @@ public class OrganizationService {
     @Path("/{id}")
     public Response deleteOrganization(@PathParam("id") String id) {
         Organization organization = em.find(Organization.class, id);
-        HawkularUser user = userService.getById(sessionContext.getCallerPrincipal().getName());
 
         if (permissionChecker.isOwnerOf(user, organization)) {
             em.remove(organization);

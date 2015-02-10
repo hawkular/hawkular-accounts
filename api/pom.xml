@@ -27,27 +27,15 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <name>Hawkular - Accounts - Backend</name>
-  <artifactId>backend</artifactId>
-  <packaging>war</packaging>
+  <name>Hawkular - Accounts - API</name>
+  <artifactId>api</artifactId>
+  <packaging>jar</packaging>
 
   <description>
-    Validates and stores the data.
+    API for permission checking.
   </description>
 
   <dependencies>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <!-- Provided runtime dependencies, present on the Wildfly BOM -->
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>jaxrs-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>org.jboss.spec.javax.annotation</groupId>
       <artifactId>jboss-annotations-api_1.2_spec</artifactId>
@@ -79,8 +67,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.logging</groupId>
-      <artifactId>jboss-logging</artifactId>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-core</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -100,5 +88,19 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <compilerArguments>
+            <processor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</processor>
+          </compilerArguments>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>
 
