@@ -1,8 +1,10 @@
-= Hawkular Accounts
+= Hawkular Accounts - Distribution
 
-Hawkular Accounts is the user/organization module for Hawkular projects. It provides the registration feature,
-setting up of organizations and related features. The main registration and user login is provided by Keycloak, while
-organizations and permissions are handled by ourselves.
+This module builds a complete distribution of Hawkular Accounts, meaning, it assembles a Wildfly with Keycloak and
+deploys the backend to it. No further configuration is required.
+
+Note, however, that this module will probably be replaced by a proper build of the whole Hawkular. This module is
+here only as a helper in testing/integrating other modules with Hawkular Accounts.
 
 Hawkular is a modular systems monitoring suite, that consists of several sub-projects for
 storing of metrics, alerting on incoming events and more. Those projects are developed
@@ -14,19 +16,14 @@ image:https://travis-ci.org/hawkular/hawkular-accounts.svg["Build Status", link=
 .org/hawkular/hawkular-accounts"]
 endif::[]
 
-== About Accounts
+== About the distribution
 
-The project is divided into several modules
-
-* api: the components that are supposed to be consumed by other Hawkular components.
-* backend: the REST backend, handling the actions from the Hawkular Accounts UI.
-* sample: a sample on how to integrate this project into other Hawkular projects.
-
-The hawt.io UI for Hawkular Accounts is located in the hawkular-ui-components project.
+This distribution takes the Keycloak Appliance and builds on top of it. It applies some XSLT transformations to the
+standalone.xml . Besides, the build generates UUIDs used for the application secrets.
 
 == Setup
 
-Just run:
+From the parent module:
 [source,bash]
 ----
 $ mvn clean install -Pdistribution

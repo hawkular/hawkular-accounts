@@ -1,8 +1,6 @@
-= Hawkular Accounts
+= Hawkular Accounts - Sample
 
-Hawkular Accounts is the user/organization module for Hawkular projects. It provides the registration feature,
-setting up of organizations and related features. The main registration and user login is provided by Keycloak, while
-organizations and permissions are handled by ourselves.
+This is a backend sample, aimed to be used as reference for components that want to integrate with Hawkular Accounts.
 
 Hawkular is a modular systems monitoring suite, that consists of several sub-projects for
 storing of metrics, alerting on incoming events and more. Those projects are developed
@@ -14,25 +12,27 @@ image:https://travis-ci.org/hawkular/hawkular-accounts.svg["Build Status", link=
 .org/hawkular/hawkular-accounts"]
 endif::[]
 
-== About Accounts
+== About this sample
 
-The project is divided into several modules
-
-* api: the components that are supposed to be consumed by other Hawkular components.
-* backend: the REST backend, handling the actions from the Hawkular Accounts UI.
-* sample: a sample on how to integrate this project into other Hawkular projects.
-
-The hawt.io UI for Hawkular Accounts is located in the hawkular-ui-components project.
+This sample is a very basic backend that persist a "Sample" into the database.
+The hawt.io UI for this sample is located in the hawkular-ui-components project.
 
 == Setup
 
-Just run:
+After building the main distribution (see the parent module's README), build this sample by running:
 [source,bash]
 ----
-$ mvn clean install -Pdistribution
+$ mvn clean install
 ----
 
-This will generate a Wildfly bundle with all the requirements on the distribution/target directory.
+You can also build all components from the parent, by using this command:
+[source,bash]
+----
+$ mvn clean install -Pdistribution,sample
+----
+
+The sample WAR file is not deployed by default. Just copy the generated WAR file as "hawkular-accounts-sample.war" into
+Wildfly's deployment directory from the "distribution" module.
 
 == License
 
