@@ -66,7 +66,7 @@
 
   <ciManagement>
     <system>Travis CI</system>
-    <url>https://jenkins.kroehling.de/job/cascaio</url>
+    <url>https://travis-ci.org/hawkular/hawkular-accounts</url>
   </ciManagement>
 
   <mailingLists>
