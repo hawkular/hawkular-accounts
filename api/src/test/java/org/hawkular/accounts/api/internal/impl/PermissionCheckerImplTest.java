@@ -14,8 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.api;
+package org.hawkular.accounts.api.internal.impl;
 
+import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
+import org.hawkular.accounts.api.PermissionChecker;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.Resource;
@@ -29,11 +31,11 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
-public class PermissionCheckerTest extends BaseEntityManagerEnabledTest {
+public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void userHasAccessToItself() {
         HawkularUser jsmith = new HawkularUser(UUID.randomUUID().toString());
-        PermissionChecker checker = new PermissionChecker();
+        PermissionChecker checker = new PermissionCheckerImpl();
         assertTrue("User has access no access to another user's resource", checker.hasAccessTo(jsmith, jsmith));
     }
 
@@ -43,7 +45,7 @@ public class PermissionCheckerTest extends BaseEntityManagerEnabledTest {
         HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
         Resource resource = new Resource(UUID.randomUUID().toString(), jsmith);
 
-        PermissionChecker checker = new PermissionChecker();
+        PermissionChecker checker = new PermissionCheckerImpl();
         assertTrue("User has access no access to another user's resource", !checker.hasAccessTo(jdoe, resource));
     }
 
@@ -51,7 +53,7 @@ public class PermissionCheckerTest extends BaseEntityManagerEnabledTest {
     public void ownerBelongsToOrganization() {
         HawkularUser user = new HawkularUser(UUID.randomUUID().toString());
         Organization organization = new Organization(UUID.randomUUID().toString(), user);
-        PermissionChecker checker = new PermissionChecker();
+        PermissionChecker checker = new PermissionCheckerImpl();
         assertTrue("Owner of an organization should be a member of it", checker.hasAccessTo(user, organization));
     }
 
@@ -66,7 +68,7 @@ public class PermissionCheckerTest extends BaseEntityManagerEnabledTest {
         Organization acme = new Organization(UUID.randomUUID().toString(), jdoe);
         Organization emca = new Organization(UUID.randomUUID().toString(), acme);
 
-        PermissionChecker checker = new PermissionChecker();
+        PermissionChecker checker = new PermissionCheckerImpl();
         assertTrue("Organization owner of an organization should be a member of it", checker.isMemberOf(acme, emca));
     }
 
@@ -81,7 +83,7 @@ public class PermissionCheckerTest extends BaseEntityManagerEnabledTest {
         Organization acme = new Organization(UUID.randomUUID().toString(), jdoe);
         Organization emca = new Organization(UUID.randomUUID().toString(), acme);
 
-        PermissionChecker checker = new PermissionChecker();
+        PermissionChecker checker = new PermissionCheckerImpl();
         assertTrue("Owner of parent organization should be a member of it", checker.hasAccessTo(jdoe, emca));
     }
 
@@ -98,7 +100,7 @@ public class PermissionCheckerTest extends BaseEntityManagerEnabledTest {
         Organization finance = new Organization(UUID.randomUUID().toString(), acme);
         Organization marketing = new Organization(UUID.randomUUID().toString(), acme);
 
-        PermissionChecker checker = new PermissionChecker();
+        PermissionChecker checker = new PermissionCheckerImpl();
         assertTrue("Siblings are not a member of each other", !checker.isMemberOf(marketing, finance));
         assertTrue("Siblings are not a member of each other", !checker.isMemberOf(finance, marketing));
     }
@@ -120,7 +122,7 @@ public class PermissionCheckerTest extends BaseEntityManagerEnabledTest {
         acme.addMember(marketing);
         marketing.addMember(jsmith);
 
-        PermissionChecker checker = new PermissionChecker();
+        PermissionChecker checker = new PermissionCheckerImpl();
         assertTrue("Member should have access to organization", checker.hasAccessTo(jsmith, marketing));
         assertTrue("Member of child organization should have access to parent organization",
                 checker.hasAccessTo(jsmith, acme));
@@ -143,7 +145,7 @@ public class PermissionCheckerTest extends BaseEntityManagerEnabledTest {
 
         Resource metric1 = new Resource(emca);
 
-        PermissionChecker checker = new PermissionChecker();
+        PermissionChecker checker = new PermissionCheckerImpl();
         assertTrue("Owner of parent organization should be a member of it", checker.hasAccessTo(jsmith, metric1));
     }
 
@@ -165,9 +167,10 @@ public class PermissionCheckerTest extends BaseEntityManagerEnabledTest {
 
         Resource metric1 = new Resource(emca);
 
-        PermissionChecker checker = new PermissionChecker();
-        checker.userService = new UserService();
-        checker.userService.em = entityManager;
+        PermissionCheckerImpl checker = new PermissionCheckerImpl();
+        UserServiceImpl userService = new UserServiceImpl();
+        userService.em = entityManager;
+        checker.userService = userService;
         boolean hasAccess = checker.hasAccessTo(jsmithPrincipal, metric1);
         assertTrue("Owner of parent organization should be a member of it", hasAccess);
     }

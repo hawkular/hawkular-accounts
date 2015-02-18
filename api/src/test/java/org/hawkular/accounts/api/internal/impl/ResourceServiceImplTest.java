@@ -14,8 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.api;
+package org.hawkular.accounts.api.internal.impl;
 
+import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Owner;
 import org.hawkular.accounts.api.model.Resource;
@@ -31,14 +32,14 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
-public class ResourceServiceTest extends BaseEntityManagerEnabledTest {
-    private ResourceService resourceService;
-    private UserService userService;
+public class ResourceServiceImplTest extends BaseEntityManagerEnabledTest {
+    private ResourceServiceImpl resourceService;
+    private UserServiceImpl userService;
 
     @Before
     public void prepareServices() {
-        this.resourceService = new ResourceService();
-        this.userService = new UserService();
+        this.resourceService = new ResourceServiceImpl();
+        this.userService = new UserServiceImpl();
         this.userService.em = entityManager;
         this.resourceService.em = entityManager;
         this.resourceService.userService = this.userService;

@@ -26,7 +26,7 @@ import javax.persistence.Persistence;
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 public class BaseEntityManagerEnabledTest {
-    EntityManager entityManager;
+    protected EntityManager entityManager;
 
     @Before
     public void initializeEntityManager() {

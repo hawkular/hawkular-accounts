@@ -16,46 +16,11 @@
  */
 package org.hawkular.accounts.api;
 
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.Owner;
-import org.hawkular.accounts.api.model.Owner_;
-
-import javax.annotation.security.PermitAll;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-import java.util.List;
 
 /**
  * @author jpkroehling
  */
-@Stateless
-@PermitAll
-public class OwnerService {
-
-    @Inject
-    @HawkularAccounts
-    EntityManager em;
-
-    public Owner getById(String id) {
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<Owner> query = builder.createQuery(Owner.class);
-        Root<Owner> root = query.from(Owner.class);
-        query.select(root);
-        query.where(builder.equal(root.get(Owner_.id), id));
-
-        List<Owner> results = em.createQuery(query).getResultList();
-        if (results.size() == 1) {
-            return results.get(0);
-        }
-
-        if (results.size() > 1) {
-            throw new IllegalStateException("More than one owner found for ID " + id);
-        }
-
-        return null;
-    }
+public interface OwnerService {
+    Owner getById(String id);
 }

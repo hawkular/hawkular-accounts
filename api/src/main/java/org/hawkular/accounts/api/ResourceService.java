@@ -16,61 +16,21 @@
  */
 package org.hawkular.accounts.api;
 
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
-import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Owner;
 import org.hawkular.accounts.api.model.Resource;
-import org.hawkular.accounts.api.model.Resource_;
 import org.keycloak.KeycloakPrincipal;
-
-import javax.annotation.security.PermitAll;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-import java.util.List;
 
 /**
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
-@Stateless
-@PermitAll
-public class ResourceService {
-    @Inject @HawkularAccounts
-    EntityManager em;
-
-    @Inject
-    UserService userService;
-
-    @Inject
-    HawkularUser user;
-
+public interface ResourceService {
     /**
      * Retrieves a {@link Resource} based on its ID.
      *
      * @param id the resource's ID
      * @return the existing {@link Resource} or null if the resource doesn't exists.
      */
-    public Resource getById(String id) {
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<Resource> query = builder.createQuery(Resource.class);
-        Root<Resource> root = query.from(Resource.class);
-        query.select(root);
-        query.where(builder.equal(root.get(Resource_.id), id));
-
-        List<Resource> results = em.createQuery(query).getResultList();
-        if (results.size() == 1) {
-            return results.get(0);
-        }
-
-        if (results.size() > 1) {
-            throw new IllegalStateException("More than one resource found for ID " + id);
-        }
-
-        return null;
-    }
+    Resource getById(String id);
 
     /**
      * Retrieves a {@link Resource} based on its ID or creates a new {@link Resource} if it doesn't exists.
@@ -79,15 +39,7 @@ public class ResourceService {
      * @param owner if the resource doesn't exists, a new one is created with the specified owner
      * @return the existing {@link Resource} or a new one if it doesn't exists yet.
      */
-    public Resource getOrCreate(String id, Owner owner) {
-        Resource resource = getById(id);
-        if (null == resource) {
-            resource = new Resource(id, owner);
-            em.persist(resource);
-        }
-
-        return resource;
-    }
+    Resource getOrCreate(String id, Owner owner);
 
     /**
      * Retrieves a {@link Resource} based on its ID or creates a new {@link Resource} if it doesn't exists.
@@ -95,15 +47,7 @@ public class ResourceService {
      * @param id    the resource's ID
      * @return the existing {@link Resource} or a new one if it doesn't exists yet.
      */
-    public Resource getOrCreate(String id) {
-        Resource resource = getById(id);
-        if (null == resource) {
-            resource = new Resource(id, user);
-            em.persist(resource);
-        }
-
-        return resource;
-    }
+    Resource getOrCreate(String id);
 
     /**
      * Retrieves a {@link Resource} based on its ID or creates a new {@link Resource} if it doesn't exists.
@@ -113,7 +57,5 @@ public class ResourceService {
      * @return the existing {@link Resource} or a new one if it doesn't exists yet.
      * @see ResourceService#getOrCreate(String, org.hawkular.accounts.api.model.Owner)
      */
-    public Resource getOrCreate(String id, KeycloakPrincipal principal) {
-        return getOrCreate(id, userService.getByPrincipal(principal));
-    }
+    Resource getOrCreate(String id, KeycloakPrincipal principal);
 }

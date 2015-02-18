@@ -16,45 +16,19 @@
  */
 package org.hawkular.accounts.api;
 
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.HawkularUser;
-import org.hawkular.accounts.api.model.HawkularUser_;
 import org.keycloak.KeycloakPrincipal;
-
-import javax.annotation.Resource;
-import javax.annotation.security.PermitAll;
-import javax.ejb.SessionContext;
-import javax.ejb.Stateless;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-import java.util.List;
 
 /**
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
-@Stateless
-@PermitAll
-public class UserService {
-
-    @Inject @HawkularAccounts
-    EntityManager em;
-
-    @Resource
-    SessionContext sessionContext;
-
+public interface UserService {
     /**
      * Retrieves the current user for the request.
      *
      * @return the current user
      */
-    @Produces
-    public HawkularUser getCurrent() {
-        return getOrCreateById(sessionContext.getCallerPrincipal().getName());
-    }
+    HawkularUser getCurrent();
 
     /**
      * Retrieves an {@link HawkularUser} based in its ID.
@@ -62,24 +36,7 @@ public class UserService {
      * @param id the user ID
      * @return the existing user with the given ID or null if the user is not found.
      */
-    public HawkularUser getById(String id) {
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<HawkularUser> query = builder.createQuery(HawkularUser.class);
-        Root<HawkularUser> root = query.from(HawkularUser.class);
-        query.select(root);
-        query.where(builder.equal(root.get(HawkularUser_.id), id));
-
-        List<HawkularUser> results = em.createQuery(query).getResultList();
-        if (results.size() == 1) {
-            return results.get(0);
-        }
-
-        if (results.size() > 1) {
-            throw new IllegalStateException("More than one user found for ID " + id);
-        }
-
-        return null;
-    }
+    HawkularUser getById(String id);
 
     /**
      * Retrieves an {@link HawkularUser} based on the {@link KeycloakPrincipal}.
@@ -87,9 +44,7 @@ public class UserService {
      * @param principal the {@link KeycloakPrincipal}
      * @return an {@link HawkularUser} instance representing the user for the {@link KeycloakPrincipal}.It's never null.
      */
-    public HawkularUser getByPrincipal(KeycloakPrincipal principal) {
-        return getOrCreateById(principal.getName());
-    }
+    HawkularUser getByPrincipal(KeycloakPrincipal principal);
 
     /**
      * Retrieves an {@link HawkularUser} based on its ID. If no user is found, a new one is created and returned.
@@ -97,13 +52,5 @@ public class UserService {
      * @param id the user ID
      * @return an {@link HawkularUser} instance representing the user with the given ID. It's never null.
      */
-    public HawkularUser getOrCreateById(String id) {
-        HawkularUser user = getById(id);
-        if (null == user) {
-            user = new HawkularUser(id);
-            em.persist(user);
-        }
-
-        return user;
-    }
+    HawkularUser getOrCreateById(String id);
 }
