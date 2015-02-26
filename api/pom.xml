@@ -23,12 +23,12 @@
 
   <parent>
     <groupId>org.hawkular.accounts</groupId>
-    <artifactId>accounts-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>hawkular-accounts-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
 
   <name>Hawkular - Accounts - API</name>
-  <artifactId>api</artifactId>
+  <artifactId>hawkular-accounts-api</artifactId>
   <packaging>jar</packaging>
 
   <description>

@@ -30,7 +30,7 @@
     <dependencySet>
       <outputDirectory>standalone/deployments</outputDirectory>
       <includes>
-        <include>org.hawkular.accounts:backend:war</include>
+        <include>org.hawkular.accounts:hawkular-accounts:war</include>
       </includes>
       <outputFileNameMapping>hawkular-accounts.war</outputFileNameMapping>
       <useProjectArtifact>false</useProjectArtifact>
