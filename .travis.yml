@@ -11,3 +11,9 @@ install:
 script:
 - mvn -s .travis.maven.settings.xml verify | grep -vF "[INFO] Downloading:" | grep
   -vF "[INFO] Downloaded:"; test ${PIPESTATUS[0]} -eq 0
+env:
+  global:
+  - secure: VMf82bNo+nMpqvs2DB88k5AY5uBzjoz7aU8yPgGUGO4tbGfO3D/QNY2px1MkXTfPGtSxlgkPCccXRUUo7s8yT0vGm2Jr92DpbI/285Vtm8KQiAPJvX7BtIZxVPQGFoNsQ3ZUYnfwguDnasxi0DCm/imDv9hqu96RlzqoVxO8Upg=
+  - secure: ZlO/Opz9CENlpogb1so3YU4tcbsAkpo6ZneBQKrVAg6azjjs+5j7tIAqek40F5RPj2MK+BW+RSbLKGMIuaUEoGWYNCkORAC3wRvUEz4Lf6ZKR19DmjrPVqP8LG3N7hO+3RtuNG24h4d+lfBGg2y/sDeqHYIV8JJ5QyK6BtQNb+M=
+after_success:
+- test "${TRAVIS_BRANCH}" = "master" && test "${TRAVIS_PULL_REQUEST}" = "false" && mvn  -s .travis.maven.settings.xml deploy -DskipTests
