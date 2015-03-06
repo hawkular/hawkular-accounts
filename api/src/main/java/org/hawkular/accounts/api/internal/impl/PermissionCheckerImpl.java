@@ -21,6 +21,7 @@ import org.hawkular.accounts.api.PermissionChecker;
 import org.hawkular.accounts.api.ResourceService;
 import org.hawkular.accounts.api.UserService;
 import org.hawkular.accounts.api.model.HawkularUser;
+import org.hawkular.accounts.api.model.Member;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.Owner;
 import org.hawkular.accounts.api.model.Resource;
@@ -31,6 +32,9 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 /**
+ * Main implementation of the {@link org.hawkular.accounts.api.PermissionChecker}. Consumers should get an instance of this
+ * via CDI. This class should not be directly instantiated by the consumers.
+ *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 @Stateless
@@ -46,15 +50,21 @@ public class PermissionCheckerImpl implements PermissionChecker {
     @Inject
     OwnerService ownerService;
 
+    @Override
     public boolean hasAccessTo(HawkularUser currentUser, Resource resource) {
         return hasAccessTo(currentUser, resource.getOwner());
     }
 
+    @Override
     public boolean hasAccessTo(KeycloakPrincipal principal, Resource resource) {
-        return hasAccessTo(principal, resource.getOwner());
+        // Here's a bit of explanation: judging by the name of this class, we wouldn't expect any record to be created.
+        // But in fact, the user *already* exists, just not in our database. So, on the first call of this method for
+        // a new user, we create it on our side, using Keycloak's ID for this user.
+        HawkularUser user = userService.getByPrincipal(principal);
+        return hasAccessTo(user, resource.getOwner());
     }
 
-    public boolean hasAccessTo(HawkularUser currentUser, Owner owner) {
+    private boolean hasAccessTo(HawkularUser currentUser, Owner owner) {
         if (currentUser.equals(owner)) {
             return true;
         }
@@ -68,15 +78,8 @@ public class PermissionCheckerImpl implements PermissionChecker {
         return isMemberOf(currentUser, (Organization) owner);
     }
 
-    public boolean hasAccessTo(KeycloakPrincipal principal, Owner owner) {
-        // Here's a bit of explanation: judging by the name of this class, we wouldn't expect any record to be created.
-        // But in fact, the user *already* exists, just not in our database. So, on the first call of this method for
-        // a new user, we create it on our side, using Keycloak's ID for this user.
-        HawkularUser user = userService.getByPrincipal(principal);
-        return hasAccessTo(user, owner);
-    }
-
-    public boolean isMemberOf(Owner member, Organization organization) {
+    @Override
+    public boolean isMemberOf(Member member, Organization organization) {
         // simplest case first: is the member a direct member of this organization?
         // example: jsmith is a member of acme
         if (organization.getMembers().contains(member)) {
@@ -87,8 +90,10 @@ public class PermissionCheckerImpl implements PermissionChecker {
         // organization)
         // then he's directly or indirectly owner of the current organization, therefore, he's member of it
         // example: jdoe is the owner of acme, acme is owner of emca, therefore, jdoe is the owner of emca
-        if (isOwnerOf(member, organization)) {
-            return true;
+        if (member instanceof Owner) {
+            if (isOwnerOf((Owner) member, organization)) {
+                return true;
+            }
         }
 
         // if the "member" is part of an organization that owns the current organization, then it's a member of it
@@ -103,7 +108,7 @@ public class PermissionCheckerImpl implements PermissionChecker {
         // if the member is part of a child organization, then it's a member of this one
         // example: jdoe is member of emca, emca is member of acme, therefore, jdoe is member of acme
         // TODO: is this appropriate? should jdoe really have access to data from acme? if not, just remove this part
-        for (Owner organizationMember : organization.getMembers()) {
+        for (Member organizationMember : organization.getMembers()) {
             if (organizationMember instanceof Organization) {
                 return isMemberOf(member, (Organization) organizationMember);
             }
@@ -112,24 +117,17 @@ public class PermissionCheckerImpl implements PermissionChecker {
         return false;
     }
 
-    public boolean isOwnerOf(Owner tentativeOwner, Owner actualOwner) {
-
-        if (actualOwner.equals(tentativeOwner)) {
+    @Override
+    public boolean isOwnerOf(Owner tentativeOwner, Organization organization) {
+        if (organization.equals(tentativeOwner)) {
             return true;
         }
 
-        if (actualOwner instanceof Organization) {
-            Owner organizationOwner = ((Organization) actualOwner).getOwner();
-            return isOwnerOf(tentativeOwner, organizationOwner);
+        Owner organizationOwner = organization.getOwner();
+        if (organizationOwner instanceof Organization) {
+            return isOwnerOf(tentativeOwner, (Organization) organizationOwner);
         }
 
-        return false;
+        return organizationOwner.equals(tentativeOwner);
     }
-
-    public boolean isOwnerOf(String ownerId) {
-        HawkularUser currentUser = userService.getCurrent();
-        Owner owner = ownerService.getById(ownerId);
-        return isOwnerOf(currentUser, owner);
-    }
-
 }

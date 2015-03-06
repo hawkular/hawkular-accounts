@@ -14,37 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.backend.entity.rest;
+package org.hawkular.accounts.api.model;
+
+import javax.persistence.Entity;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 
 /**
- * Represents an incoming request to the {@link org.hawkular.accounts.backend.boundary.OrganizationService}.
+ * Represents an object that might be a member of an organization.
  *
  * @author jpkroehling
  */
-public class OrganizationRequest {
-    private String name;
-    private String description;
-
-    public OrganizationRequest() {
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+public class Member extends BaseEntity {
+    protected Member() { // JPA happy
     }
 
-    public OrganizationRequest(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public Member(String id) {
+        super(id);
     }
 }

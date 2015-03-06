@@ -14,37 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.backend.entity.rest;
-
 /**
- * Represents an incoming request to the {@link org.hawkular.accounts.backend.boundary.OrganizationService}.
+ * Contains the components that interacts with external interfaces, such as REST endpoints. All requests are expected
+ * to have been already authenticated by a service via the container.
  *
  * @author jpkroehling
  */
-public class OrganizationRequest {
-    private String name;
-    private String description;
-
-    public OrganizationRequest() {
-    }
-
-    public OrganizationRequest(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-}
+package org.hawkular.accounts.backend.boundary;

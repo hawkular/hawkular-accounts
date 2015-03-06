@@ -20,6 +20,11 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
 /**
+ * Represents a resource that is meant to be protected. Each module is free to define their own rules for creating
+ * Resources or defining its context. Examples of Resources could be: alerts, metrics, inventory items, ...
+ *
+ * Each resource is owner by an {@link org.hawkular.accounts.api.model.Owner}.
+ *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 @Entity

@@ -2,19 +2,9 @@
 
 This is a backend sample, aimed to be used as reference for components that want to integrate with Hawkular Accounts.
 
-Hawkular is a modular systems monitoring suite, that consists of several sub-projects for
-storing of metrics, alerting on incoming events and more. Those projects are developed
-in their own GitHub repositories.
-
-ifdef::env-github[]
-[link=https://travis-ci.org/hawkular/hawkular-accounts]
-image:https://travis-ci.org/hawkular/hawkular-accounts.svg["Build Status", link="https://travis-ci
-.org/hawkular/hawkular-accounts"]
-endif::[]
-
 == About this sample
 
-This sample is a very basic backend that persist a "Sample" into the database.
+This sample is a very basic backend that persist a "Sample" resource into the database.
 The hawt.io UI for this sample is located in the hawkular-ui-components project.
 
 == Setup

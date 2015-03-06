@@ -15,27 +15,43 @@ endif::[]
 
 == About Accounts
 
-The project is divided into several modules
+The project is divided into several modules. More information about the individual modules can be found on the
+module's README files.
 
+* accounts: the REST backend, handling the actions from the Hawkular Accounts UI.
 * api: the components that are supposed to be consumed by other Hawkular components.
-* backend: the REST backend, handling the actions from the Hawkular Accounts UI.
-* sample: a sample on how to integrate this project into other Hawkular projects.
+* distribution: assembles a complete Wildfly with Keycloak and Hawkular Accounts, suitable for isolated
+development/testing.
+* sample: a sample on how to integrate Accounts into other Hawkular projects.
 
 The hawt.io UI for Hawkular Accounts is located in the hawkular-ui-components project.
 
 == Setup
 
-Just run:
+The API and backend can be build as a regular Maven project:
+[source,bash]
+----
+$ mvn clean install
+----
+
+To build a distribution with Wildfly and Keycloak, use:
 [source,bash]
 ----
 $ mvn clean install -Pdistribution
 ----
 
-This will generate a Wildfly bundle with all the requirements on the distribution/target directory.
+To build all modules, including sample and distribution, use:
+[source,bash]
+----
+$ mvn clean install -Pdistribution,sample
+----
+
+Note that none of those currently ships with the UI. Follow the instructions on
+link:https://github.com/hawkular/hawkular-ui-components[hawkular-ui-components] in order to run the UI.
 
 == License
 
-Hawkular-Accounts is released under Apache License, Version 2.0 as described in the link:LICENSE[LICENSE] document
+Hawkular Accounts is released under Apache License, Version 2.0 as described in the link:LICENSE[LICENSE] document
 
 ----
    Copyright 2015 Red Hat, Inc.

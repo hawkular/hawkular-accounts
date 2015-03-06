@@ -31,6 +31,9 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 
 /**
+ * Main implementation of the {@link org.hawkular.accounts.api.OwnerService}. Consumers should get an instance of this
+ * via CDI. This class should not be directly instantiated by the consumers.
+ *
  * @author jpkroehling
  */
 @Stateless

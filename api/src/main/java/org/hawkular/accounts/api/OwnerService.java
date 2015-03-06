@@ -18,9 +18,22 @@ package org.hawkular.accounts.api;
 
 import org.hawkular.accounts.api.model.Owner;
 
+import javax.validation.constraints.NotNull;
+
 /**
+ * Provides an interface for querying and managing {@link org.hawkular.accounts.api.model.Owner}.
+ *
+ * Implementations of this interface should conform with CDI rules and be injectable into managed beans. For
+ * consumers, it means that a concrete implementation of this interface can be injected via {@link javax.inject.Inject}
+ *
  * @author jpkroehling
  */
 public interface OwnerService {
-    Owner getById(String id);
+
+    /**
+     * Retrieves an {@link org.hawkular.accounts.api.model.Owner} based on a given ID.
+     * @param id
+     * @return
+     */
+    Owner getById(@NotNull String id);
 }

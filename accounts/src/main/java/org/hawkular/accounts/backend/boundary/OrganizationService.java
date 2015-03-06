@@ -32,6 +32,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -40,6 +41,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 /**
+ * REST service responsible for managing {@link org.hawkular.accounts.api.model.Organization}.
+ *
  * @author jpkroehling
  */
 @Path("/organizations")
@@ -49,15 +52,18 @@ public class OrganizationService {
     @Inject @HawkularAccounts
     EntityManager em;
 
-    @Resource
-    SessionContext sessionContext;
-
     @Inject
     HawkularUser user;
 
     @Inject
     PermissionChecker permissionChecker;
 
+    /**
+     * Retrieves all organizations to which this {@link org.hawkular.accounts.api.model.HawkularUser} has access to.
+     *
+     * @return a {@link javax.ws.rs.core.Response} whose entity is a {@link java.util.List} of
+     * {@link org.hawkular.accounts.api.model.Organization}
+     */
     @GET
     @Path("/")
     public Response getOrganizations() {
@@ -70,9 +76,16 @@ public class OrganizationService {
         return Response.ok().entity(em.createQuery(query).getResultList()).build();
     }
 
+    /**
+     * Creates a new {@link org.hawkular.accounts.api.model.Organization} based on the parameters of the incoming
+     * {@link org.hawkular.accounts.backend.entity.rest.OrganizationRequest}.
+     *
+     * @param request the incoming request as {@link org.hawkular.accounts.backend.entity.rest.OrganizationRequest}
+     * @return a {@link javax.ws.rs.core.Response} whose entity is an {@link org.hawkular.accounts.api.model.Organization}
+     */
     @POST
     @Path("/")
-    public Response createOrganization(OrganizationRequest request) {
+    public Response createOrganization(@NotNull OrganizationRequest request) {
         Organization organization = new Organization(user);
 
         organization.setName(request.getName());
@@ -82,9 +95,16 @@ public class OrganizationService {
         return Response.ok().entity(organization).build();
     }
 
+    /**
+     * Removes an existing {@link org.hawkular.accounts.api.model.Organization} if the user has permissions to do so.
+     *
+     * @param id the ID of the {@link org.hawkular.accounts.api.model.Organization} to be removed.
+     * @return an empty {@link javax.ws.rs.core.Response} if successful or forbidden, if the user has no access to
+     * the organization.
+     */
     @DELETE
     @Path("/{id}")
-    public Response deleteOrganization(@PathParam("id") String id) {
+    public Response deleteOrganization(@NotNull @PathParam("id") String id) {
         Organization organization = em.find(Organization.class, id);
 
         if (permissionChecker.isOwnerOf(user, organization)) {

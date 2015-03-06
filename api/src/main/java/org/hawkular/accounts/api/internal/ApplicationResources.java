@@ -23,6 +23,8 @@ import javax.enterprise.inject.Produces;
 import javax.persistence.PersistenceContext;
 
 /**
+ * Provides CDI producers for resources required by the API.
+ *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 @ApplicationScoped

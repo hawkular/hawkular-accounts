@@ -14,37 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.backend.entity.rest;
-
 /**
- * Represents an incoming request to the {@link org.hawkular.accounts.backend.boundary.OrganizationService}.
+ * Contains entities related to the project. This includes REST request/response beans and might include JPA
+ * beans in the future, should this module ever need it.
  *
  * @author jpkroehling
  */
-public class OrganizationRequest {
-    private String name;
-    private String description;
-
-    public OrganizationRequest() {
-    }
-
-    public OrganizationRequest(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-}
+package org.hawkular.accounts.backend.entity;

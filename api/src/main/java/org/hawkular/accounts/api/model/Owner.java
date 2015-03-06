@@ -21,13 +21,14 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 
 /**
- * Represents an model that might own resources. Concrete implementations could be Organization or User.
+ * Represents an model that might own resources. Concrete implementations could be Organization or User. An owner can
+ * always be a member.
  *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-public class Owner extends BaseEntity {
+public class Owner extends Member {
     protected Owner() { // JPA happy
     }
 

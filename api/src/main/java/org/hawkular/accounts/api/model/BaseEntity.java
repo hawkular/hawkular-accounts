@@ -25,6 +25,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
+ * Base entity, providing some common properties that all entities should have.
+ *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 @MappedSuperclass

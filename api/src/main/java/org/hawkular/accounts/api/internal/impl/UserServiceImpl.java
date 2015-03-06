@@ -35,6 +35,9 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 
 /**
+ * Main implementation of the {@link org.hawkular.accounts.api.UserService}. Consumers should get an instance of this
+ * via CDI. This class should not be directly instantiated by the consumers.
+ *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 @Stateless

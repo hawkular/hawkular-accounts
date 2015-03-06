@@ -20,6 +20,11 @@ import org.hawkular.accounts.api.model.HawkularUser;
 import org.keycloak.KeycloakPrincipal;
 
 /**
+ * Provides an interface for querying and managing Hawkular users.
+ *
+ * Implementations of this interface should conform with CDI rules and be injectable into managed beans. For
+ * consumers, it means that a concrete implementation of this interface can be injected via {@link javax.inject.Inject}
+ *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 public interface UserService {

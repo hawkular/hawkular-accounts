@@ -25,7 +25,9 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Represents an non-user model that can own resources. It has itself an owner.
+ * Represents an non-user model that can own resources. It has itself an owner and may contain zero or more members.
+ * The owner is not included in the member's list, but is assumed to be a "special" member. In other words: even if
+ * the owner is not explicitly on the members list, it should be counted as being a member.
  *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
@@ -39,7 +41,7 @@ public class Organization extends Owner {
     private String description;
 
     @ManyToMany
-    private final transient List<Owner> members = new ArrayList<>();
+    private final transient List<Member> members = new ArrayList<>();
 
     protected Organization() { // jpa happy
         super();
@@ -59,7 +61,7 @@ public class Organization extends Owner {
         return owner;
     }
 
-    public List<Owner> getMembers() {
+    public List<Member> getMembers() {
         return Collections.unmodifiableList(members);
     }
 
@@ -79,7 +81,7 @@ public class Organization extends Owner {
         this.description = description;
     }
 
-    public void addMember(Owner member) {
+    public void addMember(Member member) {
         if (members.contains(member)) {
             return;
         }
@@ -87,7 +89,7 @@ public class Organization extends Owner {
         members.add(member);
     }
 
-    public void removeMember(Owner member) {
+    public void removeMember(Member member) {
         if (!members.contains(member)) {
             return;
         }

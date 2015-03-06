@@ -17,12 +17,18 @@
 package org.hawkular.accounts.api;
 
 import org.hawkular.accounts.api.model.HawkularUser;
+import org.hawkular.accounts.api.model.Member;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.Owner;
 import org.hawkular.accounts.api.model.Resource;
 import org.keycloak.KeycloakPrincipal;
 
 /**
+ * Central part of the API, allowing a component to perform permission checking of users against resources.
+ *
+ * Implementations of this interface should conform with CDI rules and be injectable into managed beans. For
+ * consumers, it means that a concrete implementation of this interface can be injected via {@link javax.inject.Inject}
+ *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 public interface PermissionChecker {
@@ -48,26 +54,6 @@ public interface PermissionChecker {
     boolean hasAccessTo(KeycloakPrincipal principal, Resource resource);
 
     /**
-     * Determines whether the current {@link HawkularUser} has access to the resource owned by {@link Owner}
-     *
-     * @param currentUser the user to be checked
-     * @param owner       the owner of the resource
-     * @return true if the user is the owner or if the user belongs to an organization that owns the resource
-     */
-    boolean hasAccessTo(HawkularUser currentUser, Owner owner);
-
-    /**
-     * Determines whether the current {@link KeycloakPrincipal} has access to the resources owned by {@link Owner}.
-     *
-     * @param principal the {@link KeycloakPrincipal} representing the current user
-     * @param owner     the owner of the resource
-     * @return true if the user is the owner or if the user belongs to an organization that owns the resource
-     * @see PermissionChecker#hasAccessTo(org.hawkular.accounts.api.model.HawkularUser,
-     * org.hawkular.accounts.api.model.Owner)
-     */
-    boolean hasAccessTo(KeycloakPrincipal principal, Owner owner);
-
-    /**
      * Recursively checks whether an user is a member or owner of an organization. Examples:
      * <p/>
      * <ul>
@@ -81,28 +67,16 @@ public interface PermissionChecker {
      * @param organization the organization that might contain the user
      * @return true if the user belongs to the organization recursively
      */
-    boolean isMemberOf(Owner member, Organization organization);
-
-    /**
-     * Recursively checks if the specified owner is a direct or indirect owner of the given organization. For instance,
-     * if jdoe is the owner of acme, and acme owns emca, then jdoe owns emca indirectly.
-     *
-     * @param tentativeOwner  the {@link Owner} to check. In our example above, it would be jdoe or acme. This would
-     *                        usually also be the current user.
-     * @param actualOwner     the actual {@link Owner} to verify ownership of. In our example above, it would be emca.
-     *                        This would usually be the owner of a {@link Resource}, for instance.
-     * @return whether or not the specified owner is directly or indirectly the owner of the given organization.
-     */
-    boolean isOwnerOf(Owner tentativeOwner, Owner actualOwner);
+    boolean isMemberOf(Member member, Organization organization);
 
     /**
      * Recursively checks if the specified owner is a direct or indirect owner of the given organization. For instance,
      * if jdoe is the owner of acme, and acme owns metric1, then jdoe owns metric1 indirectly.
      *
-     * @param ownerId      the {@link Owner} to check. In our example above, it would be the ID of the owner of
+     * @param owner        the {@link Owner} to check. In our example above, it would be the ID of the owner of
      *                     'metric1'
      * @return whether or not the specified owner is directly or indirectly the owner of the given organization.
      */
-    boolean isOwnerOf(String ownerId);
+    boolean isOwnerOf(Owner owner, Organization organization);
 
 }

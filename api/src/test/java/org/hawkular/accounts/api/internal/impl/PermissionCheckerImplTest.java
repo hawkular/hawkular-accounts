@@ -33,13 +33,6 @@ import static org.junit.Assert.assertTrue;
  */
 public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
     @Test
-    public void userHasAccessToItself() {
-        HawkularUser jsmith = new HawkularUser(UUID.randomUUID().toString());
-        PermissionChecker checker = new PermissionCheckerImpl();
-        assertTrue("User has access no access to another user's resource", checker.hasAccessTo(jsmith, jsmith));
-    }
-
-    @Test
     public void userDontHaveAccessToAnotherUsersResource() {
         HawkularUser jsmith = new HawkularUser(UUID.randomUUID().toString());
         HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
@@ -54,7 +47,7 @@ public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
         HawkularUser user = new HawkularUser(UUID.randomUUID().toString());
         Organization organization = new Organization(UUID.randomUUID().toString(), user);
         PermissionChecker checker = new PermissionCheckerImpl();
-        assertTrue("Owner of an organization should be a member of it", checker.hasAccessTo(user, organization));
+        assertTrue("Owner of an organization should be a member of it", checker.isMemberOf(user, organization));
     }
 
     @Test
@@ -84,7 +77,7 @@ public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
         Organization emca = new Organization(UUID.randomUUID().toString(), acme);
 
         PermissionChecker checker = new PermissionCheckerImpl();
-        assertTrue("Owner of parent organization should be a member of it", checker.hasAccessTo(jdoe, emca));
+        assertTrue("Owner of parent organization should be a member of it", checker.isMemberOf(jdoe, emca));
     }
 
     @Test
@@ -103,29 +96,6 @@ public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
         PermissionChecker checker = new PermissionCheckerImpl();
         assertTrue("Siblings are not a member of each other", !checker.isMemberOf(marketing, finance));
         assertTrue("Siblings are not a member of each other", !checker.isMemberOf(finance, marketing));
-    }
-
-    @Test
-    public void memberOfInnerOrganizationHasAccessToParent() {
-        // case here:
-        // jdoe is the owner of acme and owner of marketing
-        // marketing is a member of acme
-        // jsmith is a member of marketing
-        // jsmith can access marketing and acme (should this be changed?)
-
-        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
-        HawkularUser jsmith = new HawkularUser(UUID.randomUUID().toString());
-
-        Organization acme = new Organization(UUID.randomUUID().toString(), jdoe);
-        Organization marketing = new Organization(UUID.randomUUID().toString(), jdoe);
-
-        acme.addMember(marketing);
-        marketing.addMember(jsmith);
-
-        PermissionChecker checker = new PermissionCheckerImpl();
-        assertTrue("Member should have access to organization", checker.hasAccessTo(jsmith, marketing));
-        assertTrue("Member of child organization should have access to parent organization",
-                checker.hasAccessTo(jsmith, acme));
     }
 
     @Test

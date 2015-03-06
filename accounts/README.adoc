@@ -1,0 +1,48 @@
+= Hawkular Accounts - Backend
+
+This is the backend module for the Hawkular Accounts. This includes the REST endpoints that provides the
+authorization framework. Note that authentication is handled by Keycloak and should be configured directly on Wildfly.
+
+This is a standalone module and can be deployed directly on Wildfly or be distributed as part of the
+link:https://github.com/hawkular/hawkular/tree/master/kettle[Kettle] build.
+
+== About the backend
+
+This backend is a simple Java EE application that provides REST endpoints for managing organizations. This will be
+expanded to include more REST endpoints, possibly including a REST interface for the authorization framework itself.
+Currently, however, this is intended to be used only by registered users of Hawkular to manage organizations. The UI
+for this is located at link:https://github.com/hawkular/hawkular-ui-components[hawkular-ui-components].
+
+== Setup
+
+To build this module, simply run:
+[source,bash]
+----
+$ mvn clean install
+----
+
+The resulting WAR file can be deployed into a properly configured Wildfly instance with Keycloak.
+
+== License
+
+Hawkular Accounts is released under Apache License, Version 2.0 as described in the link:LICENSE[LICENSE] document
+
+----
+   Copyright 2015 Red Hat, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+----
+
+
+
+

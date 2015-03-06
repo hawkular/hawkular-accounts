@@ -21,6 +21,12 @@ import org.hawkular.accounts.api.model.Resource;
 import org.keycloak.KeycloakPrincipal;
 
 /**
+ * Manages {@link org.hawkular.accounts.api.model.Resource}. A Resource can be anything that is meant to be protected
+ * by the consumer modules. For instance, a Resource could be an Alert, an Inventory item or a Metric.
+ *
+ * Implementations of this interface should conform with CDI rules and be injectable into managed beans. For
+ * consumers, it means that a concrete implementation of this interface can be injected via {@link javax.inject.Inject}
+ *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
 public interface ResourceService {
