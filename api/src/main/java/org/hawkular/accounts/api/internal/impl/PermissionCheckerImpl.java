@@ -32,8 +32,8 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 /**
- * Main implementation of the {@link org.hawkular.accounts.api.PermissionChecker}. Consumers should get an instance of this
- * via CDI. This class should not be directly instantiated by the consumers.
+ * Main implementation of the {@link org.hawkular.accounts.api.PermissionChecker}. Consumers should get an instance of
+ * this via CDI. This class should not be directly instantiated by the consumers.
  *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
