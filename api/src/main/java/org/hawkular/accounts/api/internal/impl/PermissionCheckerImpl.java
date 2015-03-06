@@ -51,6 +51,11 @@ public class PermissionCheckerImpl implements PermissionChecker {
     OwnerService ownerService;
 
     @Override
+    public boolean hasAccessTo(Resource resource) {
+        return hasAccessTo(userService.getCurrent(), resource.getOwner());
+    }
+
+    @Override
     public boolean hasAccessTo(HawkularUser currentUser, Resource resource) {
         return hasAccessTo(currentUser, resource.getOwner());
     }

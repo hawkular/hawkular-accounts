@@ -26,6 +26,88 @@ development/testing.
 
 The hawt.io UI for Hawkular Accounts is located in the hawkular-ui-components project.
 
+== Basic usage
+
+First, add the API as a dependency:
+[source,xml]
+----
+<dependency>
+  <groupId>org.hawkular.accounts</groupId>
+  <artifactId>hawkular-accounts-api</artifactId>
+  <version>${project.version}</version>
+</dependency>
+----
+
+With that, you can now inject the permission checker and other parts of the API directly into your EJBs and other
+managed beans.
+
+Hawkular Accounts has the following concepts:
+
+* Resource: is something that you want to protect. Might be an Alert, an Inventory item, a Metric, ...
+* User: a real user of the application.
+* Organization: a non-user which has an owner and a set of members.
+* Owner: owns a Resource, and can be (currently) either a Hawkular User or an Organization.
+* Member: an user or organization that can be part of an Organization.
+
+To retrieve the current user:
+[source,java]
+----
+@Stateless
+class FooService {
+    @Inject
+    HawkularUser user;
+}
+----
+
+In order to check if an user has access to a given resource, a record of this resource should exist on Hawkular
+Accounts. For instance, if you need to protect a "Metric", you'll need to:
+
+* Create a resource with a unique key (possibly the same ID you have on your persistent storage), specifying the owner
+* Later on, check if the "current user" (or whichever user you'd want) has access to the resource, via
+PermissionChecker.
+
+Example:
+[source,java]
+----
+@Stateless
+class FooService {
+    @Inject
+    HawkularUser user;
+
+    @Inject
+    PermissionChecker permissionChecker;
+
+    public void createFoo() {
+        Foo foo = new Foo(id); // this is your business resource
+
+        // the ID can be anything that is unique. When omitted, a new UUID is created and you'll be responsible for
+        // storing it somewhere and informing it next time you need access to this resource. Also, we need to
+        // explicitly know who is the owner.
+        Resource resource = new Resource(id, user);
+
+        // your storage might be Cassandra, JPA-based storage, in memory map, ...
+        storage.persist(foo);
+    }
+
+    public Foo getFoo(String id) {
+        Foo foo = storage.getFoo(id); // this is your business resource
+
+        // when omitted, the user is assumed to be the current user on the permission checker
+        if (permissionChecker.hasAccessTo(id)) {
+            // return it to the user
+        } else {
+            // return a forbidden message
+        }
+    }
+}
+----
+
+
+
+Note that Hawkular Accounts depends on Keycloak to work, so, be sure to either run it on Kettle or configure a Keycloak
+instance appropriately.
+
+
 == Setup
 
 The API and backend can be build as a regular Maven project:

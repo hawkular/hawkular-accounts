@@ -34,7 +34,15 @@ import org.keycloak.KeycloakPrincipal;
 public interface PermissionChecker {
 
     /**
-     * Determines whether the current {@link HawkularUser} has access to the {@link Resource}
+     * Determines whether the currently logged in {@link HawkularUser} has access to the {@link Resource}
+     *
+     * @param resource    the resource to be checked
+     * @return true if the user is the owner or if the user belongs to an organization that owns the resource
+     */
+    boolean hasAccessTo(Resource resource);
+
+    /**
+     * Determines whether the {@link HawkularUser} has access to the {@link Resource}
      *
      * @param currentUser the user to be checked
      * @param resource    the resource to be checked
