@@ -23,9 +23,7 @@ import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.Organization_;
 import org.hawkular.accounts.backend.entity.rest.OrganizationRequest;
 
-import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
-import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -81,7 +79,8 @@ public class OrganizationService {
      * {@link org.hawkular.accounts.backend.entity.rest.OrganizationRequest}.
      *
      * @param request the incoming request as {@link org.hawkular.accounts.backend.entity.rest.OrganizationRequest}
-     * @return a {@link javax.ws.rs.core.Response} whose entity is an {@link org.hawkular.accounts.api.model.Organization}
+     * @return a {@link javax.ws.rs.core.Response} whose entity is an
+     * {@link org.hawkular.accounts.api.model.Organization}
      */
     @POST
     @Path("/")
