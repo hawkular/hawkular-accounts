@@ -135,4 +135,23 @@ public class PermissionCheckerImpl implements PermissionChecker {
 
         return organizationOwner.equals(tentativeOwner);
     }
+
+    @Override
+    public boolean isOwnerOf(Owner tentativeOwner, Resource resource) {
+        Owner resourceOwner = resource.getOwner();
+        if (resourceOwner.equals(tentativeOwner)) {
+            return true;
+        }
+
+        if (resourceOwner instanceof Organization) {
+            return isOwnerOf(tentativeOwner, (Organization) resourceOwner);
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean isOwnerOf(Resource resource) {
+        return isOwnerOf(userService.getCurrent(), resource);
+    }
 }

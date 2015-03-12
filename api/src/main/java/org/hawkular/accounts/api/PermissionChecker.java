@@ -83,8 +83,31 @@ public interface PermissionChecker {
      *
      * @param owner        the {@link Owner} to check. In our example above, it would be the ID of the owner of
      *                     'metric1'
+     * @param organization the {@link org.hawkular.accounts.api.model.Organization} to check.
      * @return whether or not the specified owner is directly or indirectly the owner of the given organization.
      */
     boolean isOwnerOf(Owner owner, Organization organization);
+
+    /**
+     * Recursively checks if the specified owner is a direct or indirect owner of the given resource. For instance,
+     * if jdoe is the owner of acme, and acme owns metric1, then jdoe owns metric1 indirectly.
+     *
+     * @param owner        the {@link Owner} to check. In our example above, it would be the ID of the owner of
+     *                     'metric1'
+     * @param resource     the {@link org.hawkular.accounts.api.model.Resource} to check.
+     * @return whether or not the specified owner is directly or indirectly the owner of the given resource.
+     */
+    boolean isOwnerOf(Owner owner, Resource resource);
+
+    /**
+     * Recursively checks if the current user is a direct or indirect owner of the given organization. For instance,
+     * if jdoe is the owner of acme, and acme owns metric1, then jdoe owns metric1 indirectly.
+     *
+     * @param resource     the {@link org.hawkular.accounts.api.model.Resource} to check.
+     *
+     * @see PermissionChecker#isOwnerOf(Owner, Resource)
+     * @return whether or not the specified owner is directly or indirectly the owner of the given organization.
+     */
+    boolean isOwnerOf(Resource resource);
 
 }

@@ -172,7 +172,7 @@ public class SampleService {
     @Path("{sampleId}")
     public Response removeSample(@PathParam("sampleId") String sampleId) {
         Sample sample = em.find(Sample.class, sampleId);
-        if (permissionChecker.isOwnerOf(sample.getOwnerId())) {
+        if (permissionChecker.isOwnerOf(resourceService.getById(sampleId))) {
             em.remove(sample);
             return Response.ok().entity(sample).build();
         }
