@@ -101,7 +101,7 @@
   </distributionManagement>
 
   <properties>
-    <version.keycloak>1.1.0.Final</version.keycloak>
+    <version.keycloak>1.2.0.Beta1</version.keycloak>
     <failOnMissingWebXml>false</failOnMissingWebXml>
     <jboss.releases.repo.url>
       https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/
