@@ -64,10 +64,7 @@ public class Resource extends BaseEntity {
      * @throws IllegalStateException if the owner is null
      */
     public Resource(Owner owner) {
-        if (null == owner) {
-            throw new IllegalStateException("A resource should either have a valid parent or an owner.");
-        }
-        this.owner = owner;
+        setOwner(owner);
     }
 
     /**
@@ -76,9 +73,6 @@ public class Resource extends BaseEntity {
      * @throws IllegalStateException if the parent is null
      */
     public Resource(Resource parent) {
-        if (null == parent) {
-            throw new IllegalStateException("A resource should either have a valid parent or an owner.");
-        }
         setParent(parent);
     }
 
@@ -98,21 +92,29 @@ public class Resource extends BaseEntity {
 
     /**
      * Creates a new resource with the given id and owner.
-     * @param id        the id that this resource should have
+     * @param id        the id that this resource should have or null for a new UUID
+     * @param parent    the parent of this sub resource
+     * @throws IllegalStateException if the owner is null
+     */
+    public Resource(String id, Resource parent) {
+        super(id);
+        setParent(parent);
+    }
+
+    /**
+     * Creates a new resource with the given id and owner.
+     * @param id        the id that this resource should have or null for a new UUID
      * @param owner     the owner of this sub resource
      * @throws IllegalStateException if the owner is null
      */
     public Resource(String id, Owner owner) {
         super(id);
-        if (null == owner) {
-            throw new IllegalStateException("A resource should either have a valid parent or an owner.");
-        }
-        this.owner = owner;
+        setOwner(owner);
     }
 
     /**
      * Creates a new sub resource with the given id, owner and parent resource.
-     * @param id        the id that this resource should have
+     * @param id        the id that this resource should have or null for a new UUID
      * @param parent    the parent of this sub resource
      * @param owner     the owner of this sub resource
      * @throws IllegalStateException if both the parent and the owner are null

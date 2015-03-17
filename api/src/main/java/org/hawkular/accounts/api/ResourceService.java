@@ -18,7 +18,6 @@ package org.hawkular.accounts.api;
 
 import org.hawkular.accounts.api.model.Owner;
 import org.hawkular.accounts.api.model.Resource;
-import org.keycloak.KeycloakPrincipal;
 
 /**
  * Manages {@link org.hawkular.accounts.api.model.Resource}. A Resource can be anything that is meant to be protected
@@ -36,32 +35,41 @@ public interface ResourceService {
      * @param id the resource's ID
      * @return the existing {@link Resource} or null if the resource doesn't exists.
      */
-    Resource getById(String id);
+    Resource get(String id);
 
     /**
-     * Retrieves a {@link Resource} based on its ID or creates a new {@link Resource} if it doesn't exists.
+     * Creates a {@link Resource} based on its ID, owned by the specified {@link org.hawkular.accounts.api.model.Owner}
+     *
+     * @param id    the ID to be assigned to this resource or null for a new UUID
+     * @param owner a valid owner for this resource
+     * @return the newly created {@link Resource}
+     */
+    Resource create(String id, Owner owner);
+
+    /**
+     * Creates a new sub resource, based on a given ID and owning resource
+     *
+     * @param id    the ID to be assigned to this resource or null for a new UUID
+     * @param parent a valid resource to serve as the parent of this sub resource
+     * @return the newly created {@link Resource}
+     */
+    Resource create(String id, Resource parent);
+
+    /**
+     * Creates a new sub resource, based on a given ID, parent and owned by the specified
+     * {@link org.hawkular.accounts.api.model.Owner}
+     *
+     * @param id     the ID to be assigned to this resource or null for a new UUID
+     * @param parent the resource's parent or null if the owner is provided
+     * @param owner  the resource's owner or null if the parent is provided
+     * @return the newly created {@link Resource}
+     */
+    Resource create(String id, Resource parent, Owner owner);
+
+    /**
+     * Removes a {@link Resource} based on its ID.
      *
      * @param id    the resource's ID
-     * @param owner if the resource doesn't exists, a new one is created with the specified owner
-     * @return the existing {@link Resource} or a new one if it doesn't exists yet.
      */
-    Resource getOrCreate(String id, Owner owner);
-
-    /**
-     * Retrieves a {@link Resource} based on its ID or creates a new {@link Resource} if it doesn't exists.
-     *
-     * @param id    the resource's ID
-     * @return the existing {@link Resource} or a new one if it doesn't exists yet.
-     */
-    Resource getOrCreate(String id);
-
-    /**
-     * Retrieves a {@link Resource} based on its ID or creates a new {@link Resource} if it doesn't exists.
-     *
-     * @param id        the resource's ID
-     * @param principal if the resource doesn't exists, a new one is created with the specified principal
-     * @return the existing {@link Resource} or a new one if it doesn't exists yet.
-     * @see ResourceService#getOrCreate(String, org.hawkular.accounts.api.model.Owner)
-     */
-    Resource getOrCreate(String id, KeycloakPrincipal principal);
+    void delete(String id);
 }

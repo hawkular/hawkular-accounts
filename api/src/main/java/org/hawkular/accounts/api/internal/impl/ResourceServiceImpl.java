@@ -23,7 +23,6 @@ import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Owner;
 import org.hawkular.accounts.api.model.Resource;
 import org.hawkular.accounts.api.model.Resource_;
-import org.keycloak.KeycloakPrincipal;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
@@ -52,7 +51,8 @@ public class ResourceServiceImpl implements ResourceService {
     @Inject
     HawkularUser user;
 
-    public Resource getById(String id) {
+    @Override
+    public Resource get(String id) {
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<Resource> query = builder.createQuery(Resource.class);
         Root<Resource> root = query.from(Resource.class);
@@ -71,21 +71,28 @@ public class ResourceServiceImpl implements ResourceService {
         return null;
     }
 
-    public Resource getOrCreate(String id, Owner owner) {
-        Resource resource = getById(id);
-        if (null == resource) {
-            resource = new Resource(id, owner);
-            em.persist(resource);
-        }
+    @Override
+    public Resource create(String id, Owner owner) {
+        return create(id, null, owner);
+    }
 
+    @Override
+    public Resource create(String id, Resource parent) {
+        return create(id, parent, null);
+    }
+
+    @Override
+    public Resource create(String id, Resource parent, Owner owner) {
+        Resource resource = new Resource(id, owner, parent);
+        em.persist(resource);
         return resource;
     }
 
-    public Resource getOrCreate(String id) {
-        return getOrCreate(id, user);
-    }
-
-    public Resource getOrCreate(String id, KeycloakPrincipal principal) {
-        return getOrCreate(id, userService.getByPrincipal(principal));
+    @Override
+    public void delete(String id) {
+        Resource resource = get(id);
+        if (resource != null) {
+            em.remove(id);
+        }
     }
 }

@@ -42,7 +42,9 @@ public class BaseEntity implements Serializable {
     }
 
     public BaseEntity(String id) {
-        this.id = id;
+        if (null != id) {
+            this.id = id;
+        }
     }
 
     public String getId() {

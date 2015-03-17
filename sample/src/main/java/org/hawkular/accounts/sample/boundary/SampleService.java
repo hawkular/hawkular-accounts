@@ -56,79 +56,6 @@ public class SampleService {
     @Inject
     PermissionChecker permissionChecker;
 
-    /**
-     *
-     * user "A" subscribes to SaaS
-     * user "B" subscribes to SaaS
-     * user "C" subscribes to SaaS
-     *
-     * user "A" is part of the same company as "C"
-     * user "A" creates an organization called "Acme, Inc"
-     * user "A" adds user "C" to the "Acme, Inc"
-     *
-     * user "C" adds metric "CPU on machine torii.gva.....com", owned by "Acme, inc"
-     * both user "A" and user "C" can see this metric
-     *
-     *
-     * machine A (Resource): owner jdoe (Owner)
-     *  - cpu (sub resource): no owner information (jdoe is the effective owner)
-     *  --- cpu whatever sub metric
-     *  - memory (sub resource): no owner information (jdoe is the effective owner)
-     *  - application server (sub resource): owner "Operations", or someone with "operations" role
-     *  - application server 2 (sub resource): owner "jsmith"
-     *
-     * machine A (Resource): owner Acme, Inc (Owner) (acme == jdoe, jsmith)
-     *  - cpu (sub resource): no owner information (Acme is the effective owner)
-     *  --- cpu whatever sub metric
-     *  - memory (sub resource): owner jdoe
-     *  - application server (sub resource): owner "jsmith"
-     *
-     * machine is owned by IT
-     * - IT department has:
-     *  - database server admins
-     *      - see app server connection pool
-     *      - not allowed to modify AS
-     *  - app server admins
-     *      - has read access to DB
-     *      - not allowed to modify DB
-     *  - app deployed on app servers
-     *      - business metrics not viewable by "db admins" nor "app server admins"
-     *
-     *      --- Acme, Inc
-     *          - Operations
-     *              - DBA
-     *              - Sysops
-     *              - Product 1
-     *                  - Sysops
-     *                  - DBA
-     *              - Product 2
-     *                  - Sysops
-     *                  - DBA
-     *          - Business
-     *              - Sales
-     *              - Marketing
-     *              - ...
-     *      --- Insurance company from Munich, Inc
-     *          - Operations
-     *              - DBA
-     *              - Sysops
-     *              - Product 1
-     *                  - Sysops
-     *                  - DBA
-     *              - Product 2
-     *                  - Sysops
-     *                  - DBA
-     *          - Business
-     *              - Sales
-     *              - Marketing
-     *              - ...
-     *
-     * common roles
-     * - auditor
-     * - operations
-     * component-specific roles
-     */
-
     @Inject
     ResourceService resourceService;
 
@@ -147,21 +74,17 @@ public class SampleService {
     @Path("{sampleId}")
     public Response getSample(@PathParam("sampleId") String sampleId) {
         Sample sample = em.find(Sample.class, sampleId);
-        Resource resource = resourceService.getOrCreate(sampleId);
+        Resource resource = resourceService.get(sampleId);
         if (permissionChecker.hasAccessTo(currentUser, resource)) {
             return Response.ok().entity(sample).build();
         }
-
-        // there's an eternal discussion on whether an existing ID belonging to an user should return a
-        // "forbidden", with a non-existing ID returning "not found". I personally prefer a "not found",
-        // as the requested resource does not exist for *this* user.
         return Response.status(Response.Status.NOT_FOUND).build();
     }
 
     @POST
     public Response createSample(SampleRequest request) {
         Sample sample = new Sample(UUID.randomUUID().toString(), currentUser.getId());
-
+        resourceService.create(sample.getId(), currentUser);
         sample.setName(request.getName());
 
         em.persist(sample);
@@ -171,11 +94,7 @@ public class SampleService {
     @DELETE
     @Path("{sampleId}")
     public Response removeSample(@PathParam("sampleId") String sampleId) {
-        Sample sample = em.find(Sample.class, sampleId);
-        if (permissionChecker.isOwnerOf(resourceService.getById(sampleId))) {
-            em.remove(sample);
-            return Response.ok().entity(sample).build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        em.remove(em.find(Sample.class, sampleId));
+        return Response.noContent().build();
     }
 }
