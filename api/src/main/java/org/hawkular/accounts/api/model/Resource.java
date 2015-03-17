@@ -18,12 +18,22 @@ package org.hawkular.accounts.api.model;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Represents a resource that is meant to be protected. Each module is free to define their own rules for creating
  * Resources or defining its context. Examples of Resources could be: alerts, metrics, inventory items, ...
  *
- * Each resource is owner by an {@link org.hawkular.accounts.api.model.Owner}.
+ * Each resource is either owner by an {@link org.hawkular.accounts.api.model.Owner} or is a sub resource (ie: it has a
+ * parent Resource). At the end of the chain, there must be a valid owner.
+ *
+ * The parent of a Resource can be reset by first setting an owner and then setting the parent to null. Failure to
+ * set an owner before resetting the parent will lead to {@link java.lang.IllegalStateException}. Similarly,
+ * attempting to set the Owner to null without a valid parent first will lead to {@link java.lang
+ * .IllegalStateException}.
  *
  * @author Juraci Paixão Kröhling <juraci at kroehling.de>
  */
@@ -33,19 +43,125 @@ public class Resource extends BaseEntity {
     @ManyToOne
     private Owner owner;
 
+    /**
+     * Represents the parent resource for this resource.
+     */
+    @ManyToOne
+    private Resource parent = null;
+
+    /**
+     * Transient list of sub resources for this resource.
+     */
+    @OneToMany
+    private List<Resource> children = new ArrayList<>();
+
     protected Resource() { // JPA happy
     }
 
+    /**
+     * Creates a new resource with the given owner.
+     * @param owner     the owner of this sub resource
+     * @throws IllegalStateException if the owner is null
+     */
     public Resource(Owner owner) {
+        if (null == owner) {
+            throw new IllegalStateException("A resource should either have a valid parent or an owner.");
+        }
         this.owner = owner;
     }
 
+    /**
+     * Creates a new sub resource with a parent. Ownership of this resource might be delegated to the parent's owner.
+     * @param parent    the parent of this sub resource
+     * @throws IllegalStateException if the parent is null
+     */
+    public Resource(Resource parent) {
+        if (null == parent) {
+            throw new IllegalStateException("A resource should either have a valid parent or an owner.");
+        }
+        setParent(parent);
+    }
+
+    /**
+     * Creates a new sub resource with a parent and an owner, which may or may not be the same as the parent's.
+     * @param parent    the parent of this sub resource
+     * @param owner     the owner of this sub resource
+     * @throws IllegalStateException if both the parent and the owner are null
+     */
+    public Resource(Owner owner, Resource parent) {
+        if (null == owner && null == parent) {
+            throw new IllegalStateException("A resource should either have a valid parent or an owner.");
+        }
+        this.owner = owner;
+        this.parent = parent;
+    }
+
+    /**
+     * Creates a new resource with the given id and owner.
+     * @param id        the id that this resource should have
+     * @param owner     the owner of this sub resource
+     * @throws IllegalStateException if the owner is null
+     */
     public Resource(String id, Owner owner) {
         super(id);
+        if (null == owner) {
+            throw new IllegalStateException("A resource should either have a valid parent or an owner.");
+        }
         this.owner = owner;
+    }
+
+    /**
+     * Creates a new sub resource with the given id, owner and parent resource.
+     * @param id        the id that this resource should have
+     * @param parent    the parent of this sub resource
+     * @param owner     the owner of this sub resource
+     * @throws IllegalStateException if both the parent and the owner are null
+     */
+    public Resource(String id, Owner owner, Resource parent) {
+        super(id);
+        if (null == owner && null == parent) {
+            throw new IllegalStateException("A resource should either have a valid parent or an owner.");
+        }
+        this.owner = owner;
+        this.parent = parent;
     }
 
     public Owner getOwner() {
         return owner;
+    }
+
+    public Resource getParent() {
+        return parent;
+    }
+
+    public List<Resource> getSubResources() {
+        return Collections.unmodifiableList(this.children);
+    }
+
+    public void setParent(Resource parent) {
+        if (null == parent && null == this.owner) {
+            throw new IllegalStateException("A resource should either have a valid parent or an owner.");
+        }
+
+        if (this.parent != null) {
+            // we are changing parents
+            if (this.parent.children.contains(this)) {
+                // old parent has a reference to this, let's remove it (the list is transient, so, don't worry about
+                // persistence)
+                this.parent.children.remove(this);
+            }
+        }
+        this.parent = parent;
+
+        if (parent != null) {
+            this.parent.children.add(this);
+        }
+    }
+
+    public void setOwner(Owner owner) {
+        if (null == owner && null == this.parent) {
+            throw new IllegalStateException("A resource should either have a valid parent or an owner.");
+        }
+        this.owner = owner;
     }
 }

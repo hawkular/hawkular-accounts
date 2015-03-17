@@ -52,12 +52,12 @@ public class PermissionCheckerImpl implements PermissionChecker {
 
     @Override
     public boolean hasAccessTo(Resource resource) {
-        return hasAccessTo(userService.getCurrent(), resource.getOwner());
+        return hasAccessTo(userService.getCurrent(), getOwnerForResource(resource));
     }
 
     @Override
     public boolean hasAccessTo(HawkularUser currentUser, Resource resource) {
-        return hasAccessTo(currentUser, resource.getOwner());
+        return hasAccessTo(currentUser, getOwnerForResource(resource));
     }
 
     @Override
@@ -66,7 +66,7 @@ public class PermissionCheckerImpl implements PermissionChecker {
         // But in fact, the user *already* exists, just not in our database. So, on the first call of this method for
         // a new user, we create it on our side, using Keycloak's ID for this user.
         HawkularUser user = userService.getByPrincipal(principal);
-        return hasAccessTo(user, resource.getOwner());
+        return hasAccessTo(user, getOwnerForResource(resource));
     }
 
     private boolean hasAccessTo(HawkularUser currentUser, Owner owner) {
@@ -153,5 +153,13 @@ public class PermissionCheckerImpl implements PermissionChecker {
     @Override
     public boolean isOwnerOf(Resource resource) {
         return isOwnerOf(userService.getCurrent(), resource);
+    }
+
+    private Owner getOwnerForResource(Resource resource) {
+        if (resource.getOwner() != null) {
+            return resource.getOwner();
+        }
+
+        return getOwnerForResource(resource.getParent());
     }
 }

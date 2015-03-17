@@ -120,6 +120,49 @@ public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
     }
 
     @Test
+    public void resourceWithoutOwnerBelongsToParentsOwner() {
+        // case here:
+        // acme owns emca
+        // jdoe is the owner of acme
+        // emca is the owner of resource 'node1'
+        // 'memory1' is a sub resource of 'node1'
+        // therefore, jdoe has access to the 'memory1' resource
+
+        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
+        Organization acme = new Organization(UUID.randomUUID().toString(), jdoe);
+        Organization emca = new Organization(UUID.randomUUID().toString(), acme);
+
+        Resource node1 = new Resource(emca);
+        Resource memory1 = new Resource(node1);
+
+        PermissionChecker checker = new PermissionCheckerImpl();
+        assertTrue("Sub resource without an owner should be owned by the parent's owner", checker.hasAccessTo(jdoe,
+                memory1));
+    }
+
+    @Test
+    public void resourceWithOwnerBelongsToParentsOwner() {
+        // case here:
+        // acme owns emca
+        // jdoe is the owner of acme
+        // jsmith is *not* member of acme
+        // emca is the owner of resource 'node1'
+        // 'database1' is a sub resource of 'node1'
+        // therefore, jdoe has NO access to the 'database1' resource
+
+        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
+        HawkularUser jsmith = new HawkularUser(UUID.randomUUID().toString());
+        Organization acme = new Organization(UUID.randomUUID().toString(), jdoe);
+        Organization emca = new Organization(UUID.randomUUID().toString(), acme);
+
+        Resource node1 = new Resource(emca);
+        Resource database1 = new Resource(jsmith, node1);
+
+        PermissionChecker checker = new PermissionCheckerImpl();
+        assertTrue("Sub resource with an owner have independent rules", !checker.hasAccessTo(jdoe, database1));
+    }
+
+    @Test
     public void keycloakMemberToOrganizationHasAccessToResource() {
         // case here:
         // acme owns emca
