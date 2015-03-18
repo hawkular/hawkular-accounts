@@ -20,7 +20,6 @@ import org.hawkular.accounts.api.UserService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.HawkularUser_;
-import org.keycloak.KeycloakPrincipal;
 
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
@@ -38,7 +37,7 @@ import java.util.List;
  * Main implementation of the {@link org.hawkular.accounts.api.UserService}. Consumers should get an instance of this
  * via CDI. This class should not be directly instantiated by the consumers.
  *
- * @author Juraci Paixão Kröhling <juraci at kroehling.de>
+ * @author Juraci Paixão Kröhling
  */
 @Stateless
 @PermitAll
@@ -72,10 +71,6 @@ public class UserServiceImpl implements UserService {
         }
 
         return null;
-    }
-
-    public HawkularUser getByPrincipal(KeycloakPrincipal principal) {
-        return getOrCreateById(principal.getName());
     }
 
     public HawkularUser getOrCreateById(String id) {

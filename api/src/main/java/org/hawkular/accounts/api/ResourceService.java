@@ -16,17 +16,21 @@
  */
 package org.hawkular.accounts.api;
 
-import org.hawkular.accounts.api.model.Owner;
+import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
 
 /**
- * Manages {@link org.hawkular.accounts.api.model.Resource}. A Resource can be anything that is meant to be protected
- * by the consumer modules. For instance, a Resource could be an Alert, an Inventory item or a Metric.
+ * Manages {@link Resource}. A Resource can be anything that is meant to be protected by the consumer modules. For
+ * instance, a Resource could be an Alert, an Inventory item or a Metric. Can be injected via CDI into managed beans
+ * as follows:
+ * <p>
+ *     <pre>
+ *         &#64;Inject ResourceService resourceService;
+ *     </pre>
+ * </p>
+ * Concrete implementations do not hold any state, but it's advised to get an instance through CDI or as an EJB.
  *
- * Implementations of this interface should conform with CDI rules and be injectable into managed beans. For
- * consumers, it means that a concrete implementation of this interface can be injected via {@link javax.inject.Inject}
- *
- * @author Juraci Paixão Kröhling <juraci at kroehling.de>
+ * @author Juraci Paixão Kröhling
  */
 public interface ResourceService {
     /**
@@ -34,17 +38,19 @@ public interface ResourceService {
      *
      * @param id the resource's ID
      * @return the existing {@link Resource} or null if the resource doesn't exists.
+     * @throws IllegalArgumentException if the given ID is null
      */
     Resource get(String id);
 
     /**
-     * Creates a {@link Resource} based on its ID, owned by the specified {@link org.hawkular.accounts.api.model.Owner}
+     * Creates a {@link Resource} based on its ID, owned by the specified {@link Persona}
      *
      * @param id    the ID to be assigned to this resource or null for a new UUID
-     * @param owner a valid owner for this resource
+     * @param persona a valid owner for this resource
      * @return the newly created {@link Resource}
+     * @throws IllegalArgumentException if the persona is null
      */
-    Resource create(String id, Owner owner);
+    Resource create(String id, Persona persona);
 
     /**
      * Creates a new sub resource, based on a given ID and owning resource
@@ -52,24 +58,27 @@ public interface ResourceService {
      * @param id    the ID to be assigned to this resource or null for a new UUID
      * @param parent a valid resource to serve as the parent of this sub resource
      * @return the newly created {@link Resource}
+     * @throws IllegalArgumentException if the parent is null
      */
     Resource create(String id, Resource parent);
 
     /**
      * Creates a new sub resource, based on a given ID, parent and owned by the specified
-     * {@link org.hawkular.accounts.api.model.Owner}
+     * {@link org.hawkular.accounts.api.model.Persona}
      *
      * @param id     the ID to be assigned to this resource or null for a new UUID
      * @param parent the resource's parent or null if the owner is provided
-     * @param owner  the resource's owner or null if the parent is provided
+     * @param persona  the resource's owner or null if the parent is provided
      * @return the newly created {@link Resource}
+     * @throws IllegalArgumentException if both the parent and the owner are null
      */
-    Resource create(String id, Resource parent, Owner owner);
+    Resource create(String id, Resource parent, Persona persona);
 
     /**
      * Removes a {@link Resource} based on its ID.
      *
      * @param id    the resource's ID
+     * @throws IllegalArgumentException if the given ID is null
      */
     void delete(String id);
 }

@@ -17,175 +17,246 @@
 package org.hawkular.accounts.api.internal.impl;
 
 import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
-import org.hawkular.accounts.api.PermissionChecker;
 import org.hawkular.accounts.api.model.HawkularUser;
+import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Organization;
+import org.hawkular.accounts.api.model.OrganizationMembership;
+import org.hawkular.accounts.api.model.Permission;
+import org.hawkular.accounts.api.model.PersonaResourceRole;
 import org.hawkular.accounts.api.model.Resource;
+import org.hawkular.accounts.api.model.Role;
+import org.junit.Before;
 import org.junit.Test;
-import org.keycloak.KeycloakPrincipal;
 
 import java.util.UUID;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * @author Juraci Paixão Kröhling <juraci at kroehling.de>
+ * @author Juraci Paixão Kröhling
  */
 public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
+
+    PermissionCheckerImpl permissionChecker = new PermissionCheckerImpl();
+    PermissionServiceImpl permissionService = new PermissionServiceImpl();
+    PersonaServiceImpl personaService = new PersonaServiceImpl();
+    OrganizationMembershipServiceImpl membershipService = new OrganizationMembershipServiceImpl();
+    OrganizationServiceImpl organizationService = new OrganizationServiceImpl();
+
+    @Before
+    public void setup() {
+        permissionService.em = entityManager;
+
+        organizationService.em = entityManager;
+
+        membershipService.em = entityManager;
+
+        personaService.em = entityManager;
+        personaService.membershipService = membershipService;
+        personaService.organizationService = organizationService;
+
+        permissionChecker.permissionService = permissionService;
+        permissionChecker.personaService = personaService;
+    }
+
+    @Before
+    public void baseData() {
+        // basis system data
+        entityManager.getTransaction().begin();
+        entityManager.persist(metricsCreate);
+        entityManager.persist(metricsRead);
+        entityManager.persist(metricsUpdate);
+        entityManager.persist(metricsDelete);
+
+        entityManager.persist(monitor);
+        entityManager.persist(operator);
+        entityManager.persist(maintainer);
+        entityManager.persist(deployer);
+        entityManager.persist(administrator);
+        entityManager.persist(auditor);
+        entityManager.persist(superUser);
+
+        entityManager.persist(maintainerCreateMetric);
+        entityManager.persist(administratorCreateMetric);
+        entityManager.persist(superUserCreateMetric);
+        entityManager.persist(superUserOnlyOperation);
+
+        entityManager.persist(monitorReadMetric);
+        entityManager.persist(operatorReadMetric);
+        entityManager.persist(maintainerReadMetric);
+        entityManager.persist(deployerReadMetric);
+        entityManager.persist(administratorReadMetric);
+        entityManager.persist(auditorReadMetric);
+        entityManager.persist(superUserReadMetric);
+        entityManager.persist(superUserOnlyPermission);
+
+        entityManager.getTransaction().commit();
+    }
+
     @Test
-    public void userDontHaveAccessToAnotherUsersResource() {
+    public void userHasDirectPermissionsOnResource() {
+        entityManager.getTransaction().begin();
+        // user registers himself
+        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
+
+        // user creates a resource, he's the super user of this resource
+        Resource resource = new Resource(jdoe);
+        PersonaResourceRole personaResourceRole = new PersonaResourceRole(jdoe, superUser, resource);
+        entityManager.persist(jdoe);
+        entityManager.persist(resource);
+        entityManager.persist(personaResourceRole);
+        entityManager.getTransaction().commit();
+
+        permissionChecker.isAllowedTo(metricsCreate, resource, jdoe);
+    }
+
+    @Test
+    public void userBelongsToOrganizationThatHasPermissionsOnResource() {
+        entityManager.getTransaction().begin();
+        // user jdoe registers himself
+        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
+
+        // user jdoe creates an organization
+        Organization acme = new Organization(jdoe);
+
+        // user jsmith registers himself
         HawkularUser jsmith = new HawkularUser(UUID.randomUUID().toString());
-        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
-        Resource resource = new Resource(UUID.randomUUID().toString(), jsmith);
 
-        PermissionChecker checker = new PermissionCheckerImpl();
-        assertTrue("User has access no access to another user's resource", !checker.hasAccessTo(jdoe, resource));
+        // user jsmith is invited to be a "Administrator" at "Acme"
+        OrganizationMembership membership = new OrganizationMembership(acme, jsmith, superUser);
+
+        // jdoe creates a resource as acme, acme is has all rights on this resource, including Super User and
+        // Administrator
+        Resource resource = new Resource(acme);
+        PersonaResourceRole acmeSuperUserOnResource = new PersonaResourceRole(acme, superUser, resource);
+        PersonaResourceRole acmeAdministratorOnResource = new PersonaResourceRole(acme, administrator, resource);
+
+        entityManager.persist(jdoe);
+        entityManager.persist(acme);
+        entityManager.persist(jsmith);
+        entityManager.persist(membership);
+        entityManager.persist(resource);
+        entityManager.persist(acmeSuperUserOnResource);
+        entityManager.persist(acmeAdministratorOnResource);
+        entityManager.getTransaction().commit();
+
+        // user jsmith should be able to create metrics on the given resource, since he's an administrator on acme
+        assertTrue(permissionChecker.isAllowedTo(metricsCreate, resource, jsmith));
     }
 
     @Test
-    public void ownerBelongsToOrganization() {
-        HawkularUser user = new HawkularUser(UUID.randomUUID().toString());
-        Organization organization = new Organization(UUID.randomUUID().toString(), user);
-        PermissionChecker checker = new PermissionCheckerImpl();
-        assertTrue("Owner of an organization should be a member of it", checker.isMemberOf(user, organization));
+    public void resourceCreatedViaServiceHasOwnerWhoIsAlsoSuperUser() {
+        ResourceServiceImpl resourceService = new ResourceServiceImpl();
+        resourceService.em = entityManager;
+        resourceService.superUser = superUser;
+
+        entityManager.getTransaction().begin();
+        // user jdoe registers himself
+        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
+        entityManager.persist(jdoe);
+        entityManager.getTransaction().commit();
+
+        // jdoe creates a resource as acme, acme is has all rights on this resource, including Super User and
+        // Administrator
+        entityManager.getTransaction().begin();
+        String id = UUID.randomUUID().toString();
+        Resource resource = resourceService.create(id, jdoe);
+        entityManager.getTransaction().commit();
+
+        assertTrue("Owner is super user.", permissionChecker.isAllowedTo(superUserOnlyOperation, resource, jdoe));
     }
 
     @Test
-    public void organizationBelongsToOrganization() {
-        // case here:
-        // acme owns emca
-        // jdoe is the owner of acme
-        // therefore, acme is a member of emca
-
+    public void directlyCreatedResourceHasOwnerWithFullPermission() {
+        entityManager.getTransaction().begin();
+        // user jdoe registers himself
         HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
-        Organization acme = new Organization(UUID.randomUUID().toString(), jdoe);
-        Organization emca = new Organization(UUID.randomUUID().toString(), acme);
+        Resource resource = new Resource(jdoe);
+        entityManager.persist(jdoe);
+        entityManager.persist(resource);
+        entityManager.getTransaction().commit();
 
-        PermissionChecker checker = new PermissionCheckerImpl();
-        assertTrue("Organization owner of an organization should be a member of it", checker.isMemberOf(acme, emca));
+        Operation operation = new Operation("doesnt-matter");
+
+        assertTrue("Owner is always allowed.", permissionChecker.isAllowedTo(operation, resource, jdoe));
     }
 
     @Test
-    public void ownerBelongsToInnerOrganization() {
-        // case here:
-        // acme owns emca
-        // jdoe is the owner of acme
-        // therefore, jdoe is a member of emca
-
+    public void userBelongsToOrganizationThatHasPermissionsOnResourceButHasInsufficientRoles() {
+        entityManager.getTransaction().begin();
+        // user jdoe registers himself
         HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
-        Organization acme = new Organization(UUID.randomUUID().toString(), jdoe);
-        Organization emca = new Organization(UUID.randomUUID().toString(), acme);
 
-        PermissionChecker checker = new PermissionCheckerImpl();
-        assertTrue("Owner of parent organization should be a member of it", checker.isMemberOf(jdoe, emca));
-    }
+        // user jdoe creates an organization
+        Organization acme = new Organization(jdoe);
 
-    @Test
-    public void siblingsDontBelongToEachOther() {
-        // case here:
-        // acme owns marketing
-        // acme owns finance
-        // jdoe is the owner of acme
-        // finance DOES NOT BELONGS to marketing
-
-        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
-        Organization acme = new Organization(UUID.randomUUID().toString(), jdoe);
-        Organization finance = new Organization(UUID.randomUUID().toString(), acme);
-        Organization marketing = new Organization(UUID.randomUUID().toString(), acme);
-
-        PermissionChecker checker = new PermissionCheckerImpl();
-        assertTrue("Siblings are not a member of each other", !checker.isMemberOf(marketing, finance));
-        assertTrue("Siblings are not a member of each other", !checker.isMemberOf(finance, marketing));
-    }
-
-    @Test
-    public void memberToOrganizationHasAccessToResource() {
-        // case here:
-        // acme owns emca
-        // jdoe is the owner of acme
-        // jsmith is a member of acme
-        // emca is the owner of resource 'metric1'
-        // therefore, jsmith has access to the metric1 resource
-
-        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
+        // user jsmith registers himself
         HawkularUser jsmith = new HawkularUser(UUID.randomUUID().toString());
-        Organization acme = new Organization(UUID.randomUUID().toString(), jdoe);
-        Organization emca = new Organization(UUID.randomUUID().toString(), acme);
-        acme.addMember(jsmith);
 
-        Resource metric1 = new Resource(emca);
+        // user jsmith is invited to be a "Monitor" at "Acme"
+        OrganizationMembership membership = new OrganizationMembership(acme, jsmith, monitor);
 
-        PermissionChecker checker = new PermissionCheckerImpl();
-        assertTrue("Owner of parent organization should be a member of it", checker.hasAccessTo(jsmith, metric1));
+        // jdoe creates a resource as acme, acme is has all rights on this resource, including Super User and
+        // Administrator
+        Resource resource = new Resource(acme);
+        PersonaResourceRole acmeSuperUserOnResource = new PersonaResourceRole(acme, superUser, resource);
+        PersonaResourceRole acmeAdministratorOnResource = new PersonaResourceRole(acme, administrator, resource);
+        PersonaResourceRole acmeMonitorOnResource = new PersonaResourceRole(acme, monitor, resource);
+
+        entityManager.persist(jdoe);
+        entityManager.persist(acme);
+        entityManager.persist(jsmith);
+        entityManager.persist(membership);
+        entityManager.persist(resource);
+        entityManager.persist(acmeSuperUserOnResource);
+        entityManager.persist(acmeAdministratorOnResource);
+        entityManager.persist(acmeMonitorOnResource);
+        entityManager.getTransaction().commit();
+
+        // user jsmith should be able to create metrics on the given resource, since he's an administrator on acme
+        assertFalse(permissionChecker.isAllowedTo(metricsCreate, resource, jsmith));
     }
 
-    @Test
-    public void resourceWithoutOwnerBelongsToParentsOwner() {
-        // case here:
-        // acme owns emca
-        // jdoe is the owner of acme
-        // emca is the owner of resource 'node1'
-        // 'memory1' is a sub resource of 'node1'
-        // therefore, jdoe has access to the 'memory1' resource
+    Operation metricsCreate = new Operation("metric-create");
+    Operation metricsRead = new Operation("metric-read");
+    Operation metricsUpdate = new Operation("metric-update");
+    Operation metricsDelete = new Operation("metric-delete");
+    Operation superUserOnlyOperation = new Operation("superUserOnlyOperation");
 
-        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
-        Organization acme = new Organization(UUID.randomUUID().toString(), jdoe);
-        Organization emca = new Organization(UUID.randomUUID().toString(), acme);
+    Role monitor = new Role("Monitor", "Has the fewest permissions. Only read configuration and current runtime " +
+            "state, No access to sensitive resources or data or audit logging resources");
 
-        Resource node1 = new Resource(emca);
-        Resource memory1 = new Resource(node1);
+    Role operator = new Role("Operator", "All permissions of Monitor. Can modify the runtime state, e.g. reload " +
+            "or shutdown the server, pause/resume JMS destination, flush database connection pool. Does not have " +
+            "permission to modify persistent state.");
 
-        PermissionChecker checker = new PermissionCheckerImpl();
-        assertTrue("Sub resource without an owner should be owned by the parent's owner", checker.hasAccessTo(jdoe,
-                memory1));
-    }
+    Role maintainer = new Role("Maintainer", "All permissions of Operator. Can modify the persistent state, e.g. " +
+            "deploy an application, setting up new data sources, add a JMS destination");
 
-    @Test
-    public void resourceWithOwnerBelongsToParentsOwner() {
-        // case here:
-        // acme owns emca
-        // jdoe is the owner of acme
-        // jsmith is *not* member of acme
-        // emca is the owner of resource 'node1'
-        // 'database1' is a sub resource of 'node1'
-        // therefore, jdoe has NO access to the 'database1' resource
+    Role deployer = new Role("Deployer", "All permissions of Maintainer. Permission is restricted to applications" +
+            " only, cannot make changes to container configuration");
 
-        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
-        HawkularUser jsmith = new HawkularUser(UUID.randomUUID().toString());
-        Organization acme = new Organization(UUID.randomUUID().toString(), jdoe);
-        Organization emca = new Organization(UUID.randomUUID().toString(), acme);
+    Role administrator = new Role("Administrator", "All permissions of Maintainer. View and modify sensitive data" +
+            " such as access control system.  No access to administrative audit logging system.");
 
-        Resource node1 = new Resource(emca);
-        Resource database1 = new Resource(jsmith, node1);
+    Role auditor = new Role("Auditor", "All permissions of Monitor. View and modify resources to administrative " +
+            "audit logging system. Cannot modify sensitive resources or data outside auditing, can read any " +
+            "sensitive data");
 
-        PermissionChecker checker = new PermissionCheckerImpl();
-        assertTrue("Sub resource with an owner have independent rules", !checker.hasAccessTo(jdoe, database1));
-    }
+    Role superUser = new Role("Super User", "Has all the permissions. Equivalent to administrator in previous " +
+            "versions.");
 
-    @Test
-    public void keycloakMemberToOrganizationHasAccessToResource() {
-        // case here:
-        // acme owns emca
-        // jdoe is the owner of acme
-        // jsmith is a member of acme (represented by a keycloak principal)
-        // emca is the owner of resource 'metric1'
-        // therefore, jsmith has access to the metric1 resource
+    Permission maintainerCreateMetric = new Permission(metricsCreate, maintainer);
+    Permission administratorCreateMetric = new Permission(metricsCreate, administrator);
+    Permission superUserCreateMetric = new Permission(metricsCreate, superUser);
+    Permission superUserOnlyPermission = new Permission(superUserOnlyOperation, superUser);
 
-        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
-        HawkularUser jsmith = new HawkularUser(UUID.randomUUID().toString());
-        KeycloakPrincipal jsmithPrincipal = new KeycloakPrincipal(jsmith.getId(), null);
-        Organization acme = new Organization(UUID.randomUUID().toString(), jdoe);
-        Organization emca = new Organization(UUID.randomUUID().toString(), acme);
-        acme.addMember(jsmith);
-
-        Resource metric1 = new Resource(emca);
-
-        PermissionCheckerImpl checker = new PermissionCheckerImpl();
-        UserServiceImpl userService = new UserServiceImpl();
-        userService.em = entityManager;
-        checker.userService = userService;
-        boolean hasAccess = checker.hasAccessTo(jsmithPrincipal, metric1);
-        assertTrue("Owner of parent organization should be a member of it", hasAccess);
-    }
-
+    Permission monitorReadMetric = new Permission(metricsCreate, superUser);
+    Permission operatorReadMetric = new Permission(metricsCreate, superUser);
+    Permission maintainerReadMetric = new Permission(metricsCreate, superUser);
+    Permission deployerReadMetric = new Permission(metricsCreate, superUser);
+    Permission administratorReadMetric = new Permission(metricsCreate, superUser);
+    Permission auditorReadMetric = new Permission(metricsCreate, superUser);
+    Permission superUserReadMetric = new Permission(metricsCreate, superUser);
 }

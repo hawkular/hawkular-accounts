@@ -17,8 +17,11 @@
 package org.hawkular.accounts.backend.boundary;
 
 import org.hawkular.accounts.api.PermissionChecker;
+import org.hawkular.accounts.api.ResourceService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.internal.adapter.NamedOperation;
 import org.hawkular.accounts.api.model.HawkularUser;
+import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.Organization_;
 import org.hawkular.accounts.backend.entity.rest.OrganizationRequest;
@@ -41,12 +44,12 @@ import javax.ws.rs.core.Response;
 /**
  * REST service responsible for managing {@link org.hawkular.accounts.api.model.Organization}.
  *
- * @author jpkroehling
+ * @author Juraci Paixão Kröhling
  */
 @Path("/organizations")
 @PermitAll
 @Stateless
-public class OrganizationService {
+public class OrganizationEndpoint {
     @Inject @HawkularAccounts
     EntityManager em;
 
@@ -55,6 +58,25 @@ public class OrganizationService {
 
     @Inject
     PermissionChecker permissionChecker;
+
+    @Inject
+    @NamedOperation("organization-create")
+    Operation operationCreate;
+
+    @Inject
+    @NamedOperation("organization-read")
+    Operation operationRead;
+
+    @Inject
+    @NamedOperation("organization-update")
+    Operation operationUpdate;
+
+    @Inject
+    @NamedOperation("organization-delete")
+    Operation operationDelete;
+
+    @Inject
+    ResourceService resourceService;
 
     /**
      * Retrieves all organizations to which this {@link org.hawkular.accounts.api.model.HawkularUser} has access to.
@@ -86,6 +108,7 @@ public class OrganizationService {
     @Path("/")
     public Response createOrganization(@NotNull OrganizationRequest request) {
         Organization organization = new Organization(user);
+        resourceService.create(organization.getId(), user);
 
         organization.setName(request.getName());
         organization.setDescription(request.getDescription());
@@ -105,8 +128,7 @@ public class OrganizationService {
     @Path("/{id}")
     public Response deleteOrganization(@NotNull @PathParam("id") String id) {
         Organization organization = em.find(Organization.class, id);
-
-        if (permissionChecker.isOwnerOf(user, organization)) {
+        if (permissionChecker.isAllowedTo(operationDelete, id, user)) {
             em.remove(organization);
             return Response.ok().build();
         }

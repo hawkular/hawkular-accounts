@@ -18,6 +18,6 @@
  * Contains the components that interacts with external interfaces, such as REST endpoints. All requests are expected
  * to have been already authenticated by a service via the container.
  *
- * @author jpkroehling
+ * @author Juraci Paixão Kröhling
  */
 package org.hawkular.accounts.backend.boundary;

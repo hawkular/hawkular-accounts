@@ -25,7 +25,7 @@ import javax.persistence.PersistenceContext;
 /**
  * Provides CDI producers for resources required by the API.
  *
- * @author Juraci Paixão Kröhling <juraci at kroehling.de>
+ * @author Juraci Paixão Kröhling
  */
 @ApplicationScoped
 public class ApplicationResources {

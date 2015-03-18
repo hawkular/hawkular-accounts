@@ -17,22 +17,41 @@
 package org.hawkular.accounts.api.model;
 
 import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
+import javax.persistence.ManyToOne;
 
 /**
- * Represents an model that might own resources. Concrete implementations could be Organization or User. An owner can
- * always be a member.
+ * Represents the permissions for a given resource. For instance, a resource "node1" might allow the operation
+ * "metric-create" for role "Super User".
  *
- * @author Juraci Paixão Kröhling <juraci at kroehling.de>
+ * @author Juraci Paixão Kröhling
  */
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-public class Owner extends Member {
-    protected Owner() { // JPA happy
+public class Permission extends BaseEntity {
+    @ManyToOne
+    private Operation operation;
+
+    @ManyToOne
+    private Role role;
+
+    protected Permission() { // JPA happy
     }
 
-    public Owner(String id) {
+    public Permission(Operation operation, Role role) {
+        this.operation = operation;
+        this.role = role;
+    }
+
+    public Permission(String id, Operation operation, Role role) {
         super(id);
+        this.operation = operation;
+        this.role = role;
+    }
+
+    public Operation getOperation() {
+        return operation;
+    }
+
+    public Role getRole() {
+        return role;
     }
 }

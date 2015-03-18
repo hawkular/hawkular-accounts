@@ -18,6 +18,6 @@
  * Contains the controller components. Those components are responsible for the main business logic of the
  * application or for taking care of orthogonal concerns.
  *
- * @author jpkroehling
+ * @author Juraci Paixão Kröhling
  */
 package org.hawkular.accounts.backend.control;

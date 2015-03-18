@@ -18,6 +18,6 @@
  * Contains REST request/response beans. Serves also as the main specification for what we expect as input and what
  * we return as output.
  *
- * @author jpkroehling
+ * @author Juraci Paixão Kröhling
  */
 package org.hawkular.accounts.backend.entity.rest;

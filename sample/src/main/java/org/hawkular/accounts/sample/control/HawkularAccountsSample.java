@@ -27,7 +27,7 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * @author jpkroehling
+ * @author Juraci Paixão Kröhling
  */
 @Qualifier
 @Retention(RUNTIME)

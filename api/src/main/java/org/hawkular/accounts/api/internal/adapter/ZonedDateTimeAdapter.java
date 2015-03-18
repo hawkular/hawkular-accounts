@@ -23,7 +23,9 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 /**
- * @author Juraci Paixão Kröhling <juraci at kroehling.de>
+ * JPA adapter for converting {@link ZonedDateTime} into {@link Timestamp}.
+ *
+ * @author Juraci Paixão Kröhling
  */
 @Converter(autoApply = true)
 public class ZonedDateTimeAdapter implements AttributeConverter<ZonedDateTime, Timestamp> {

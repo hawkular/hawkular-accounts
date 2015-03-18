@@ -19,6 +19,6 @@
  * other classes that are not meant to be consumed by external parties. Consumers of the API should not rely on the
  * contents of this package, as classes, methods and behavior can be changed without deprecation notices.
  *
- * @author jpkroehling
+ * @author Juraci Paixão Kröhling
  */
 package org.hawkular.accounts.api.internal;

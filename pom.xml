@@ -103,6 +103,7 @@
 
   <properties>
     <version.keycloak>1.2.0.Beta1</version.keycloak>
+    <version.wildfly>8.2.0.Final</version.wildfly>
     <failOnMissingWebXml>false</failOnMissingWebXml>
     <jboss.releases.repo.url>
       https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/
@@ -117,7 +118,15 @@
       <dependency>
         <groupId>org.wildfly.bom</groupId>
         <artifactId>jboss-javaee-7.0-with-all</artifactId>
-        <version>8.2.0.Final</version>
+        <version>${version.wildfly}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.wildfly</groupId>
+        <artifactId>wildfly-spec-api</artifactId>
+        <version>${version.wildfly}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

@@ -27,9 +27,14 @@ http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
     <class>org.hawkular.accounts.api.model.BaseEntity</class>
     <class>org.hawkular.accounts.api.model.HawkularUser</class>
     <class>org.hawkular.accounts.api.model.Member</class>
+    <class>org.hawkular.accounts.api.model.Operation</class>
     <class>org.hawkular.accounts.api.model.Organization</class>
-    <class>org.hawkular.accounts.api.model.Owner</class>
+    <class>org.hawkular.accounts.api.model.OrganizationMembership</class>
+    <class>org.hawkular.accounts.api.model.Permission</class>
+    <class>org.hawkular.accounts.api.model.Persona</class>
+    <class>org.hawkular.accounts.api.model.PersonaResourceRole</class>
     <class>org.hawkular.accounts.api.model.Resource</class>
+    <class>org.hawkular.accounts.api.model.Role</class>
     <properties>
       <property name="hibernate.hbm2ddl.auto" value="update"/>
     </properties>

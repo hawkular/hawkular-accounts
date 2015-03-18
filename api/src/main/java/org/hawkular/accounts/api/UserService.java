@@ -17,21 +17,26 @@
 package org.hawkular.accounts.api;
 
 import org.hawkular.accounts.api.model.HawkularUser;
-import org.keycloak.KeycloakPrincipal;
 
 /**
- * Provides an interface for querying and managing Hawkular users.
+ * Provides an interface for querying and managing Hawkular users. Can be injected via CDI into managed beans as
+ * follows:
+ * <p>
+ *     <pre>
+ *         &#64;Inject UserService userService;
+ *     </pre>
+ * </p>
+ * Concrete implementations do not hold any state, but it's advised to get an instance through CDI or as an EJB.
  *
- * Implementations of this interface should conform with CDI rules and be injectable into managed beans. For
- * consumers, it means that a concrete implementation of this interface can be injected via {@link javax.inject.Inject}
- *
- * @author Juraci Paixão Kröhling <juraci at kroehling.de>
+ * @author Juraci Paixão Kröhling
  */
 public interface UserService {
     /**
-     * Retrieves the current user for the request.
+     * Retrieves the current user for the request. Before using this, make sure you don't mean to get the current
+     * {@link org.hawkular.accounts.api.model.Persona}, which will be the correct choice most of the times.
      *
      * @return the current user
+     * @see PersonaService#getCurrent()
      */
     HawkularUser getCurrent();
 
@@ -42,14 +47,6 @@ public interface UserService {
      * @return the existing user with the given ID or null if the user is not found.
      */
     HawkularUser getById(String id);
-
-    /**
-     * Retrieves an {@link HawkularUser} based on the {@link KeycloakPrincipal}.
-     *
-     * @param principal the {@link KeycloakPrincipal}
-     * @return an {@link HawkularUser} instance representing the user for the {@link KeycloakPrincipal}.It's never null.
-     */
-    HawkularUser getByPrincipal(KeycloakPrincipal principal);
 
     /**
      * Retrieves an {@link HawkularUser} based on its ID. If no user is found, a new one is created and returned.

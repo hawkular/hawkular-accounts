@@ -22,7 +22,7 @@ import javax.ws.rs.core.Application;
 /**
  * Integration point with JAX-RS. Specifies that we have a JAX-RS application, on the namespace "/".
  *
- * @author Juraci Paixão Kröhling <juraci at kroehling.de>
+ * @author Juraci Paixão Kröhling
  */
 @ApplicationPath("/")
 public class JaxRsActivator extends Application {

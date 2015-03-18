@@ -16,10 +16,11 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
-import org.hawkular.accounts.api.OwnerService;
+import org.hawkular.accounts.api.OrganizationMembershipService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
-import org.hawkular.accounts.api.model.Owner;
-import org.hawkular.accounts.api.model.Owner_;
+import org.hawkular.accounts.api.model.OrganizationMembership;
+import org.hawkular.accounts.api.model.OrganizationMembership_;
+import org.hawkular.accounts.api.model.Persona;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
@@ -31,35 +32,23 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 
 /**
- * Main implementation of the {@link org.hawkular.accounts.api.OwnerService}. Consumers should get an instance of this
- * via CDI. This class should not be directly instantiated by the consumers.
- *
- * @author jpkroehling
+ * @author Juraci Paixão Kröhling
  */
 @Stateless
 @PermitAll
-public class OwnerServiceImpl implements OwnerService {
-
+public class OrganizationMembershipServiceImpl implements OrganizationMembershipService {
     @Inject
     @HawkularAccounts
     EntityManager em;
 
-    public Owner getById(String id) {
+    @Override
+    public List<OrganizationMembership> getMembershipsForPersona(Persona persona) {
         CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<Owner> query = builder.createQuery(Owner.class);
-        Root<Owner> root = query.from(Owner.class);
+        CriteriaQuery<OrganizationMembership> query = builder.createQuery(OrganizationMembership.class);
+        Root<OrganizationMembership> root = query.from(OrganizationMembership.class);
         query.select(root);
-        query.where(builder.equal(root.get(Owner_.id), id));
+        query.where(builder.equal(root.get(OrganizationMembership_.member), persona));
 
-        List<Owner> results = em.createQuery(query).getResultList();
-        if (results.size() == 1) {
-            return results.get(0);
-        }
-
-        if (results.size() > 1) {
-            throw new IllegalStateException("More than one owner found for ID " + id);
-        }
-
-        return null;
+        return em.createQuery(query).getResultList();
     }
 }

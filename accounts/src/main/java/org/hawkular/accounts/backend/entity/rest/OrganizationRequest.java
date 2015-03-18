@@ -17,9 +17,9 @@
 package org.hawkular.accounts.backend.entity.rest;
 
 /**
- * Represents an incoming request to the {@link org.hawkular.accounts.backend.boundary.OrganizationService}.
+ * Represents an incoming request to the {@link org.hawkular.accounts.backend.boundary.OrganizationEndpoint}.
  *
- * @author jpkroehling
+ * @author Juraci Paixão Kröhling
  */
 public class OrganizationRequest {
     private String name;

@@ -14,26 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.api;
+package org.hawkular.accounts.api.model;
 
-import org.hawkular.accounts.api.model.Owner;
-
-import javax.validation.constraints.NotNull;
+import javax.persistence.Column;
+import javax.persistence.Entity;
 
 /**
- * Provides an interface for querying and managing {@link org.hawkular.accounts.api.model.Owner}.
+ * Represents an operation, that can be for instance "metric-create".
  *
- * Implementations of this interface should conform with CDI rules and be injectable into managed beans. For
- * consumers, it means that a concrete implementation of this interface can be injected via {@link javax.inject.Inject}
- *
- * @author jpkroehling
+ * @author Juraci Paixão Kröhling
  */
-public interface OwnerService {
+@Entity
+public class Operation extends BaseEntity {
 
-    /**
-     * Retrieves an {@link org.hawkular.accounts.api.model.Owner} based on a given ID.
-     * @param id
-     * @return
-     */
-    Owner getById(@NotNull String id);
+    @Column(unique = true)
+    private String name;
+
+    protected Operation() { // JPA happy
+    }
+
+    public Operation(String name) {
+        this.name = name;
+    }
+
+    public Operation(String id, String name) {
+        super(id);
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

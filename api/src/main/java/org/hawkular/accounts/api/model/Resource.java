@@ -27,7 +27,7 @@ import java.util.List;
  * Represents a resource that is meant to be protected. Each module is free to define their own rules for creating
  * Resources or defining its context. Examples of Resources could be: alerts, metrics, inventory items, ...
  *
- * Each resource is either owner by an {@link org.hawkular.accounts.api.model.Owner} or is a sub resource (ie: it has a
+ * Each resource is either owner by an {@link Persona} or is a sub resource (ie: it has a
  * parent Resource). At the end of the chain, there must be a valid owner.
  *
  * The parent of a Resource can be reset by first setting an owner and then setting the parent to null. Failure to
@@ -35,13 +35,13 @@ import java.util.List;
  * attempting to set the Owner to null without a valid parent first will lead to {@link java.lang
  * .IllegalStateException}.
  *
- * @author Juraci Paixão Kröhling <juraci at kroehling.de>
+ * @author Juraci Paixão Kröhling
  */
 @Entity
 public class Resource extends BaseEntity {
 
     @ManyToOne
-    private Owner owner;
+    private Persona persona;
 
     /**
      * Represents the parent resource for this resource.
@@ -52,7 +52,7 @@ public class Resource extends BaseEntity {
     /**
      * Transient list of sub resources for this resource.
      */
-    @OneToMany
+    @OneToMany(mappedBy = "parent")
     private List<Resource> children = new ArrayList<>();
 
     protected Resource() { // JPA happy
@@ -60,11 +60,11 @@ public class Resource extends BaseEntity {
 
     /**
      * Creates a new resource with the given owner.
-     * @param owner     the owner of this sub resource
+     * @param persona     the owner of this sub resource
      * @throws IllegalStateException if the owner is null
      */
-    public Resource(Owner owner) {
-        setOwner(owner);
+    public Resource(Persona persona) {
+        setPersona(persona);
     }
 
     /**
@@ -79,14 +79,14 @@ public class Resource extends BaseEntity {
     /**
      * Creates a new sub resource with a parent and an owner, which may or may not be the same as the parent's.
      * @param parent    the parent of this sub resource
-     * @param owner     the owner of this sub resource
+     * @param persona     the owner of this sub resource
      * @throws IllegalStateException if both the parent and the owner are null
      */
-    public Resource(Owner owner, Resource parent) {
-        if (null == owner && null == parent) {
+    public Resource(Persona persona, Resource parent) {
+        if (null == persona && null == parent) {
             throw new IllegalStateException("A resource should either have a valid parent or an owner.");
         }
-        this.owner = owner;
+        this.persona = persona;
         this.parent = parent;
     }
 
@@ -104,32 +104,32 @@ public class Resource extends BaseEntity {
     /**
      * Creates a new resource with the given id and owner.
      * @param id        the id that this resource should have or null for a new UUID
-     * @param owner     the owner of this sub resource
+     * @param persona     the owner of this sub resource
      * @throws IllegalStateException if the owner is null
      */
-    public Resource(String id, Owner owner) {
+    public Resource(String id, Persona persona) {
         super(id);
-        setOwner(owner);
+        setPersona(persona);
     }
 
     /**
      * Creates a new sub resource with the given id, owner and parent resource.
      * @param id        the id that this resource should have or null for a new UUID
      * @param parent    the parent of this sub resource
-     * @param owner     the owner of this sub resource
+     * @param persona     the owner of this sub resource
      * @throws IllegalStateException if both the parent and the owner are null
      */
-    public Resource(String id, Owner owner, Resource parent) {
+    public Resource(String id, Persona persona, Resource parent) {
         super(id);
-        if (null == owner && null == parent) {
+        if (null == persona && null == parent) {
             throw new IllegalStateException("A resource should either have a valid parent or an owner.");
         }
-        this.owner = owner;
+        this.persona = persona;
         this.parent = parent;
     }
 
-    public Owner getOwner() {
-        return owner;
+    public Persona getPersona() {
+        return persona;
     }
 
     public Resource getParent() {
@@ -141,7 +141,7 @@ public class Resource extends BaseEntity {
     }
 
     public void setParent(Resource parent) {
-        if (null == parent && null == this.owner) {
+        if (null == parent && null == this.persona) {
             throw new IllegalStateException("A resource should either have a valid parent or an owner.");
         }
 
@@ -160,10 +160,10 @@ public class Resource extends BaseEntity {
         }
     }
 
-    public void setOwner(Owner owner) {
-        if (null == owner && null == this.parent) {
+    public void setPersona(Persona persona) {
+        if (null == persona && null == this.parent) {
             throw new IllegalStateException("A resource should either have a valid parent or an owner.");
         }
-        this.owner = owner;
+        this.persona = persona;
     }
 }

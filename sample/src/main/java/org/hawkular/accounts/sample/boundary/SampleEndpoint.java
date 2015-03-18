@@ -18,7 +18,9 @@ package org.hawkular.accounts.sample.boundary;
 
 import org.hawkular.accounts.api.PermissionChecker;
 import org.hawkular.accounts.api.ResourceService;
-import org.hawkular.accounts.api.model.HawkularUser;
+import org.hawkular.accounts.api.internal.adapter.NamedOperation;
+import org.hawkular.accounts.api.model.Operation;
+import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
 import org.hawkular.accounts.sample.control.HawkularAccountsSample;
 import org.hawkular.accounts.sample.entity.Sample;
@@ -41,23 +43,52 @@ import javax.ws.rs.core.Response;
 import java.util.UUID;
 
 /**
- * @author jpkroehling
+ * REST endpoint that exemplifies how to get instances of Hawkular Accounts services and how to consume them.
+ *
+ * @author Juraci Paixão Kröhling
  */
 @Path("/samples")
-@PermitAll
+@PermitAll // we bypass JAAS' protections, as we want to perform the checks inside the methods
 @Stateless
-public class SampleService {
+public class SampleEndpoint {
+
     @Inject @HawkularAccountsSample
     EntityManager em;
 
     @Inject
-    HawkularUser currentUser;
+    Persona currentPersona;
 
+    /**
+     * A managed instance of the {@link PermissionChecker}, ready to be used.
+     */
     @Inject
     PermissionChecker permissionChecker;
 
+    /**
+     * We need the {@link ResourceService} as we need to tell Hawkular Accounts about who created "what". A resource
+     * is this "what".
+     */
     @Inject
     ResourceService resourceService;
+
+    /**
+     * For this example, we have four operations. We get an instance of each of them injected and qualified by its name.
+     */
+    @Inject
+    @NamedOperation("sample-create")
+    Operation operationCreate;
+
+    @Inject
+    @NamedOperation("sample-read")
+    Operation operationRead;
+
+    @Inject
+    @NamedOperation("sample-update")
+    Operation operationUpdate;
+
+    @Inject
+    @NamedOperation("sample-delete")
+    Operation operationDelete;
 
     @GET
     public Response getAllSamples() {
@@ -65,7 +96,7 @@ public class SampleService {
         CriteriaQuery<Sample> query = builder.createQuery(Sample.class);
         Root<Sample> root = query.from(Sample.class);
         query.select(root);
-        query.where(builder.equal(root.get(Sample_.ownerId), currentUser.getId()));
+        query.where(builder.equal(root.get(Sample_.ownerId), currentPersona.getId()));
 
         return Response.ok().entity(em.createQuery(query).getResultList()).build();
     }
@@ -74,17 +105,22 @@ public class SampleService {
     @Path("{sampleId}")
     public Response getSample(@PathParam("sampleId") String sampleId) {
         Sample sample = em.find(Sample.class, sampleId);
-        Resource resource = resourceService.get(sampleId);
-        if (permissionChecker.hasAccessTo(currentUser, resource)) {
+
+        // before returning, we check if the current persona has permissions to access this.
+        if (permissionChecker.isAllowedTo(operationRead, sample.getId())) {
             return Response.ok().entity(sample).build();
         }
+
+        // the current persona is not allowed, so, return a 404.
         return Response.status(Response.Status.NOT_FOUND).build();
     }
 
     @POST
     public Response createSample(SampleRequest request) {
-        Sample sample = new Sample(UUID.randomUUID().toString(), currentUser.getId());
-        resourceService.create(sample.getId(), currentUser);
+        // for this example, we allow everybody to create a sample, but there might be situations where an user can
+        // only create resources if they are allowed access to some other resource.
+        Sample sample = new Sample(UUID.randomUUID().toString(), currentPersona.getId());
+        resourceService.create(sample.getId(), currentPersona);
         sample.setName(request.getName());
 
         em.persist(sample);
@@ -94,7 +130,14 @@ public class SampleService {
     @DELETE
     @Path("{sampleId}")
     public Response removeSample(@PathParam("sampleId") String sampleId) {
-        em.remove(em.find(Sample.class, sampleId));
-        return Response.noContent().build();
+        Sample sample = em.find(Sample.class, sampleId);
+        Resource resource = resourceService.get(sampleId);
+
+        // check if the current user can perform this operation
+        if (permissionChecker.isAllowedTo(operationDelete, resource)) {
+            em.remove(sample);
+            return Response.noContent().build();
+        }
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
 }

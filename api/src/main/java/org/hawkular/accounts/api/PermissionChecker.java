@@ -16,98 +16,66 @@
  */
 package org.hawkular.accounts.api;
 
-import org.hawkular.accounts.api.model.HawkularUser;
-import org.hawkular.accounts.api.model.Member;
-import org.hawkular.accounts.api.model.Organization;
-import org.hawkular.accounts.api.model.Owner;
+import org.hawkular.accounts.api.model.Operation;
+import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
-import org.keycloak.KeycloakPrincipal;
 
 /**
- * Central part of the API, allowing a component to perform permission checking of users against resources.
+ * Central part of the API, allowing a component to perform permission checking of users against resources. Can be
+ * injected via CDI into managed beans as follows:
+ * <p>
+ *     <pre>
+ *         &#64;Inject PermissionChecker permissionChecker;
+ *     </pre>
+ * </p>
+ * Concrete implementations do not hold any state, but it's advised to get an instance through CDI or as an EJB.
  *
- * Implementations of this interface should conform with CDI rules and be injectable into managed beans. For
- * consumers, it means that a concrete implementation of this interface can be injected via {@link javax.inject.Inject}
- *
- * @author Juraci Paixão Kröhling <juraci at kroehling.de>
+ * @author Juraci Paixão Kröhling
  */
 public interface PermissionChecker {
 
     /**
-     * Determines whether the currently logged in {@link HawkularUser} has access to the {@link Resource}
-     *
-     * @param resource    the resource to be checked
-     * @return true if the user is the owner or if the user belongs to an organization that owns the resource
+     * Checks whether the given {@link Persona} has access to perform {@link Operation} on the given {@link Resource}.
+     * @param operation    the operation that is to be performed. Example: "create-metric".
+     * @param resource     the resource onto which the operation is to be performed. Example: "cpu-usage".
+     * @param persona      the persona that is about to perform the operation. Example: "jdoe".
+     * @return true if the given persona is allowed to perform the operation on the resource.
+     * @throws IllegalArgumentException if any of the parameters is null
      */
-    boolean hasAccessTo(Resource resource);
+    boolean isAllowedTo(Operation operation, Resource resource, Persona persona);
 
     /**
-     * Determines whether the {@link HawkularUser} has access to the {@link Resource}
-     *
-     * @param currentUser the user to be checked
-     * @param resource    the resource to be checked
-     * @return true if the user is the owner or if the user belongs to an organization that owns the resource
+     * Checks whether the given {@link Persona} has access to perform {@link Operation} on the given {@link Resource}.
+     * Resource here is referenced by its ID.
+     * @param operation    the operation that is to be performed. Example: "create-metric".
+     * @param resourceId   the ID for the resource onto which the operation is to be performed. Example: "cpu-usage".
+     * @param persona      the persona that is about to perform the operation. Example: "jdoe".
+     * @return true if the given persona is allowed to perform the operation on the resource.
+     * @see #isAllowedTo(Operation, Resource, Persona)
+     * @throws IllegalArgumentException if any of the parameters is null or if the resourceId doesn't references an
+     * existing resource.
      */
-    boolean hasAccessTo(HawkularUser currentUser, Resource resource);
+    boolean isAllowedTo(Operation operation, String resourceId, Persona persona);
 
     /**
-     * Determines whether the current {@link KeycloakPrincipal} has access to the {@link Resource}.
-     *
-     * @param principal the {@link KeycloakPrincipal} representing the current user
-     * @param resource  the resource to be checked
-     * @return true if the user is the owner or if the user belongs to an organization that owns the resource
-     * @see PermissionChecker#hasAccessTo(org.hawkular.accounts.api.model.HawkularUser,
-     * org.hawkular.accounts.api.model.Resource)
+     * Checks whether the current {@link Persona} has access to perform {@link Operation} on the given {@link Resource}.
+     * @param operation    the operation that is to be performed. Example: "create-metric".
+     * @param resource     the resource onto which the operation is to be performed. Example: "cpu-usage".
+     * @return true if the current persona is allowed to perform the operation on the resource.
+     * @throws IllegalArgumentException if any of the parameters is null
+     * @see #isAllowedTo(Operation, Resource, Persona)
      */
-    boolean hasAccessTo(KeycloakPrincipal principal, Resource resource);
+    boolean isAllowedTo(Operation operation, Resource resource);
 
     /**
-     * Recursively checks whether an user is a member or owner of an organization. Examples:
-     * <p/>
-     * <ul>
-     *     <li>jdoe is owner of acme -> true</li>
-     *     <li>jdoe is member of acme -> true</li>
-     *     <li>jdoe is member of emca which is member of acme -> true</li>
-     *     <li>emca is member of acme -> true</li>
-     * </ul>
-     *
-     * @param member       the member to be checked
-     * @param organization the organization that might contain the user
-     * @return true if the user belongs to the organization recursively
+     * Checks whether the current {@link Persona} has access to perform {@link Operation} on the given
+     * {@link Resource}. Resource here is referenced by its ID.
+     * @param operation    the operation that is to be performed. Example: "create-metric".
+     * @param resourceId   the ID for the resource onto which the operation is to be performed. Example: "cpu-usage".
+     * @return true if the current persona is allowed to perform the operation on the resource.
+     * @see #isAllowedTo(Operation, Resource, Persona)
+     * @throws IllegalArgumentException if any of the parameters is null or if the resourceId doesn't references an
+     * existing resource.
      */
-    boolean isMemberOf(Member member, Organization organization);
-
-    /**
-     * Recursively checks if the specified owner is a direct or indirect owner of the given organization. For instance,
-     * if jdoe is the owner of acme, and acme owns metric1, then jdoe owns metric1 indirectly.
-     *
-     * @param owner        the {@link Owner} to check. In our example above, it would be the ID of the owner of
-     *                     'metric1'
-     * @param organization the {@link org.hawkular.accounts.api.model.Organization} to check.
-     * @return whether or not the specified owner is directly or indirectly the owner of the given organization.
-     */
-    boolean isOwnerOf(Owner owner, Organization organization);
-
-    /**
-     * Recursively checks if the specified owner is a direct or indirect owner of the given resource. For instance,
-     * if jdoe is the owner of acme, and acme owns metric1, then jdoe owns metric1 indirectly.
-     *
-     * @param owner        the {@link Owner} to check. In our example above, it would be the ID of the owner of
-     *                     'metric1'
-     * @param resource     the {@link org.hawkular.accounts.api.model.Resource} to check.
-     * @return whether or not the specified owner is directly or indirectly the owner of the given resource.
-     */
-    boolean isOwnerOf(Owner owner, Resource resource);
-
-    /**
-     * Recursively checks if the current user is a direct or indirect owner of the given organization. For instance,
-     * if jdoe is the owner of acme, and acme owns metric1, then jdoe owns metric1 indirectly.
-     *
-     * @param resource     the {@link org.hawkular.accounts.api.model.Resource} to check.
-     *
-     * @see PermissionChecker#isOwnerOf(Owner, Resource)
-     * @return whether or not the specified owner is directly or indirectly the owner of the given organization.
-     */
-    boolean isOwnerOf(Resource resource);
-
+    boolean isAllowedTo(Operation operation, String resourceId);
 }

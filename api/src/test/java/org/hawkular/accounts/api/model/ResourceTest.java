@@ -23,29 +23,29 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 /**
- * @author jpkroehling
+ * @author Juraci Paixão Kröhling
  */
 public class ResourceTest extends BaseEntityManagerEnabledTest {
 
     @Test
     public void testResourceWithoutParent() {
-        Owner owner = new HawkularUser();
-        Resource resource = new Resource(owner);
+        Persona persona = new HawkularUser();
+        Resource resource = new Resource(persona);
         entityManager.getTransaction().begin();
-        entityManager.persist(owner);
+        entityManager.persist(persona);
         entityManager.persist(resource);
         entityManager.getTransaction().commit();
     }
 
     @Test
     public void testChangeOfParents() {
-        Owner owner = new HawkularUser();
-        Resource host1 = new Resource(owner);
-        Resource host2 = new Resource(owner);
+        Persona persona = new HawkularUser();
+        Resource host1 = new Resource(persona);
+        Resource host2 = new Resource(persona);
         Resource memoryHost1 = new Resource(host1);
 
         entityManager.getTransaction().begin();
-        entityManager.persist(owner);
+        entityManager.persist(persona);
         entityManager.persist(host1);
         entityManager.persist(host2);
         entityManager.persist(memoryHost1);
@@ -57,7 +57,7 @@ public class ResourceTest extends BaseEntityManagerEnabledTest {
         memoryHost1.setParent(host2);
 
         entityManager.getTransaction().begin();
-        entityManager.persist(owner);
+        entityManager.persist(persona);
         entityManager.persist(host1);
         entityManager.persist(host2);
         entityManager.persist(memoryHost1);
@@ -69,13 +69,13 @@ public class ResourceTest extends BaseEntityManagerEnabledTest {
 
     @Test
     public void testResetOfParents() {
-        Owner owner = new HawkularUser();
-        Resource host1 = new Resource(owner);
-        Resource host2 = new Resource(owner);
+        Persona persona = new HawkularUser();
+        Resource host1 = new Resource(persona);
+        Resource host2 = new Resource(persona);
         Resource memoryHost1 = new Resource(host1);
 
         entityManager.getTransaction().begin();
-        entityManager.persist(owner);
+        entityManager.persist(persona);
         entityManager.persist(host1);
         entityManager.persist(host2);
         entityManager.persist(memoryHost1);
@@ -84,11 +84,11 @@ public class ResourceTest extends BaseEntityManagerEnabledTest {
         assertEquals("There should be 1 sub resource for host1", 1, host1.getSubResources().size());
         assertEquals("There should be no sub resources for host2", 0, host2.getSubResources().size());
 
-        memoryHost1.setOwner(owner);
+        memoryHost1.setPersona(persona);
         memoryHost1.setParent(null);
 
         entityManager.getTransaction().begin();
-        entityManager.persist(owner);
+        entityManager.persist(persona);
         entityManager.persist(host1);
         entityManager.persist(host2);
         entityManager.persist(memoryHost1);
@@ -101,13 +101,13 @@ public class ResourceTest extends BaseEntityManagerEnabledTest {
 
     @Test(expected = IllegalStateException.class)
     public void testResetWithNullOwner() {
-        Owner owner = new HawkularUser();
-        Resource host1 = new Resource(owner);
-        Resource host2 = new Resource(owner);
+        Persona persona = new HawkularUser();
+        Resource host1 = new Resource(persona);
+        Resource host2 = new Resource(persona);
         Resource memoryHost1 = new Resource(host1);
 
         entityManager.getTransaction().begin();
-        entityManager.persist(owner);
+        entityManager.persist(persona);
         entityManager.persist(host1);
         entityManager.persist(host2);
         entityManager.persist(memoryHost1);
@@ -122,8 +122,8 @@ public class ResourceTest extends BaseEntityManagerEnabledTest {
     @Test(expected = IllegalStateException.class)
     public void testParentAndOwnerNullOnConstructor() {
         Resource resource = null;
-        Owner owner = null;
-        new Resource(owner, resource);
+        Persona persona = null;
+        new Resource(persona, resource);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -134,20 +134,20 @@ public class ResourceTest extends BaseEntityManagerEnabledTest {
 
     @Test(expected = IllegalStateException.class)
     public void testOwnerNullOnConstructor() {
-        Owner owner = null;
-        new Resource(owner);
+        Persona persona = null;
+        new Resource(persona);
     }
 
     @Test(expected = IllegalStateException.class)
     public void testResourceWithIdAndNullOwnerOnConstructor() {
-        Owner owner = null;
-        new Resource("id", owner);
+        Persona persona = null;
+        new Resource("id", persona);
     }
 
     @Test(expected = IllegalStateException.class)
     public void testResourceWithIdAndNullOwnerNullParentOnConstructor() {
-        Owner owner = null;
+        Persona persona = null;
         Resource resource = null;
-        new Resource("id", owner, resource);
+        new Resource("id", persona, resource);
     }
 }

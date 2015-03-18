@@ -23,7 +23,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 /**
- * @author Juraci Paixão Kröhling <juraci at kroehling.de>
+ * @author Juraci Paixão Kröhling
  */
 public class BaseEntityManagerEnabledTest {
     protected EntityManager entityManager;

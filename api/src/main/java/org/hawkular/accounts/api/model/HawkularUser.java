@@ -22,10 +22,10 @@ import javax.persistence.Entity;
  * Represents a real person. The actual data for this user resides on Keycloak. For us, suffice to know the
  * user's ID on Keycloak.
  *
- * @author Juraci Paixão Kröhling <juraci at kroehling.de>
+ * @author Juraci Paixão Kröhling
  */
 @Entity
-public class HawkularUser extends Owner {
+public class HawkularUser extends Persona {
 
     protected HawkularUser() { // JPA happy
     }

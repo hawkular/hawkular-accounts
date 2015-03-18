@@ -18,7 +18,7 @@ package org.hawkular.accounts.api.internal.impl;
 
 import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
 import org.hawkular.accounts.api.model.HawkularUser;
-import org.hawkular.accounts.api.model.Owner;
+import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,19 +29,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 /**
- * @author Juraci Paixão Kröhling <juraci at kroehling.de>
+ * @author Juraci Paixão Kröhling
  */
 public class ResourceServiceImplTest extends BaseEntityManagerEnabledTest {
     private ResourceServiceImpl resourceService;
-    private UserServiceImpl userService;
 
     @Before
     public void prepareServices() {
         this.resourceService = new ResourceServiceImpl();
-        this.userService = new UserServiceImpl();
-        this.userService.em = entityManager;
         this.resourceService.em = entityManager;
-        this.resourceService.userService = this.userService;
         this.resourceService.user = new HawkularUser(UUID.randomUUID().toString());
         entityManager.getTransaction().begin();
         entityManager.persist(this.resourceService.user);
@@ -51,7 +47,7 @@ public class ResourceServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void existingResourceIsRetrieved() {
         entityManager.getTransaction().begin();
-        Owner user = new HawkularUser(UUID.randomUUID().toString());
+        Persona user = new HawkularUser(UUID.randomUUID().toString());
         String resourceId = UUID.randomUUID().toString();
         Resource resource = new Resource(resourceId, user);
         entityManager.persist(user);
@@ -66,7 +62,7 @@ public class ResourceServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void nonExistingResourceIsCreatedWithOwner() {
         entityManager.getTransaction().begin();
-        Owner user = new HawkularUser(UUID.randomUUID().toString());
+        Persona user = new HawkularUser(UUID.randomUUID().toString());
         entityManager.persist(user);
         entityManager.getTransaction().commit();
 
@@ -82,8 +78,8 @@ public class ResourceServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void nonExistingResourceIsCreatedWithParentAndOwner() {
         entityManager.getTransaction().begin();
-        Owner user = new HawkularUser(UUID.randomUUID().toString());
-        Owner user2 = new HawkularUser(UUID.randomUUID().toString());
+        Persona user = new HawkularUser(UUID.randomUUID().toString());
+        Persona user2 = new HawkularUser(UUID.randomUUID().toString());
         Resource parent = new Resource(user);
         entityManager.persist(user);
         entityManager.persist(user2);
@@ -96,7 +92,7 @@ public class ResourceServiceImplTest extends BaseEntityManagerEnabledTest {
 
         entityManager.getTransaction().begin();
         Resource fromDatabase = resourceService.get(resource.getId());
-        assertNotNull(fromDatabase.getOwner());
+        assertNotNull(fromDatabase.getPersona());
         assertNotNull(fromDatabase.getParent());
         entityManager.getTransaction().commit();
     }
@@ -104,7 +100,7 @@ public class ResourceServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void nonExistingResourceIsCreatedWithParent() {
         entityManager.getTransaction().begin();
-        Owner user = new HawkularUser(UUID.randomUUID().toString());
+        Persona user = new HawkularUser(UUID.randomUUID().toString());
         Resource parent = new Resource(user);
         entityManager.persist(user);
         entityManager.persist(parent);
@@ -116,7 +112,7 @@ public class ResourceServiceImplTest extends BaseEntityManagerEnabledTest {
 
         entityManager.getTransaction().begin();
         Resource fromDatabase = resourceService.get(resource.getId());
-        assertNull(fromDatabase.getOwner());
+        assertNull(fromDatabase.getPersona());
         assertNotNull(fromDatabase.getParent());
         entityManager.getTransaction().commit();
     }
@@ -124,7 +120,7 @@ public class ResourceServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void resourceWithNullAsIdGetsNewId() {
         entityManager.getTransaction().begin();
-        Owner user = new HawkularUser(UUID.randomUUID().toString());
+        Persona user = new HawkularUser(UUID.randomUUID().toString());
         entityManager.persist(user);
         entityManager.getTransaction().commit();
 

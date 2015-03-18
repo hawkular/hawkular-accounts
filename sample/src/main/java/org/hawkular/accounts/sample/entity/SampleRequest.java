@@ -17,7 +17,7 @@
 package org.hawkular.accounts.sample.entity;
 
 /**
- * @author jpkroehling
+ * @author Juraci Paixão Kröhling
  */
 public class SampleRequest {
     private String name;

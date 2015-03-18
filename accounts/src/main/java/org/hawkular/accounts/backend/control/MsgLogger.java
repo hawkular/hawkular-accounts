@@ -17,16 +17,25 @@
 package org.hawkular.accounts.backend.control;
 
 import org.jboss.logging.Logger;
-import org.jboss.logging.annotations.MessageLogger;
+import org.jboss.logging.annotations.LogMessage;
+import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.ValidIdRange;
 
 /**
- * @author Juraci Paixão Kröhling <juraci at kroehling.de>
+ * JBoss Logging integration, with the possible messages that we have for this backend.
+ *
+ * @author Juraci Paixão Kröhling
  */
-@MessageLogger(projectCode = "HAWKACC")
-@ValidIdRange(min = 100000, max = 109999)
-public interface HawkularAccountsMessageLogger {
-    HawkularAccountsMessageLogger LOGGER = Logger.getMessageLogger
-            (HawkularAccountsMessageLogger.class, HawkularAccountsMessageLogger.class.getPackage().getName());
+@org.jboss.logging.annotations.MessageLogger(projectCode = "HAWKACC")
+@ValidIdRange(min = 110000, max = 119999)
+public interface MsgLogger {
+    MsgLogger LOGGER = Logger.getMessageLogger(MsgLogger.class, MsgLogger.class.getPackage().getName());
 
+    @LogMessage(level = Logger.Level.INFO)
+    @Message(id = 110000, value = "Started setting up Hawkular Accounts")
+    void infoStartedSetupAccounts();
+
+    @LogMessage(level = Logger.Level.INFO)
+    @Message(id = 110001, value = "Finished setting up Hawkular Accounts")
+    void infoFinishedSetupAccounts();
 }

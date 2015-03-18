@@ -18,6 +18,6 @@
  * Contains entities related to the project. This includes REST request/response beans and might include JPA
  * beans in the future, should this module ever need it.
  *
- * @author jpkroehling
+ * @author Juraci Paixão Kröhling
  */
 package org.hawkular.accounts.backend.entity;

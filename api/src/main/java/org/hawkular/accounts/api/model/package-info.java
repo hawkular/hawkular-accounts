@@ -18,6 +18,6 @@
  * Entities related to the API. Even though the models also have JPA annotations, the JPA aspect of the models are
  * not part of the public API, so, consumers should not assume that those models are JPA entities.
  *
- * @author jpkroehling
+ * @author Juraci Paixão Kröhling
  */
 package org.hawkular.accounts.api.model;

@@ -21,7 +21,7 @@ import javax.enterprise.inject.Produces;
 import javax.persistence.PersistenceContext;
 
 /**
- * @author Juraci Paixão Kröhling <juraci at kroehling.de>
+ * @author Juraci Paixão Kröhling
  */
 @ApplicationScoped
 public class ApplicationResources {

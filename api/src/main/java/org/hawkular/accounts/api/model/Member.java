@@ -23,7 +23,7 @@ import javax.persistence.InheritanceType;
 /**
  * Represents an object that might be a member of an organization.
  *
- * @author jpkroehling
+ * @author Juraci Paixão Kröhling
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)

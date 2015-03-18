@@ -17,12 +17,14 @@
 package org.hawkular.accounts.api.internal.impl;
 
 import org.hawkular.accounts.api.ResourceService;
-import org.hawkular.accounts.api.UserService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.internal.adapter.NamedRole;
 import org.hawkular.accounts.api.model.HawkularUser;
-import org.hawkular.accounts.api.model.Owner;
+import org.hawkular.accounts.api.model.Persona;
+import org.hawkular.accounts.api.model.PersonaResourceRole;
 import org.hawkular.accounts.api.model.Resource;
 import org.hawkular.accounts.api.model.Resource_;
+import org.hawkular.accounts.api.model.Role;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
@@ -37,7 +39,7 @@ import java.util.List;
  * Main implementation of the {@link org.hawkular.accounts.api.ResourceService}. Consumers should get an instance of
  * this via CDI. This class should not be directly instantiated by the consumers.
  *
- * @author Juraci Paixão Kröhling <juraci at kroehling.de>
+ * @author Juraci Paixão Kröhling
  */
 @Stateless
 @PermitAll
@@ -46,13 +48,18 @@ public class ResourceServiceImpl implements ResourceService {
     EntityManager em;
 
     @Inject
-    UserService userService;
+    HawkularUser user;
 
     @Inject
-    HawkularUser user;
+    @NamedRole("Super User")
+    Role superUser;
 
     @Override
     public Resource get(String id) {
+        if (null == id) {
+            throw new IllegalArgumentException("The given resource ID is invalid (null).");
+        }
+
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<Resource> query = builder.createQuery(Resource.class);
         Root<Resource> root = query.from(Resource.class);
@@ -72,24 +79,44 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
-    public Resource create(String id, Owner owner) {
-        return create(id, null, owner);
+    public Resource create(String id, Persona persona) {
+        if (null == persona) {
+            throw new IllegalArgumentException("The specified persona is invalid (null).");
+        }
+        return create(id, null, persona);
     }
 
     @Override
     public Resource create(String id, Resource parent) {
+        if (null == parent) {
+            throw new IllegalArgumentException("The given parent resource is invalid (null).");
+        }
         return create(id, parent, null);
     }
 
     @Override
-    public Resource create(String id, Resource parent, Owner owner) {
-        Resource resource = new Resource(id, owner, parent);
+    public Resource create(String id, Resource parent, Persona persona) {
+        if (null == parent && null == persona) {
+            throw new IllegalArgumentException("Either parent or persona should be provided when creating a resource");
+        }
+
+        Resource resource = new Resource(id, persona, parent);
         em.persist(resource);
+
+        if (persona != null) {
+            PersonaResourceRole resourceRole = new PersonaResourceRole(persona, superUser, resource);
+            em.persist(resourceRole);
+        }
+
         return resource;
     }
 
     @Override
     public void delete(String id) {
+        if (null == id) {
+            throw new IllegalArgumentException("The given resource ID is invalid (null).");
+        }
+
         Resource resource = get(id);
         if (resource != null) {
             em.remove(id);

@@ -17,6 +17,6 @@
 /**
  * Provides the main API for Hawkular components intending to perform permission checking and authorization procedures.
  *
- * @author jpkroehling
+ * @author Juraci Paixão Kröhling
  */
 package org.hawkular.accounts.api;

@@ -19,6 +19,6 @@
  *
  * The sub packages of this module follows the BCE pattern (boundary-control-entity).
  *
- * @author jpkroehling
+ * @author Juraci Paixão Kröhling
  */
 package org.hawkular.accounts.backend;

@@ -20,7 +20,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 /**
- * @author jpkroehling
+ * @author Juraci Paixão Kröhling
  */
 @Entity
 public class Sample {

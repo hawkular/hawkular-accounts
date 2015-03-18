@@ -27,7 +27,7 @@ import java.util.UUID;
 /**
  * Base entity, providing some common properties that all entities should have.
  *
- * @author Juraci Paixão Kröhling <juraci at kroehling.de>
+ * @author Juraci Paixão Kröhling
  */
 @MappedSuperclass
 public class BaseEntity implements Serializable {

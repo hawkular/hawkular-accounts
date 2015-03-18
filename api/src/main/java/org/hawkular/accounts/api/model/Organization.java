@@ -17,11 +17,7 @@
 package org.hawkular.accounts.api.model;
 
 import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -29,40 +25,33 @@ import java.util.UUID;
  * The owner is not included in the member's list, but is assumed to be a "special" member. In other words: even if
  * the owner is not explicitly on the members list, it should be counted as being a member.
  *
- * @author Juraci Paixão Kröhling <juraci at kroehling.de>
+ * @author Juraci Paixão Kröhling
  */
 @Entity
-public class Organization extends Owner {
+public class Organization extends Persona {
 
     @ManyToOne
-    private Owner owner;
+    private Persona owner;
 
     private String name;
     private String description;
-
-    @ManyToMany
-    private final transient List<Member> members = new ArrayList<>();
 
     protected Organization() { // jpa happy
         super();
     }
 
-    public Organization(String id, Owner owner) {
+    public Organization(String id, Persona owner) {
         super(id);
         this.owner = owner;
     }
 
-    public Organization(Owner owner) {
+    public Organization(Persona owner) {
         super(UUID.randomUUID().toString());
         this.owner = owner;
     }
 
-    public Owner getOwner() {
+    public Persona getOwner() {
         return owner;
-    }
-
-    public List<Member> getMembers() {
-        return Collections.unmodifiableList(members);
     }
 
     public String getName() {
@@ -79,21 +68,5 @@ public class Organization extends Owner {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public void addMember(Member member) {
-        if (members.contains(member)) {
-            return;
-        }
-
-        members.add(member);
-    }
-
-    public void removeMember(Member member) {
-        if (!members.contains(member)) {
-            return;
-        }
-
-        members.remove(member);
     }
 }

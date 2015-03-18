@@ -41,6 +41,17 @@
     </xsl:copy>
   </xsl:template>
 
+  <!-- Add a cache for Hawkular Accounts -->
+  <xsl:template match="node()[name(.)='cache-container'][1]">
+    <xsl:copy>
+      <xsl:copy-of select="node()|@*"/>
+    </xsl:copy>
+    <cache-container name="hawkular-accounts" default-cache="role-cache">
+      <local-cache name="role-cache"/>
+      <local-cache name="operation-cache"/>
+    </cache-container>
+  </xsl:template>
+
   <!-- Add a secure-deployment to the keycloak subsystem -->
   <xsl:template match="node()[name(.)='auth-server']">
     <xsl:copy>
