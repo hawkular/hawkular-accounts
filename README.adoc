@@ -1,10 +1,10 @@
 = Hawkular Accounts
 
 Hawkular Accounts is the user/organization module for Hawkular projects. It provides the registration feature,
-setting up of organizations and related features. The main registration and user login is provided by Keycloak, while
-organizations and permissions are handled by ourselves.
+setting up of organizations and related features. The main registration and user login is provided by
+[http://keycloak.jboss.org/]Keycloak, while organizations and permissions are implemented in Hawkular Accounts itself.
 
-Hawkular is a modular systems monitoring suite, that consists of several sub-projects for
+Hawkular is a monitoring suite, that consists of several sub-projects for
 storing of metrics, alerting on incoming events and more. Those projects are developed
 in their own GitHub repositories.
 
@@ -15,13 +15,13 @@ endif::[]
 
 == About Accounts
 
-The project is divided into several modules. More information about the individual modules can be found on the
-module's README files.
+The project is divided into several modules. More information about the individual modules can be found in the
+respective module's README files.
 
 * accounts: the REST backend, handling the actions from the Hawkular Accounts UI.
 * api: the components that are intended to be consumed by other Hawkular components.
 * distribution: assembles a complete Wildfly with Keycloak and Hawkular Accounts, suitable for isolated
-development/testing.
+  development/testing.
 * sample: a sample on how to integrate Accounts into other Hawkular projects.
 
 The hawt.io UI for Hawkular Accounts is located in the hawkular-ui-components project.
@@ -41,20 +41,20 @@ First, add the API as a dependency:
 With that, you can now inject the permission checker and other parts of the API directly into your EJBs and other
 managed beans.
 
-Hawkular Accounts has the following concepts:
+Hawkular Accounts is based on the following concepts:
 
-* Resource: is something that you want to protect. Might be an Alert, an Inventory item, a Metric, ...
-* Persona: either an user or organization. A real user can be impersonating an organization, so, this organization
-would be the current persona. In most of the cases, this is the correct representation of "current user" or "current
-tenant".
-* User: a real user of the application. In most cases, consumers of Hawkular Accounts don't need to deal directly
-with users.
-* Organization: a non-user which has an owner and a set of members. In most cases, consumers of Hawkular Accounts
-don't need to deal directly with organizations.
-* Owner: owns a Resource, and can be (currently) either a Hawkular User or an Organization.
-* Member: an user or organization that can be part of an Organization.
+* *Resource* - something that you want to protect; it might be an Alert, an Inventory item, a Metric, ...
+* *Persona* - either a User or an Organization. A real User can be impersonating an Organization, so, this Organization
+  would be the current Persona. In most cases, the current Persona corresponds to an intuitive notion of the
+  "current user" or "current tenant".
+* *User* - a real user of the application. In most cases, consumers of Hawkular Accounts do not need to deal directly
+  with users.
+* *Organization* - a non-user which has an Owner and a set of Members. In most cases, consumers of Hawkular Accounts
+  do not need to deal directly with organizations.
+* *Owner* - owns a Resource, and can be (currently) either a Hawkular User or an Organization.
+* *Member* - a User or Organization that can be part of an Organization.
 
-To retrieve the current persona:
+To retrieve the current Persona:
 [source,java]
 ----
 @Stateless
@@ -64,13 +64,13 @@ class FooService {
 }
 ----
 
-In order to check if a persona has access to a given resource, a record of this resource should exist on Hawkular
-Accounts. For instance, if you need to protect a "Metric", you'll need to:
+In order to check if a Persona has access to a given Resource, a record of this resource should exist in Hawkular
+Accounts. For instance, if you need to protect a metric, you need to:
 
-* Create a resource with a unique key (possibly the same ID you have on your persistent storage), specifying the
-owner (usually, the current persona).
-* Later on, check if the "current persona" (or whichever persona you'd want) has access to the resource, via
-PermissionChecker.
+* Create a Resource with a unique key (possibly the same ID you have in your persistent storage), specifying the
+  Owner (usually, the current Persona).
+* Later on, you can check if the current Persona (or whichever Persona relevant to you) has access to the resource, via
+  `PermissionChecker`.
 
 Example:
 [source,java]
@@ -115,14 +115,14 @@ class FooService {
 }
 ----
 
-Note that Hawkular Accounts depends on Keycloak to work, so, be sure to either run it on Kettle or configure a Keycloak
-instance appropriately.
+Note that Hawkular Accounts depend on Keycloak. Therefore, make sure to either run it inside Kettle or configure a
+Keycloak instance appropriately.
 
-== Operations and roles
+== Operations and Roles
 
-As a one-time setup, the permission set needs to be configured. With that, a list of operations need to be provided,
-as well as which roles are allowed to perform those operations. To facilitate this procedure, the OrganizationService
-can be used as a @Singleton @Startup EJB, with the setup on a @PostConstruct method. For example:
+As a one-time setup, the permission set needs to be configured. With that, a list of operations needs to be provided,
+as well as which roles are allowed to perform those operations. To facilitate this procedure, the `OrganizationService`
+can be used as a `@Singleton @Startup` EJB, with the setup on a `@PostConstruct` method. For example:
 
 [source,java]
 ----
@@ -148,13 +148,13 @@ Hawkular Accounts ships with the same roles as Wildfly and with the same rules (
 to perform operations marked as allowed for "user with at least Monitor role"). So, adding the role "Monitor" during
 the setup will automatically add all other roles to it.
 
-Note as well that if the set of roles for a given operation has not changed from what we currently have on the
+Note as well that if the set of roles for a given operation has not changed from what we currently have in the
 database, nothing is performed.
 
-More about the Wildfly roles can be found on this
+More about the Wildfly roles can be found in this
 link:http://blog.arungupta.me/role-based-access-control-wildfly-8/[blog post]
 
-== Setup
+== How to build Hawkular Accounts from source
 
 The API and backend can be build as a regular Maven project:
 [source,bash]
