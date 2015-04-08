@@ -40,6 +40,18 @@
       <directoryMode>0755</directoryMode>
       <fileMode>0755</fileMode>
     </dependencySet>
+    <!-- Keycloak theme -->
+    <dependencySet>
+      <outputDirectory>modules/org/hawkular/keycloak/theme/main</outputDirectory>
+      <includes>
+        <include>org.hawkular.accounts:hawkular-accounts-keycloak-theme:jar</include>
+      </includes>
+      <outputFileNameMapping>hawkular-accounts-keycloak-theme.jar</outputFileNameMapping>
+      <useProjectArtifact>false</useProjectArtifact>
+      <useProjectAttachments>false</useProjectAttachments>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useTransitiveFiltering>false</useTransitiveFiltering>
+    </dependencySet>
   </dependencySets>
   <fileSets>
     <fileSet>

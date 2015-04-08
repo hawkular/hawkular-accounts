@@ -1,0 +1,6 @@
+{
+    "themes": [{
+        "name" : "hawkular",
+        "types": [ "admin", "account", "login", "welcome" ]
+    }]
+}
