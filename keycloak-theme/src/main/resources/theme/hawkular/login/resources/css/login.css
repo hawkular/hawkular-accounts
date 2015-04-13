@@ -15,11 +15,13 @@
  * limitations under the License.
  */
 #kc-logo-wrapper {
-    background-image: url("../img/red-hat-logo.png");
+    background-image: url("../img/brand.svg");
     background-repeat: no-repeat;
     background-position: top right;
-
     height: 65px;
-
     margin: 100px;
+}
+.login-pf body {
+    background: #034672 url("../img/bg-login.jpg") top left no-repeat;
+    background-size: auto;
 }
