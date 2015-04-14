@@ -31,7 +31,7 @@
   <parent>
     <groupId>org.hawkular</groupId>
     <artifactId>hawkular-parent</artifactId>
-    <version>8</version>
+    <version>10</version>
   </parent>
 
   <modules>
