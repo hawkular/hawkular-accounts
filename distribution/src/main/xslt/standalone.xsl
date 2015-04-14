@@ -27,10 +27,25 @@
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes" xalan:indent-amount="4" standalone="no"/>
   <xsl:strip-space elements="*"/>
 
+  <xsl:template match="node()[name(.)='extensions']">
+    <xsl:copy>
+      <xsl:apply-templates select="node()|@*"/>
+      <extension module="org.keycloak.keycloak-subsystem"/>
+    </xsl:copy>
+  </xsl:template>
+
   <!-- Add our data source -->
   <xsl:template match="node()[name(.)='datasources']">
     <xsl:copy>
       <xsl:apply-templates select="node()[name(.)='datasource']"/>
+      <datasource jndi-name="java:jboss/datasources/KeycloakDS" pool-name="KeycloakDS" enabled="true" use-java-context="true">
+        <connection-url>jdbc:h2:${jboss.server.data.dir}${/}h2${/}keycloak;AUTO_SERVER=TRUE</connection-url>
+        <driver>h2</driver>
+        <security>
+          <user-name>sa</user-name>
+          <password>sa</password>
+        </security>
+      </datasource>
       <datasource jndi-name="java:jboss/datasources/HawkularDS" pool-name="HawkularDS" enabled="true" use-java-context="true">
         <connection-url>jdbc:h2:${jboss.server.data.dir}${/}h2${/}hawkular;AUTO_SERVER=TRUE</connection-url>
         <driver>h2</driver>
@@ -53,23 +68,42 @@
     </cache-container>
   </xsl:template>
 
-  <!-- Add a secure-deployment to the keycloak subsystem -->
-  <xsl:template match="node()[name(.)='auth-server']">
+  <xsl:template match="node()[name(.)='profile']">
     <xsl:copy>
-      <xsl:copy-of select="node()|@*"/>
+      <xsl:apply-templates select="node()|@*"/>
+      <subsystem xmlns="urn:jboss:domain:keycloak:1.0">
+        <auth-server name="main-auth-server">
+          <enabled>true</enabled>
+          <web-context>auth</web-context>
+        </auth-server>
+        <realm name="hawkular">
+          <auth-server-url>http://localhost:8080/auth</auth-server-url>
+          <ssl-required>none</ssl-required>
+        </realm>
+        <secure-deployment name="hawkular-accounts.war">
+          <realm>hawkular</realm>
+          <resource>hawkular-accounts-backend</resource>
+          <use-resource-role-mappings>true</use-resource-role-mappings>
+          <enable-cors>true</enable-cors>
+          <credential name="secret"><xsl:value-of select="$uuid.hawkular.accounts.backend" /></credential>
+        </secure-deployment>
+      </subsystem>
     </xsl:copy>
-    <realm name="hawkular">
-      <auth-server-url>http://localhost:8080/auth</auth-server-url>
-      <ssl-required>none</ssl-required>
-    </realm>
-    <secure-deployment name="hawkular-accounts.war">
-      <realm>hawkular</realm>
-      <resource>hawkular-accounts-backend</resource>
-      <use-resource-role-mappings>true</use-resource-role-mappings>
-      <enable-cors>true</enable-cors>
-      <enable-basic-auth>true</enable-basic-auth>
-      <credential name="secret"><xsl:value-of select="$uuid.hawkular.accounts.backend" /></credential>
-    </secure-deployment>
+  </xsl:template>
+  <xsl:template match="node()[name(.)='security-domains']">
+    <xsl:copy>
+      <xsl:apply-templates select="node()[name(.)='security-domain']"/>
+      <security-domain name="keycloak">
+        <authentication>
+          <login-module code="org.keycloak.adapters.jboss.KeycloakLoginModule" flag="required"/>
+        </authentication>
+      </security-domain>
+      <security-domain name="sp" cache-type="default">
+        <authentication>
+          <login-module code="org.picketlink.identity.federation.bindings.wildfly.SAML2LoginModule" flag="required"/>
+        </authentication>
+      </security-domain>
+    </xsl:copy>
   </xsl:template>
 
   <!-- Everything else remains the same -->
