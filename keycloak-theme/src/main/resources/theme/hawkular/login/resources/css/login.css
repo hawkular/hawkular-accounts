@@ -22,6 +22,6 @@
     margin: 100px;
 }
 .login-pf body {
-    background: #034672 url("../img/bg-login.jpg") top left no-repeat;
-    background-size: auto;
+    background: #161616 url("../img/bg-login.jpg") top left no-repeat;
+    background-size: 100% auto;
 }
