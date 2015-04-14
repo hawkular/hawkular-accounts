@@ -63,15 +63,15 @@
       </excludes>
     </fileSet>
     <fileSet>
-      <directory>
-        ${project.build.directory}/unpacked/keycloak-appliance-dist-all-${version.keycloak}/keycloak
-      </directory>
+      <directory>${project.build.directory}/unpacked/wildfly-${version.wildfly}/</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>
-        ${project.build.directory}/unpacked/keycloak-appliance-dist-all-${version.keycloak}/keycloak
-      </directory>
+      <directory>${project.build.directory}/keycloak/</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${project.build.directory}/unpacked/wildfly-${version.wildfly}/</directory>
       <outputDirectory>/</outputDirectory>
       <directoryMode>0755</directoryMode>
       <includes>

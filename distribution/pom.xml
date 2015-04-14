@@ -48,16 +48,6 @@
       <version>${project.version}</version>
       <type>jar</type>
     </dependency>
-    <dependency>
-      <groupId>org.keycloak</groupId>
-      <artifactId>keycloak-war-dist-all</artifactId>
-      <type>zip</type>
-    </dependency>
-    <dependency>
-      <groupId>org.keycloak</groupId>
-      <artifactId>keycloak-wildfly-adapter-dist</artifactId>
-      <type>zip</type>
-    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -74,11 +64,18 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>org.keycloak</groupId>
-                  <artifactId>keycloak-appliance-dist-all</artifactId>
-                  <version>${version.keycloak}</version>
+                  <groupId>org.wildfly</groupId>
+                  <artifactId>wildfly-dist</artifactId>
                   <type>zip</type>
+                  <version>${version.wildfly}</version>
                   <outputDirectory>${project.build.directory}/unpacked</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.keycloak</groupId>
+                  <artifactId>keycloak-server-overlay</artifactId>
+                  <type>zip</type>
+                  <version>${version.keycloak}</version>
+                  <outputDirectory>${project.build.directory}/keycloak</outputDirectory>
                 </artifactItem>
               </artifactItems>
             </configuration>
@@ -99,16 +96,12 @@
             <configuration>
               <transformationSets>
                 <transformationSet>
-                  <dir>
-                    ${project.build.directory}/unpacked/keycloak-appliance-dist-all-${version.keycloak}/keycloak/standalone/configuration
-                  </dir>
+                  <dir>${project.build.directory}/unpacked/wildfly-${version.wildfly}/standalone/configuration</dir>
                   <stylesheet>src/main/xslt/standalone.xsl</stylesheet>
                   <includes>
                     <include>standalone*.xml</include>
                   </includes>
-                  <outputDir>
-                    ${project.build.directory}/unpacked/keycloak-appliance-dist-all-${version.keycloak}/keycloak/standalone/configuration
-                  </outputDir>
+                  <outputDir>${project.build.directory}/unpacked/wildfly-${version.wildfly}/standalone/configuration</outputDir>
                   <parameters>
                     <parameter>
                       <name>uuid.hawkular.accounts.backend</name>
