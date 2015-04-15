@@ -21,6 +21,8 @@ import org.hawkular.accounts.api.model.HawkularUser;
 import org.junit.Before;
 import org.junit.Test;
 import org.keycloak.KeycloakPrincipal;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.representations.AccessToken;
 
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
@@ -103,7 +105,17 @@ public class UserServiceImplTest extends BaseEntityManagerEnabledTest {
     SessionContext sessionContext = new SessionContext() {
         @Override
         public Principal getCallerPrincipal() {
-            return new KeycloakPrincipal<>("foobar", null);
+            return new KeycloakPrincipal<>("foobar", new KeycloakSecurityContext() {
+                @Override
+                public AccessToken getToken() {
+                    return new AccessToken() {
+                        @Override
+                        public String getName() {
+                            return "John Doe";
+                        }
+                    };
+                }
+            });
         }
 
         @Override
