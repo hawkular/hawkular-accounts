@@ -20,7 +20,6 @@ import org.hawkular.accounts.api.PermissionChecker;
 import org.hawkular.accounts.api.PermissionService;
 import org.hawkular.accounts.api.PersonaService;
 import org.hawkular.accounts.api.ResourceService;
-import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
@@ -51,7 +50,7 @@ public class PermissionCheckerImpl implements PermissionChecker {
     ResourceService resourceService;
 
     @Inject
-    HawkularUser user;
+    Persona persona;
 
     @Override
     public boolean isAllowedTo(Operation operation, Resource resource, Persona persona) {
@@ -86,7 +85,7 @@ public class PermissionCheckerImpl implements PermissionChecker {
 
     @Override
     public boolean isAllowedTo(Operation operation, Resource resource) {
-        return isAllowedTo(operation, resource, user);
+        return isAllowedTo(operation, resource, persona);
     }
 
     @Override

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.api.internal.adapter;
+package org.hawkular.accounts.api;
 
 import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;

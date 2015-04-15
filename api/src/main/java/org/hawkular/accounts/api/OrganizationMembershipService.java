@@ -16,6 +16,7 @@
  */
 package org.hawkular.accounts.api;
 
+import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
 import org.hawkular.accounts.api.model.Persona;
 
@@ -46,4 +47,12 @@ public interface OrganizationMembershipService {
      * @return the memberships of this persona across all organizations
      */
     List<OrganizationMembership> getMembershipsForPersona(Persona persona);
+
+    /**
+     * Retrieves the memberships for a given Organization.
+     *
+     * @param organization the organization
+     * @return the memberships of this persona across all organizations
+     */
+    List<OrganizationMembership> getMembershipsForOrganization(Organization organization);
 }

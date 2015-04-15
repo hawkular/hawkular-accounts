@@ -18,7 +18,7 @@ package org.hawkular.accounts.api.internal.impl;
 
 import org.hawkular.accounts.api.RoleService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
-import org.hawkular.accounts.api.internal.adapter.NamedRole;
+import org.hawkular.accounts.api.NamedRole;
 import org.hawkular.accounts.api.model.Role;
 import org.hawkular.accounts.api.model.Role_;
 

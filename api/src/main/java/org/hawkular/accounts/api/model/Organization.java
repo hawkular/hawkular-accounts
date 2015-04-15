@@ -54,6 +54,7 @@ public class Organization extends Persona {
         return owner;
     }
 
+    @Override
     public String getName() {
         return name;
     }

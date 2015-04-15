@@ -49,7 +49,7 @@ public class OrganizationMembershipServiceImplTest extends BaseEntityManagerEnab
         entityManager.getTransaction().commit();
 
         List<OrganizationMembership> memberships = membershipService.getMembershipsForPersona(jdoe);
-        assertEquals("The user should not belong to any organizations", 0, memberships.size());
+        assertEquals("The persona should not belong to any organizations", 0, memberships.size());
     }
 
     @Test
@@ -66,7 +66,7 @@ public class OrganizationMembershipServiceImplTest extends BaseEntityManagerEnab
         entityManager.getTransaction().commit();
 
         List<OrganizationMembership> memberships = membershipService.getMembershipsForPersona(jdoe);
-        assertEquals("There should be one membership for this user", 1, memberships.size());
+        assertEquals("There should be one membership for this persona", 1, memberships.size());
     }
 
     @Test
@@ -107,6 +107,6 @@ public class OrganizationMembershipServiceImplTest extends BaseEntityManagerEnab
         entityManager.getTransaction().commit();
 
         List<OrganizationMembership> memberships = membershipService.getMembershipsForPersona(acme);
-        assertEquals("Acme is super user of IT department", 1, memberships.size());
+        assertEquals("Acme is super persona of IT department", 1, memberships.size());
     }
 }

@@ -103,7 +103,7 @@ public interface RoleService {
 
     /**
      * CDI producer method for Role beans annotated with
-     * {@link org.hawkular.accounts.api.internal.adapter.NamedRole}. This method is not intended to be called by
+     * {@link NamedRole}. This method is not intended to be called by
      * consumers of the API.
      *
      * @param injectionPoint    the CDI InjectionPoint

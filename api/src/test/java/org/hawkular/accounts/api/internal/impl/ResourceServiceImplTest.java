@@ -38,9 +38,9 @@ public class ResourceServiceImplTest extends BaseEntityManagerEnabledTest {
     public void prepareServices() {
         this.resourceService = new ResourceServiceImpl();
         this.resourceService.em = entityManager;
-        this.resourceService.user = new HawkularUser(UUID.randomUUID().toString());
+        this.resourceService.persona = new HawkularUser(UUID.randomUUID().toString());
         entityManager.getTransaction().begin();
-        entityManager.persist(this.resourceService.user);
+        entityManager.persist(this.resourceService.persona);
         entityManager.getTransaction().commit();
     }
 

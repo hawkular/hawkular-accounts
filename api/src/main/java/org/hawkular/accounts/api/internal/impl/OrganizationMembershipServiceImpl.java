@@ -18,6 +18,7 @@ package org.hawkular.accounts.api.internal.impl;
 
 import org.hawkular.accounts.api.OrganizationMembershipService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
 import org.hawkular.accounts.api.model.OrganizationMembership_;
 import org.hawkular.accounts.api.model.Persona;
@@ -48,6 +49,17 @@ public class OrganizationMembershipServiceImpl implements OrganizationMembership
         Root<OrganizationMembership> root = query.from(OrganizationMembership.class);
         query.select(root);
         query.where(builder.equal(root.get(OrganizationMembership_.member), persona));
+
+        return em.createQuery(query).getResultList();
+    }
+
+    @Override
+    public List<OrganizationMembership> getMembershipsForOrganization(Organization organization) {
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<OrganizationMembership> query = builder.createQuery(OrganizationMembership.class);
+        Root<OrganizationMembership> root = query.from(OrganizationMembership.class);
+        query.select(root);
+        query.where(builder.equal(root.get(OrganizationMembership_.organization), organization));
 
         return em.createQuery(query).getResultList();
     }

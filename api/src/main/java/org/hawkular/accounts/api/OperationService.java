@@ -156,7 +156,7 @@ public interface OperationService {
 
     /**
      * CDI producer method for Operation beans annotated with
-     * {@link org.hawkular.accounts.api.internal.adapter.NamedOperation}. This method is not intended to be called by
+     * {@link NamedOperation}. This method is not intended to be called by
      * consumers of the API.
      *
      * @param injectionPoint    the CDI InjectionPoint

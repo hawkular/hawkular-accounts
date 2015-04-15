@@ -19,9 +19,11 @@ package org.hawkular.accounts.api.internal.impl;
 import org.hawkular.accounts.api.OrganizationMembershipService;
 import org.hawkular.accounts.api.OrganizationService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.NamedRole;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
 import org.hawkular.accounts.api.model.Persona;
+import org.hawkular.accounts.api.model.Role;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
@@ -43,6 +45,10 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Inject
     OrganizationMembershipService membershipService;
 
+    @Inject
+    @NamedRole("Super User")
+    Role superUser;
+
     @Override
     public List<Organization> getOrganizationsForPersona(Persona persona) {
         return getOrganizationsFromMemberships(membershipService.getMembershipsForPersona(persona));
@@ -57,5 +63,19 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Organization createOrganization(String name, String description, Persona owner) {
+        Organization organization = new Organization(owner);
+        organization.setName(name);
+        organization.setDescription(description);
+        em.persist(organization);
+        em.persist(new OrganizationMembership(organization, owner, superUser));
+        return organization;
+    }
 
+    @Override
+    public void deleteOrganization(Organization organization) {
+        membershipService.getMembershipsForOrganization(organization).stream().forEach(em::remove);
+        em.remove(organization);
+    }
 }

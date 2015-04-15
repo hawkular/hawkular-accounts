@@ -62,7 +62,7 @@ public class UserServiceImplTest extends BaseEntityManagerEnabledTest {
         entityManager.getTransaction().commit();
 
         existingUsers = entityManager.createQuery("select u from HawkularUser u").getResultList();
-        assertEquals("There should 1 user at the end of the test", 1, existingUsers.size());
+        assertEquals("There should 1 persona at the end of the test", 1, existingUsers.size());
     }
 
     @Test
@@ -74,7 +74,7 @@ public class UserServiceImplTest extends BaseEntityManagerEnabledTest {
         entityManager.getTransaction().commit();
 
         existingUsers = entityManager.createQuery("select u from HawkularUser u").getResultList();
-        assertEquals("There should 1 user at the end of the test", 1, existingUsers.size());
+        assertEquals("There should 1 persona at the end of the test", 1, existingUsers.size());
     }
 
     @Test

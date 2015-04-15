@@ -56,4 +56,20 @@ public interface OrganizationService {
      * @return a collection of {@link Organization} extracted from the memberships
      */
     List<Organization> getOrganizationsFromMemberships(List<OrganizationMembership> memberships);
+
+    /**
+     * Creates a new organization and a "Super User" membership for the persona.
+     *
+     * @param name           the organization's name
+     * @param description    the organization's description
+     * @param owner          the persona that owns the organization
+     * @return the newly created organization
+     */
+    Organization createOrganization(String name, String description, Persona owner);
+
+    /**
+     * Removes the organization and all related memberships
+     * @param organization    the organization to be removed
+     */
+    void deleteOrganization(Organization organization);
 }

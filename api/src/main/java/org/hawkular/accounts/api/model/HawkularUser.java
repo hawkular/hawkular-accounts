@@ -17,6 +17,7 @@
 package org.hawkular.accounts.api.model;
 
 import javax.persistence.Entity;
+import javax.persistence.Transient;
 
 /**
  * Represents a real person. The actual data for this user resides on Keycloak. For us, suffice to know the
@@ -27,10 +28,22 @@ import javax.persistence.Entity;
 @Entity
 public class HawkularUser extends Persona {
 
+    @Transient
+    private String name;
+
     protected HawkularUser() { // JPA happy
     }
 
     public HawkularUser(String id) {
         super(id);
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

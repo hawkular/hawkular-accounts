@@ -20,7 +20,7 @@ import org.hawkular.accounts.api.OperationService;
 import org.hawkular.accounts.api.PermissionService;
 import org.hawkular.accounts.api.RoleService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
-import org.hawkular.accounts.api.internal.adapter.NamedOperation;
+import org.hawkular.accounts.api.NamedOperation;
 import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Operation_;
 import org.hawkular.accounts.api.model.Permission;
@@ -107,7 +107,7 @@ public class OperationServiceImpl implements OperationService {
         private Operation operation;
         private Set<Role> roles;
         // this is a basic naive state tracking: ideally, we would compare the two lists, *but*,
-        // what to do if the user asks for a clear? isn't that an explicit instruction to remove everything that is
+        // what to do if the persona asks for a clear? isn't that an explicit instruction to remove everything that is
         // on the database and add again? even if that's so, is it that bad that we wouldn't do it, if the results
         // are the same? while we don't have a good answer, we keep it this way
         private boolean rolesHaveChanged = false;

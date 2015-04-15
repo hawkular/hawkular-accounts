@@ -112,7 +112,7 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
         entityManager.getTransaction().commit();
 
         Set<Role> roles = permissionService.getPermittedRoles(operation);
-        assertEquals("Operation should be permitted only for super user", 1, roles.size());
+        assertEquals("Operation should be permitted only for super persona", 1, roles.size());
     }
 
     @Test
@@ -139,7 +139,7 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
         entityManager.getTransaction().commit();
 
         Set<Role> roles = permissionService.getPermittedRoles(operation);
-        assertEquals("Operation should be permitted only for super user", 1, roles.size());
+        assertEquals("Operation should be permitted only for super persona", 1, roles.size());
     }
 
     @Test

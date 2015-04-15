@@ -97,10 +97,10 @@ public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void userHasDirectPermissionsOnResource() {
         entityManager.getTransaction().begin();
-        // user registers himself
+        // persona registers himself
         HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
 
-        // user creates a resource, he's the super user of this resource
+        // persona creates a resource, he's the super persona of this resource
         Resource resource = new Resource(jdoe);
         PersonaResourceRole personaResourceRole = new PersonaResourceRole(jdoe, superUser, resource);
         entityManager.persist(jdoe);
@@ -114,16 +114,16 @@ public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void userBelongsToOrganizationThatHasPermissionsOnResource() {
         entityManager.getTransaction().begin();
-        // user jdoe registers himself
+        // persona jdoe registers himself
         HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
 
-        // user jdoe creates an organization
+        // persona jdoe creates an organization
         Organization acme = new Organization(jdoe);
 
-        // user jsmith registers himself
+        // persona jsmith registers himself
         HawkularUser jsmith = new HawkularUser(UUID.randomUUID().toString());
 
-        // user jsmith is invited to be a "Administrator" at "Acme"
+        // persona jsmith is invited to be a "Administrator" at "Acme"
         OrganizationMembership membership = new OrganizationMembership(acme, jsmith, superUser);
 
         // jdoe creates a resource as acme, acme is has all rights on this resource, including Super User and
@@ -141,7 +141,7 @@ public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
         entityManager.persist(acmeAdministratorOnResource);
         entityManager.getTransaction().commit();
 
-        // user jsmith should be able to create metrics on the given resource, since he's an administrator on acme
+        // persona jsmith should be able to create metrics on the given resource, since he's an administrator on acme
         assertTrue(permissionChecker.isAllowedTo(metricsCreate, resource, jsmith));
     }
 
@@ -152,7 +152,7 @@ public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
         resourceService.superUser = superUser;
 
         entityManager.getTransaction().begin();
-        // user jdoe registers himself
+        // persona jdoe registers himself
         HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
         entityManager.persist(jdoe);
         entityManager.getTransaction().commit();
@@ -164,13 +164,13 @@ public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
         Resource resource = resourceService.create(id, jdoe);
         entityManager.getTransaction().commit();
 
-        assertTrue("Owner is super user.", permissionChecker.isAllowedTo(superUserOnlyOperation, resource, jdoe));
+        assertTrue("Owner is super persona.", permissionChecker.isAllowedTo(superUserOnlyOperation, resource, jdoe));
     }
 
     @Test
     public void directlyCreatedResourceHasOwnerWithFullPermission() {
         entityManager.getTransaction().begin();
-        // user jdoe registers himself
+        // persona jdoe registers himself
         HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
         Resource resource = new Resource(jdoe);
         entityManager.persist(jdoe);
@@ -185,16 +185,16 @@ public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void userBelongsToOrganizationThatHasPermissionsOnResourceButHasInsufficientRoles() {
         entityManager.getTransaction().begin();
-        // user jdoe registers himself
+        // persona jdoe registers himself
         HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
 
-        // user jdoe creates an organization
+        // persona jdoe creates an organization
         Organization acme = new Organization(jdoe);
 
-        // user jsmith registers himself
+        // persona jsmith registers himself
         HawkularUser jsmith = new HawkularUser(UUID.randomUUID().toString());
 
-        // user jsmith is invited to be a "Monitor" at "Acme"
+        // persona jsmith is invited to be a "Monitor" at "Acme"
         OrganizationMembership membership = new OrganizationMembership(acme, jsmith, monitor);
 
         // jdoe creates a resource as acme, acme is has all rights on this resource, including Super User and
@@ -214,7 +214,7 @@ public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
         entityManager.persist(acmeMonitorOnResource);
         entityManager.getTransaction().commit();
 
-        // user jsmith should be able to create metrics on the given resource, since he's an administrator on acme
+        // persona jsmith should be able to create metrics on the given resource, since he's an administrator on acme
         assertFalse(permissionChecker.isAllowedTo(metricsCreate, resource, jsmith));
     }
 

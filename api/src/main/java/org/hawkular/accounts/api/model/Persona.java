@@ -28,11 +28,13 @@ import javax.persistence.InheritanceType;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-public class Persona extends Member {
+public abstract class Persona extends Member {
     protected Persona() { // JPA happy
     }
 
     public Persona(String id) {
         super(id);
     }
+
+    public abstract String getName();
 }

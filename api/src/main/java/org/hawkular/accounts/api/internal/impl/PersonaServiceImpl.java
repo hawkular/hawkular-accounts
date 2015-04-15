@@ -32,11 +32,13 @@ import org.hawkular.accounts.api.model.Role;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -65,6 +67,9 @@ public class PersonaServiceImpl implements PersonaService {
     @Inject
     UserService userService;
 
+    @Inject
+    private HttpServletRequest httpRequest;
+
     public Persona get(String id) {
         if (null == id) {
             throw new IllegalArgumentException("The provided Persona ID is invalid (null).");
@@ -92,7 +97,7 @@ public class PersonaServiceImpl implements PersonaService {
     public Set<Role> getEffectiveRolesForResource(Persona persona, Resource resource) {
         // rules:
         // if the persona has explicit roles for this resource, that's what is effective.
-        // if the persona has *no* explicit roles, traverse the Organizations that this user is part of
+        // if the persona has *no* explicit roles, traverse the Organizations that this persona is part of
         // and return *all* the roles. For instance:
         // User "jdoe" is "Deployer" on "Department 1" and "Auditor" on "Department 2"
         // "Department 1" is "Maintainer" of "node1"
@@ -147,8 +152,16 @@ public class PersonaServiceImpl implements PersonaService {
     }
 
     @Override
+    @Produces
     public Persona getCurrent() {
         // for now, this is sufficient. In a future improvement, we'll have a way to switch users
+        String personaId = httpRequest.getHeader("X-Hawkular-Persona");
+        if (personaId != null && !personaId.isEmpty()) {
+            // TODO: check permissions!
+            return get(personaId);
+        }
+
+        // we don't have a persona on the request, so, assume it's the current user
         return userService.getCurrent();
     }
 }

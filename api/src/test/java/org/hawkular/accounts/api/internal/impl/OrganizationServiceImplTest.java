@@ -52,7 +52,7 @@ public class OrganizationServiceImplTest extends BaseEntityManagerEnabledTest {
         entityManager.getTransaction().commit();
 
         List<Organization> organizations = organizationService.getOrganizationsForPersona(jdoe);
-        assertEquals("The user should not belong to any organizations", 0, organizations.size());
+        assertEquals("The persona should not belong to any organizations", 0, organizations.size());
     }
 
     @Test
@@ -69,7 +69,7 @@ public class OrganizationServiceImplTest extends BaseEntityManagerEnabledTest {
         entityManager.getTransaction().commit();
 
         List<Organization> memberships = organizationService.getOrganizationsForPersona(jdoe);
-        assertEquals("There should be one membership for this user", 1, memberships.size());
+        assertEquals("There should be one membership for this persona", 1, memberships.size());
     }
 
     @Test
@@ -110,7 +110,7 @@ public class OrganizationServiceImplTest extends BaseEntityManagerEnabledTest {
         entityManager.getTransaction().commit();
 
         List<Organization> memberships = organizationService.getOrganizationsForPersona(acme);
-        assertEquals("Acme is super user of IT department", 1, memberships.size());
+        assertEquals("Acme is super persona of IT department", 1, memberships.size());
     }
 
 }

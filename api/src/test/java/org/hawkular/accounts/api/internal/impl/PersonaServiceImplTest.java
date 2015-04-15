@@ -167,7 +167,7 @@ public class PersonaServiceImplTest extends BaseEntityManagerEnabledTest {
             }
         }
 
-        assertTrue("User should have had super user roles", superUserFound);
+        assertTrue("User should have had super persona roles", superUserFound);
         assertTrue("User should have had admin roles", adminFound);
     }
 
@@ -259,7 +259,7 @@ public class PersonaServiceImplTest extends BaseEntityManagerEnabledTest {
             }
         }
 
-        assertTrue("User should have had super user roles", superUserFound);
+        assertTrue("User should have had super persona roles", superUserFound);
         assertTrue("User should have had admin roles", adminFound);
     }
 

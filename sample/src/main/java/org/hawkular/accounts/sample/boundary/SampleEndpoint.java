@@ -18,7 +18,7 @@ package org.hawkular.accounts.sample.boundary;
 
 import org.hawkular.accounts.api.PermissionChecker;
 import org.hawkular.accounts.api.ResourceService;
-import org.hawkular.accounts.api.internal.adapter.NamedOperation;
+import org.hawkular.accounts.api.NamedOperation;
 import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;

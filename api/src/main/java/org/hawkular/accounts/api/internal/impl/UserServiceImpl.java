@@ -16,10 +16,12 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
+import org.hawkular.accounts.api.CurrentUser;
 import org.hawkular.accounts.api.UserService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.HawkularUser_;
+import org.keycloak.KeycloakPrincipal;
 
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
@@ -49,9 +51,16 @@ public class UserServiceImpl implements UserService {
     @Resource
     SessionContext sessionContext;
 
-    @Produces
+    @Produces @CurrentUser
     public HawkularUser getCurrent() {
-        return getOrCreateById(sessionContext.getCallerPrincipal().getName());
+        KeycloakPrincipal principal = (KeycloakPrincipal) sessionContext.getCallerPrincipal();
+        String id = principal.getName();
+        String name = principal.getKeycloakSecurityContext().getToken().getName();
+
+        HawkularUser user = getOrCreateById(id);
+        user.setName(name);
+
+        return user;
     }
 
     public HawkularUser getById(String id) {
@@ -67,7 +76,7 @@ public class UserServiceImpl implements UserService {
         }
 
         if (results.size() > 1) {
-            throw new IllegalStateException("More than one user found for ID " + id);
+            throw new IllegalStateException("More than one persona found for ID " + id);
         }
 
         return null;

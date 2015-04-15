@@ -16,10 +16,9 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
+import org.hawkular.accounts.api.NamedRole;
 import org.hawkular.accounts.api.ResourceService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
-import org.hawkular.accounts.api.internal.adapter.NamedRole;
-import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.PersonaResourceRole;
 import org.hawkular.accounts.api.model.Resource;
@@ -48,7 +47,7 @@ public class ResourceServiceImpl implements ResourceService {
     EntityManager em;
 
     @Inject
-    HawkularUser user;
+    Persona persona;
 
     @Inject
     @NamedRole("Super User")
