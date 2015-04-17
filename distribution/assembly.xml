@@ -57,6 +57,10 @@
     <fileSet>
       <directory>src/main/resources</directory>
       <outputDirectory>/</outputDirectory>
+      <excludes>
+        <!-- We handle this file specially (at the end of this file) -->
+        <exclude>**/hawkular-realm*json</exclude>
+      </excludes>
     </fileSet>
     <fileSet>
       <directory>
