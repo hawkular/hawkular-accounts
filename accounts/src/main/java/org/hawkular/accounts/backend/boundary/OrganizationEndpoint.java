@@ -27,6 +27,7 @@ import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.Organization_;
 import org.hawkular.accounts.api.model.Persona;
+import org.hawkular.accounts.backend.entity.rest.ErrorResponse;
 import org.hawkular.accounts.backend.entity.rest.OrganizationRequest;
 
 import javax.annotation.security.PermitAll;
@@ -137,6 +138,21 @@ public class OrganizationEndpoint {
     @Path("/{id}")
     public Response deleteOrganization(@NotNull @PathParam("id") String id) {
         Organization organization = em.find(Organization.class, id);
+
+        // check if there are sub-organizations
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<Organization> query = builder.createQuery(Organization.class);
+        Root<Organization> root = query.from(Organization.class);
+        query.select(root);
+
+        query.where(builder.equal(root.get(Organization_.owner), organization));
+        if (em.createQuery(query).getResultList().size() > 0) {
+            ErrorResponse response = new ErrorResponse("This organization has sub-organizations. Please, remove those" +
+                    " before removing this organization.");
+
+            return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
+        }
+
         if (permissionChecker.isAllowedTo(operationDelete, id, persona)) {
             organizationService.deleteOrganization(organization);
             return Response.ok().build();
