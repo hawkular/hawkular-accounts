@@ -22,7 +22,6 @@ import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.Role;
 
 import javax.annotation.Resource;
-import javax.ejb.Singleton;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.servlet.ServletContextEvent;
