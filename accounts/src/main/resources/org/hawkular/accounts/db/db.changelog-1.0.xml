@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2015 Red Hat, Inc. and/or its affiliates
+    and other contributors as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+
+  <changeSet author="jpkroehling" id="changelog-1.0">
+
+    <createTable tableName="Member">
+      <column name="id" type="varchar(255)">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="createdAt" type="timestamp"/>
+      <column name="updatedAt" type="timestamp"/>
+    </createTable>
+
+    <createTable tableName="Persona">
+      <column name="id" type="varchar(255)">
+        <constraints primaryKey="true" foreignKeyName="fk_persona_member_id" references="Member(id)"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="HawkularUser">
+      <column name="id" type="varchar(255)">
+        <constraints primaryKey="true" foreignKeyName="fk_user_id_persona_id" references="Persona(id)"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="Organization">
+      <column name="id" type="varchar(255)">
+        <constraints primaryKey="true" foreignKeyName="fk_organization_id_persona_id" references="Persona(id)"/>
+      </column>
+      <column name="createdAt" type="timestamp"/>
+      <column name="updatedAt" type="timestamp"/>
+      <column name="owner_id" type="varchar(255)">
+        <constraints foreignKeyName="fk_organization_owner_persona_id" references="Persona(id)"/>
+      </column>
+      <column name="name" type="varchar(255)"/>
+      <column name="description" type="text"/>
+    </createTable>
+
+    <createTable tableName="Resource">
+      <column name="id" type="varchar(255)">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="createdAt" type="timestamp"/>
+      <column name="updatedAt" type="timestamp"/>
+      <column name="parent_id" type="varchar(255)">
+        <constraints foreignKeyName="fk_resource_parent_resource_id" references="Resource(id)"/>
+      </column>
+      <column name="persona_id" type="varchar(255)">
+        <constraints foreignKeyName="fk_resource_persona_id" references="Persona(id)"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="Role">
+      <column name="id" type="varchar(255)">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="createdAt" type="timestamp"/>
+      <column name="updatedAt" type="timestamp"/>
+      <column name="name" type="varchar(255)">
+        <constraints unique="true"/>
+      </column>
+      <column name="description" type="text"/>
+    </createTable>
+
+    <createTable tableName="Operation">
+      <column name="id" type="varchar(255)">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="createdAt" type="timestamp"/>
+      <column name="updatedAt" type="timestamp"/>
+      <column name="name" type="varchar(255)">
+        <constraints unique="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="OrganizationMembership">
+      <column name="id" type="varchar(255)">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="createdAt" type="timestamp"/>
+      <column name="updatedAt" type="timestamp"/>
+      <column name="member_id" type="varchar(255)">
+        <constraints foreignKeyName="fk_orgmembership_member_member_id" references="Member(id)"/>
+      </column>
+      <column name="organization_id" type="varchar(255)">
+        <constraints foreignKeyName="fk_orgmembership_organization_organization_id" references="Organization(id)"/>
+      </column>
+      <column name="role_id" type="varchar(255)">
+        <constraints foreignKeyName="fk_orgmembership_role_role_id" references="Role(id)"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="Permission">
+      <column name="id" type="varchar(255)">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="createdAt" type="timestamp"/>
+      <column name="updatedAt" type="timestamp"/>
+      <column name="operation_id" type="varchar(255)">
+        <constraints foreignKeyName="fk_permission_operation_operation_id" references="Operation(id)"/>
+      </column>
+      <column name="role_id" type="varchar(255)">
+        <constraints foreignKeyName="fk_permission_role_role_id" references="Role(id)"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="PersonaResourceRole">
+      <column name="id" type="varchar(255)">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="createdAt" type="timestamp"/>
+      <column name="updatedAt" type="timestamp"/>
+      <column name="persona_id" type="varchar(255)">
+        <constraints foreignKeyName="fk_prr_persona_id" references="Persona(id)"/>
+      </column>
+      <column name="resource_id" type="varchar(255)">
+        <constraints foreignKeyName="fk_prr_resource_id" references="Resource(id)"/>
+      </column>
+      <column name="role_id" type="varchar(255)">
+        <constraints foreignKeyName="fk_prr_role_id" references="Role(id)"/>
+      </column>
+    </createTable>
+
+  </changeSet>
+
+</databaseChangeLog>

@@ -21,12 +21,14 @@ import org.hawkular.accounts.api.RoleService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.Role;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.security.PermitAll;
+import javax.annotation.Resource;
 import javax.ejb.Singleton;
-import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.transaction.SystemException;
+import javax.transaction.UserTransaction;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,10 +38,7 @@ import java.util.Set;
  *
  * @author Juraci Paixão Kröhling
  */
-@Startup
-@Singleton
-@PermitAll
-public class SetupHawkularAccountsImpl {
+public class SetupHawkularAccountsImpl implements ServletContextListener {
     private final MsgLogger logger = MsgLogger.LOGGER;
 
     @Inject
@@ -52,9 +51,32 @@ public class SetupHawkularAccountsImpl {
     @Inject
     OperationService operationService;
 
+    @Resource
+    UserTransaction tx;
+
     Set<Role> roles = new HashSet<>(7);
 
-    @PostConstruct
+    @Override
+    public void contextInitialized(ServletContextEvent servletContextEvent) throws RuntimeException {
+        try {
+            tx.begin();
+            setup();
+            tx.commit();
+        } catch (Exception e) {
+            try {
+                tx.rollback();
+            } catch (SystemException e1) {
+                // couldn't rollback... but let's ignore this one, as we've got another more important exception to log
+            }
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent servletContextEvent) {
+
+    }
+
     public void setup() {
         logger.infoStartedSetupAccounts();
         roles.add(monitor);

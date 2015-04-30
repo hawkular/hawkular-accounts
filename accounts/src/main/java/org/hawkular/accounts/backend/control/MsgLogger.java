@@ -38,4 +38,12 @@ public interface MsgLogger {
     @LogMessage(level = Logger.Level.INFO)
     @Message(id = 110001, value = "Finished setting up Hawkular Accounts")
     void infoFinishedSetupAccounts();
+
+    @LogMessage(level = Logger.Level.INFO)
+    @Message(id = 110002, value = "Starting database update")
+    void infoStartedDatabaseUpdated();
+
+    @LogMessage(level = Logger.Level.INFO)
+    @Message(id = 110003, value = "Finished database update")
+    void infoFinishedDatabaseUpdate();
 }
