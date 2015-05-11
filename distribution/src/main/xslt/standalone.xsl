@@ -87,6 +87,14 @@
           <enable-cors>true</enable-cors>
           <credential name="secret"><xsl:value-of select="$uuid.hawkular.accounts.backend" /></credential>
         </secure-deployment>
+        <secure-deployment name="hawkular-accounts-sample.war">
+          <realm>hawkular</realm>
+          <resource>hawkular-accounts-backend</resource>
+          <use-resource-role-mappings>true</use-resource-role-mappings>
+          <enable-cors>true</enable-cors>
+          <enable-basic-auth>true</enable-basic-auth>
+          <credential name="secret"><xsl:value-of select="$uuid.hawkular.accounts.backend" /></credential>
+        </secure-deployment>
       </subsystem>
     </xsl:copy>
   </xsl:template>
