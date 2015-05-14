@@ -46,7 +46,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     OrganizationMembershipService membershipService;
 
     @Inject
-    @NamedRole("Super User")
+    @NamedRole("SuperUser")
     Role superUser;
 
     @Override

@@ -50,7 +50,7 @@ public class ResourceServiceImpl implements ResourceService {
     Persona persona;
 
     @Inject
-    @NamedRole("Super User")
+    @NamedRole("SuperUser")
     Role superUser;
 
     @Override

@@ -99,7 +99,7 @@ public class SetupHawkularAccountsImpl implements ServletContextListener {
                 .commit()
 
                 .setup("organization-delete")
-                .add("Super User")
+                .add("SuperUser")
                 .commit()
 
                 .setup("organization-update")
@@ -136,7 +136,7 @@ public class SetupHawkularAccountsImpl implements ServletContextListener {
             "audit logging system. Cannot modify sensitive resources or data outside auditing, can read any " +
             "sensitive data");
 
-    Role superUser = new Role("Super User", "Has all the permissions. Equivalent to administrator in previous " +
+    Role superUser = new Role("SuperUser", "Has all the permissions. Equivalent to administrator in previous " +
             "versions.");
 
 }

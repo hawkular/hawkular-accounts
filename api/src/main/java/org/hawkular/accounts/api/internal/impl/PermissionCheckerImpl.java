@@ -71,7 +71,7 @@ public class PermissionCheckerImpl implements PermissionChecker {
             return true;
         }
 
-        // TODO: should we *always* add Super User to the permitted roles?
+        // TODO: should we *always* add SuperUser to the permitted roles?
         Set<Role> permittedRoles = permissionService.getPermittedRoles(operation);
         Set<Role> personaRoles = personaService.getEffectiveRolesForResource(persona, resource);
         return personaRoles.stream().anyMatch(permittedRoles::contains);

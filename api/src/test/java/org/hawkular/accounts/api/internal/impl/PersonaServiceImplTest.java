@@ -93,7 +93,7 @@ public class PersonaServiceImplTest extends BaseEntityManagerEnabledTest {
         entityManager.getTransaction().begin();
         HawkularUser user = new HawkularUser(UUID.randomUUID().toString());
         Resource resource = new Resource(user);
-        Role superUser = new Role("Super User", "can do anything");
+        Role superUser = new Role("SuperUser", "can do anything");
         Role administrator = new Role("Administrator", "not quite everything");
         PersonaResourceRole personaResourceRole = new PersonaResourceRole(user, superUser, resource);
         entityManager.persist(user);
@@ -105,9 +105,9 @@ public class PersonaServiceImplTest extends BaseEntityManagerEnabledTest {
 
         Set<Role> rolesForResource = personaService.getEffectiveRolesForResource(user, resource);
 
-        assertEquals("User should have Super User role on resource", 1, rolesForResource.size());
+        assertEquals("User should have SuperUser role on resource", 1, rolesForResource.size());
         Role role = rolesForResource.stream().findFirst().get();
-        assertEquals("Super User", role.getName());
+        assertEquals("SuperUser", role.getName());
     }
 
     @Test
@@ -116,7 +116,7 @@ public class PersonaServiceImplTest extends BaseEntityManagerEnabledTest {
         HawkularUser user = new HawkularUser(UUID.randomUUID().toString());
         Resource resource = new Resource(user);
         Resource resource2 = new Resource(user);
-        Role superUser = new Role("Super User", "can do anything");
+        Role superUser = new Role("SuperUser", "can do anything");
         Role administrator = new Role("Administrator", "not quite everything");
         PersonaResourceRole personaResourceRole = new PersonaResourceRole(user, superUser, resource);
         PersonaResourceRole personaResourceRole2 = new PersonaResourceRole(user, superUser, resource2);
@@ -131,9 +131,9 @@ public class PersonaServiceImplTest extends BaseEntityManagerEnabledTest {
 
         Set<Role> rolesForResource = personaService.getEffectiveRolesForResource(user, resource);
 
-        assertEquals("User should have Super User role on resource", 1, rolesForResource.size());
+        assertEquals("User should have SuperUser role on resource", 1, rolesForResource.size());
         Role role = rolesForResource.stream().findFirst().get();
-        assertEquals("Super User", role.getName());
+        assertEquals("SuperUser", role.getName());
     }
 
     @Test
@@ -141,7 +141,7 @@ public class PersonaServiceImplTest extends BaseEntityManagerEnabledTest {
         entityManager.getTransaction().begin();
         HawkularUser user = new HawkularUser(UUID.randomUUID().toString());
         Resource resource = new Resource(user);
-        Role superUser = new Role("Super User", "can do anything");
+        Role superUser = new Role("SuperUser", "can do anything");
         Role administrator = new Role("Administrator", "not quite everything");
         PersonaResourceRole personaResourceRole = new PersonaResourceRole(user, superUser, resource);
         PersonaResourceRole personaResourceRole2 = new PersonaResourceRole(user, administrator, resource);
@@ -155,11 +155,11 @@ public class PersonaServiceImplTest extends BaseEntityManagerEnabledTest {
 
         Set<Role> rolesForResource = personaService.getEffectiveRolesForResource(user, resource);
 
-        assertEquals("User should have Super User and Admin role on resource", 2, rolesForResource.size());
+        assertEquals("User should have SuperUser and Admin role on resource", 2, rolesForResource.size());
         boolean adminFound = false;
         boolean superUserFound = false;
         for (Role role : rolesForResource) {
-            if (role.getName().equals("Super User")) {
+            if (role.getName().equals("SuperUser")) {
                 superUserFound = true;
             }
             if (role.getName().equals("Administrator")) {
@@ -177,7 +177,7 @@ public class PersonaServiceImplTest extends BaseEntityManagerEnabledTest {
         HawkularUser user = new HawkularUser(UUID.randomUUID().toString());
         Organization organization = new Organization(user);
         Resource resource = new Resource(organization);
-        Role superUser = new Role("Super User", "can do anything");
+        Role superUser = new Role("SuperUser", "can do anything");
         Role administrator = new Role("Administrator", "not quite everything");
         PersonaResourceRole personaResourceRole = new PersonaResourceRole(organization, superUser, resource);
         PersonaResourceRole personaResourceRole2 = new PersonaResourceRole(user, administrator, resource);
@@ -206,7 +206,7 @@ public class PersonaServiceImplTest extends BaseEntityManagerEnabledTest {
         // -- org1A
         // -- org1B
         // resource is owned by org1
-        // org1A is Super User on resource
+        // org1A is SuperUser on resource
         // org1B is Administrator on resource
 
         HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
@@ -215,7 +215,7 @@ public class PersonaServiceImplTest extends BaseEntityManagerEnabledTest {
         Organization org1B = new Organization(org1);
         Resource resource = new Resource(org1);
 
-        Role superUser = new Role("Super User", "can do anything");
+        Role superUser = new Role("SuperUser", "can do anything");
         Role administrator = new Role("Administrator", "not quite everything");
 
         OrganizationMembership jdoeOnOrg1SuperUser = new OrganizationMembership(org1, jdoe, superUser);
@@ -251,7 +251,7 @@ public class PersonaServiceImplTest extends BaseEntityManagerEnabledTest {
         boolean adminFound = false;
         boolean superUserFound = false;
         for (Role role : rolesForResource) {
-            if (role.getName().equals("Super User")) {
+            if (role.getName().equals("SuperUser")) {
                 superUserFound = true;
             }
             if (role.getName().equals("Administrator")) {
