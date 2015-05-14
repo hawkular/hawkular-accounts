@@ -129,24 +129,33 @@ can be used as a `@Singleton @Startup` EJB, with the setup on a `@PostConstruct`
 operationService
         .setup("organization-create")
         .add("Monitor") // means: all roles
-        .commit()
+        .persist()
 
         .setup("organization-read")
         .add("Maintainer")
-        .commit()
+        .persist()
 
         .setup("organization-delete")
         .add("SuperUser")
-        .commit()
+        .persist()
 
         .setup("organization-update")
         .add("Maintainer")
-        .commit();
+        .persist();
 ----
 
-Hawkular Accounts ships with the same roles as Wildfly and with the same rules (ie: SuperUser will be given permission
-to perform operations marked as allowed for "user with at least Monitor role"). So, adding the role "Monitor" during
-the setup will automatically add all other roles to it.
+Or, if you need to hold on to the operations that have been created in @PostConstruct, you can replace `persist()` with
+`make()`. E.g.:
+
+[source,java]
+----
+   createOperation = operationService.setup("organization-create").add("Monitor").make();
+   updateOperation = operationService.setup("organization-update").add("Administrator").make();
+----
+
+Hawkular Accounts ships with the https://docs.jboss.org/author/display/WFLY9/RBAC[same roles] as Wildfly and with the
+same rules (ie: SuperUser will be given permission to perform operations marked as allowed for "user with at least
+Monitor role"). So, adding the role "Monitor" during the setup will automatically add all other roles to it.
 
 Note as well that if the set of roles for a given operation has not changed from what we currently have in the
 database, nothing is performed.
