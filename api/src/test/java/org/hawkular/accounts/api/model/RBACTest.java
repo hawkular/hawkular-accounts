@@ -32,8 +32,8 @@ public class RBACTest extends BaseEntityManagerEnabledTest {
         // basis system data
         entityManager.getTransaction().begin();
         Operation operation = new Operation("metric-create");
-        Role superUser = new Role("Super User", "can do anything");
-        Permission permission = new Permission(operation, superUser); // metric-create is allowed for Super User
+        Role superUser = new Role("SuperUser", "can do anything");
+        Permission permission = new Permission(operation, superUser); // metric-create is allowed for SuperUser
         entityManager.persist(operation);
         entityManager.persist(superUser);
         entityManager.persist(permission);
@@ -57,9 +57,9 @@ public class RBACTest extends BaseEntityManagerEnabledTest {
         // basis system data
         entityManager.getTransaction().begin();
         Operation operation = new Operation("metric-create");
-        Role superUser = new Role("Super User", "can do anything");
+        Role superUser = new Role("SuperUser", "can do anything");
         Role auditor = new Role("Auditor", "can do anything");
-        Permission permission = new Permission(operation, superUser); // metric-create is allowed for Super User
+        Permission permission = new Permission(operation, superUser); // metric-create is allowed for SuperUser
         entityManager.persist(operation);
         entityManager.persist(superUser);
         entityManager.persist(permission);

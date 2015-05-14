@@ -35,7 +35,7 @@ import java.util.Set;
 public interface RoleService {
 
     /**
-     * Retrieves the persistent Role based on its fixed name. For instance, requesting the role with name "Super User"
+     * Retrieves the persistent Role based on its fixed name. For instance, requesting the role with name "SuperUser"
      * would return the Role object representing the role with this name. Valid values:
      * <ul>
      *     <li>Monitor</li>
@@ -44,7 +44,7 @@ public interface RoleService {
      *     <li>Deployer</li>
      *     <li>Administrator</li>
      *     <li>Auditor</li>
-     *     <li>Super User</li>
+     *     <li>SuperUser</li>
      * </ul>
      *
      * @param name    the common name for the role.
@@ -54,7 +54,7 @@ public interface RoleService {
 
     /**
      * Following Wildfly's definition of roles, this method returns all roles that are implicit from the given role from
-     * the User's perspective (ie: user has the given role). For instance, "Super User" would return all roles, while
+     * the User's perspective (ie: user has the given role). For instance, "SuperUser" would return all roles, while
      * "Monitor" would return an empty Set, and "Operator" would return a set containing only "Monitor".
      * <br/><br/>
      * Note that this is <b>not</b> suitable for getting which roles are allowed to perform an operation.
@@ -67,7 +67,7 @@ public interface RoleService {
 
     /**
      * Following Wildfly's definition of roles, this method returns all roles that are implicit from the given role from
-     * the User's perspective (ie: user has the given role). For instance, "Super User" would return all roles, while
+     * the User's perspective (ie: user has the given role). For instance, "SuperUser" would return all roles, while
      * "Monitor" would return an empty Set, and "Operator" would return a set containing only "Monitor".
      * <br/><br/>
      * Note that this is <b>not</b> suitable for getting which roles are allowed to perform an operation.
@@ -79,8 +79,8 @@ public interface RoleService {
 
     /**
      * Following Wildfly's definition of roles, this method returns all roles that are implicit from the given role from
-     * the perspective of an operation. For instance, "Super User" would return an empty set meaning that only "Super
-     * User" is allowed, while "Monitor" would return all other roles.
+     * the perspective of an operation. For instance, "SuperUser" would return an empty set meaning that only
+     * "SuperUser" is allowed, while "Monitor" would return all other roles.
      * <br/><br/>
      * Note that this is <b>not</b> suitable for getting which roles an user implicitly has.
      *
@@ -91,8 +91,8 @@ public interface RoleService {
 
     /**
      * Following Wildfly's definition of roles, this method returns all roles that are implicit from the given role from
-     * the perspective of an operation. For instance, "Super User" would return an empty set meaning that only "Super
-     * User" is allowed, while "Monitor" would return all other roles.
+     * the perspective of an operation. For instance, "SuperUser" would return an empty set meaning that only
+     * "SuperUser" is allowed, while "Monitor" would return all other roles.
      * <br/><br/>
      * Note that this is <b>not</b> suitable for getting which roles an user implicitly has.
      *

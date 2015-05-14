@@ -97,7 +97,7 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void testBasicSetupWithBasicRole() {
         Operation operation = new Operation("foo-create");
-        Role superUser = roleService.getByName("Super User");
+        Role superUser = roleService.getByName("SuperUser");
 
         entityManager.getTransaction().begin();
         entityManager.persist(operation);
@@ -118,7 +118,7 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void clearShouldClearPreviousAdds() {
         Operation operation = new Operation("foo-create");
-        Role superUser = roleService.getByName("Super User");
+        Role superUser = roleService.getByName("SuperUser");
         Role auditor = roleService.getByName("Auditor");
         Role deployer = roleService.getByName("Deployer");
 
@@ -149,8 +149,8 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
         entityManager.persist(operation);
         entityManager.getTransaction().commit();
 
-        Role superUser = roleService.getByName("Super User");
-        assertNotNull("We should have found a Super User role", superUser);
+        Role superUser = roleService.getByName("SuperUser");
+        assertNotNull("We should have found a SuperUser role", superUser);
 
         // on this basic operation, we should have only one role
         entityManager.getTransaction().begin();
@@ -185,8 +185,8 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
         entityManager.persist(operation);
         entityManager.getTransaction().commit();
 
-        Role superUser = roleService.getByName("Super User");
-        assertNotNull("We should have found a Super User role", superUser);
+        Role superUser = roleService.getByName("SuperUser");
+        assertNotNull("We should have found a SuperUser role", superUser);
 
         // on this basic operation, we should have only one role
         entityManager.getTransaction().begin();

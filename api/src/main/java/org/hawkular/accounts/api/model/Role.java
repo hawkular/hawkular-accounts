@@ -20,7 +20,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 
 /**
- * Represents a Role in the system. Roles can be, for instance, "Super User", "Monitor", "Auditor" and so on.
+ * Represents a Role in the system. Roles can be, for instance, "SuperUser", "Monitor", "Auditor" and so on.
  *
  * @author Juraci Paixão Kröhling
  */

@@ -47,7 +47,7 @@ public class SetupOperations {
                 .commit()
 
                 .setup("sample-delete")
-                .add("Super User")
+                .add("SuperUser")
                 .commit()
 
                 .setup("sample-update")
