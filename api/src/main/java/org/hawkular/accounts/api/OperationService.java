@@ -152,6 +152,14 @@ public interface OperationService {
          * @return the Operation related to this setup
          */
         OperationService commit();
+
+        /**
+         * Instructs the builder that the setup has finished. The changes are applied and the resulting operation is
+         * returned.
+         *
+         * @return either the provided operation or a newly created one.
+         */
+        Operation make();
     }
 
     /**

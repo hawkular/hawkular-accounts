@@ -163,6 +163,17 @@ public class OperationServiceImpl implements OperationService {
 
         @Override
         public OperationService commit() {
+            persist();
+            return OperationServiceImpl.this;
+        }
+
+        @Override
+        public Operation make() {
+            persist();
+            return operation;
+        }
+
+        private void persist() {
             if (rolesHaveChanged) {
                 // here, we have two options: first is to do a bulk delete, based on the operation
                 // something like: DELETE FROM Permission p where p.operation = operation
@@ -174,7 +185,6 @@ public class OperationServiceImpl implements OperationService {
                 permissions.forEach(em::remove);
                 roles.forEach(role -> em.persist(new Permission(operation, role)));
             }
-            return OperationServiceImpl.this;
         }
     }
 }
