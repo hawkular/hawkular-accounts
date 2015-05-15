@@ -116,6 +116,19 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
     }
 
     @Test
+    public void testSetupAndRetrieveWithBasicRoles() {
+        entityManager.getTransaction().begin();
+        Operation operation = operationService
+                .setup("foo-create")
+                .add("SuperUser")
+                .make();
+        entityManager.getTransaction().commit();
+
+        Set<Role> roles = permissionService.getPermittedRoles(operation);
+        assertEquals("Operation should be permitted only for super user", 1, roles.size());
+    }
+
+    @Test
     public void clearShouldClearPreviousAdds() {
         Operation operation = new Operation("foo-create");
         Role superUser = roleService.getByName("SuperUser");
