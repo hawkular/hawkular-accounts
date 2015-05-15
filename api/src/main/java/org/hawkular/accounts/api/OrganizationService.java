@@ -58,7 +58,7 @@ public interface OrganizationService {
     List<Organization> getOrganizationsFromMemberships(List<OrganizationMembership> memberships);
 
     /**
-     * Creates a new organization and a "Super User" membership for the persona.
+     * Creates a new organization and a "SuperUser" membership for the persona.
      *
      * @param name           the organization's name
      * @param description    the organization's description

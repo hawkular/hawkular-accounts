@@ -49,13 +49,13 @@ public interface PersonaService {
      * resource, then the organizations to which this persona is checked. A combined list of roles is returned.
      * <br/><br/>
      * Example 1:<br/>
-     * User "jdoe" is "Super User" and "Auditor" on "resource1". Both "Supe User" and "Auditor" are returned.<br/>
+     * User "jdoe" is "SuperUser" and "Auditor" on "resource1". Both "SuperUser" and "Auditor" are returned.<br/>
      *<br/>
      * Example 2:<br/>
      * User "jdoe" is a CIO and belongs to "Operations" and to "Management" and has no direct roles on "resource1".<br/>
      * "Operations" is "Administrator" on "resource1"<br/>
-     * "Management" is "Super User" on "resource1"<br/>
-     * The effective roles for "jdoe" on "resource1" are "Super User" and "Administrator".<br/>
+     * "Management" is "SuperUser" on "resource1"<br/>
+     * The effective roles for "jdoe" on "resource1" are "SuperUser" and "Administrator".<br/>
      *
      * @param persona     the persona
      * @param resource    the resource

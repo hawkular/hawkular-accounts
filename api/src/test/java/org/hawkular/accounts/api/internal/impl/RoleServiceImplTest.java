@@ -37,7 +37,7 @@ public class RoleServiceImplTest extends BaseEntityManagerEnabledTest {
     public void setup() {
         roleService.em = entityManager;
 
-        Role superUser = new Role("Super User", "");
+        Role superUser = new Role("SuperUser", "");
         Role administrator = new Role("Administrator", "");
         Role auditor = new Role("Auditor", "");
         Role deployer = new Role("Deployer", "");
@@ -58,8 +58,8 @@ public class RoleServiceImplTest extends BaseEntityManagerEnabledTest {
 
     @Test
     public void implicitUserRolesForSuperUser() {
-        Set<Role> implicitRoles = roleService.getImplicitUserRoles("Super User");
-        assertEquals("Super User should have all 6 other roles as implicit roles", 6, implicitRoles.size());
+        Set<Role> implicitRoles = roleService.getImplicitUserRoles("SuperUser");
+        assertEquals("SuperUser should have all 6 other roles as implicit roles", 6, implicitRoles.size());
         assertTrue(implicitRoles.contains(roleService.getByName("Monitor")));
         assertTrue(implicitRoles.contains(roleService.getByName("Operator")));
         assertTrue(implicitRoles.contains(roleService.getByName("Maintainer")));
@@ -116,8 +116,8 @@ public class RoleServiceImplTest extends BaseEntityManagerEnabledTest {
 
     @Test
     public void implicitPermittedRolesForSuperUser() {
-        Set<Role> implicitRoles = roleService.getImplicitPermittedRoles("Super User");
-        assertEquals("No other roles can execute operations marked with Super User.", 0, implicitRoles.size());
+        Set<Role> implicitRoles = roleService.getImplicitPermittedRoles("SuperUser");
+        assertEquals("No other roles can execute operations marked with SuperUser.", 0, implicitRoles.size());
     }
 
     @Test
@@ -129,7 +129,7 @@ public class RoleServiceImplTest extends BaseEntityManagerEnabledTest {
         assertTrue(implicitRoles.contains(roleService.getByName("Deployer")));
         assertTrue(implicitRoles.contains(roleService.getByName("Administrator")));
         assertTrue(implicitRoles.contains(roleService.getByName("Auditor")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Super User")));
+        assertTrue(implicitRoles.contains(roleService.getByName("SuperUser")));
     }
 
     @Test
@@ -139,7 +139,7 @@ public class RoleServiceImplTest extends BaseEntityManagerEnabledTest {
         assertTrue(implicitRoles.contains(roleService.getByName("Maintainer")));
         assertTrue(implicitRoles.contains(roleService.getByName("Deployer")));
         assertTrue(implicitRoles.contains(roleService.getByName("Administrator")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Super User")));
+        assertTrue(implicitRoles.contains(roleService.getByName("SuperUser")));
     }
 
     @Test
@@ -148,14 +148,14 @@ public class RoleServiceImplTest extends BaseEntityManagerEnabledTest {
         assertEquals("Maintainer means that 3 other roles have also access to the operation.", 3, implicitRoles.size());
         assertTrue(implicitRoles.contains(roleService.getByName("Deployer")));
         assertTrue(implicitRoles.contains(roleService.getByName("Administrator")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Super User")));
+        assertTrue(implicitRoles.contains(roleService.getByName("SuperUser")));
     }
 
     @Test
     public void implicitPermittedRolesForDeployer() {
         Set<Role> implicitRoles = roleService.getImplicitPermittedRoles("Deployer");
         assertEquals("Deployer means that 1 other roles have also access to the operation.", 1, implicitRoles.size());
-        assertTrue(implicitRoles.contains(roleService.getByName("Super User")));
+        assertTrue(implicitRoles.contains(roleService.getByName("SuperUser")));
     }
 
     @Test
@@ -163,14 +163,14 @@ public class RoleServiceImplTest extends BaseEntityManagerEnabledTest {
         Set<Role> implicitRoles = roleService.getImplicitPermittedRoles("Administrator");
         assertEquals("Administrator means that 1 other roles have also access to the operation.", 1, implicitRoles
                 .size());
-        assertTrue(implicitRoles.contains(roleService.getByName("Super User")));
+        assertTrue(implicitRoles.contains(roleService.getByName("SuperUser")));
     }
 
     @Test
     public void implicitPermittedRolesForAuditor() {
         Set<Role> implicitRoles = roleService.getImplicitPermittedRoles("Auditor");
         assertEquals("Auditor means that 1 other roles have also access to the operation.", 1, implicitRoles.size());
-        assertTrue(implicitRoles.contains(roleService.getByName("Super User")));
+        assertTrue(implicitRoles.contains(roleService.getByName("SuperUser")));
     }
 
 }

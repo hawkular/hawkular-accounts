@@ -57,7 +57,7 @@ public class OrganizationMembershipServiceImplTest extends BaseEntityManagerEnab
         entityManager.getTransaction().begin();
         HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
         Organization acme = new Organization(jdoe);
-        Role role = new Role("Super User", "can do anything");
+        Role role = new Role("SuperUser", "can do anything");
         OrganizationMembership membership = new OrganizationMembership(acme, jdoe, role);
         entityManager.persist(jdoe);
         entityManager.persist(acme);
@@ -74,7 +74,7 @@ public class OrganizationMembershipServiceImplTest extends BaseEntityManagerEnab
         entityManager.getTransaction().begin();
         HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
         Organization acme = new Organization(jdoe);
-        Role role = new Role("Super User", "can do anything");
+        Role role = new Role("SuperUser", "can do anything");
         OrganizationMembership membership = new OrganizationMembership(acme, jdoe, role);
         entityManager.persist(jdoe);
         entityManager.persist(acme);
@@ -92,7 +92,7 @@ public class OrganizationMembershipServiceImplTest extends BaseEntityManagerEnab
         HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
         Organization acme = new Organization(jdoe);
         Organization itDepartment = new Organization(acme);
-        Role superUser = new Role("Super User", "can do anything");
+        Role superUser = new Role("SuperUser", "can do anything");
         Role administrator = new Role("Administrator", "not quite everything");
         OrganizationMembership membershipAcme = new OrganizationMembership(acme, jdoe, superUser);
         OrganizationMembership membershipItDepartment = new OrganizationMembership(itDepartment, acme, superUser);

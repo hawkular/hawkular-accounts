@@ -126,7 +126,7 @@ public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
         // persona jsmith is invited to be a "Administrator" at "Acme"
         OrganizationMembership membership = new OrganizationMembership(acme, jsmith, superUser);
 
-        // jdoe creates a resource as acme, acme is has all rights on this resource, including Super User and
+        // jdoe creates a resource as acme, acme is has all rights on this resource, including SuperUser and
         // Administrator
         Resource resource = new Resource(acme);
         PersonaResourceRole acmeSuperUserOnResource = new PersonaResourceRole(acme, superUser, resource);
@@ -157,7 +157,7 @@ public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
         entityManager.persist(jdoe);
         entityManager.getTransaction().commit();
 
-        // jdoe creates a resource as acme, acme is has all rights on this resource, including Super User and
+        // jdoe creates a resource as acme, acme is has all rights on this resource, including SuperUser and
         // Administrator
         entityManager.getTransaction().begin();
         String id = UUID.randomUUID().toString();
@@ -197,7 +197,7 @@ public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
         // persona jsmith is invited to be a "Monitor" at "Acme"
         OrganizationMembership membership = new OrganizationMembership(acme, jsmith, monitor);
 
-        // jdoe creates a resource as acme, acme is has all rights on this resource, including Super User and
+        // jdoe creates a resource as acme, acme is has all rights on this resource, including SuperUser and
         // Administrator
         Resource resource = new Resource(acme);
         PersonaResourceRole acmeSuperUserOnResource = new PersonaResourceRole(acme, superUser, resource);
@@ -244,7 +244,7 @@ public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
             "audit logging system. Cannot modify sensitive resources or data outside auditing, can read any " +
             "sensitive data");
 
-    Role superUser = new Role("Super User", "Has all the permissions. Equivalent to administrator in previous " +
+    Role superUser = new Role("SuperUser", "Has all the permissions. Equivalent to administrator in previous " +
             "versions.");
 
     Permission maintainerCreateMetric = new Permission(metricsCreate, maintainer);

@@ -21,7 +21,7 @@ import javax.persistence.ManyToOne;
 
 /**
  * Represents the permissions for a given resource. For instance, a resource "node1" might allow the operation
- * "metric-create" for role "Super User".
+ * "metric-create" for role "SuperUser".
  *
  * @author Juraci Paixão Kröhling
  */

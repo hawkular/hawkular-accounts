@@ -20,7 +20,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
 /**
- * Stores the role for a given user on a specific Resource. For instance, user jdoe is "Super User" on resource "node1"
+ * Stores the role for a given user on a specific Resource. For instance, user jdoe is "SuperUser" on resource "node1"
  * An user might have a different role for different resources in the same tree. For instance, "node1" is the parent
  * of "database1", and the user "jdoe" above is only a "Monitor" of this sub resource. An user is allowed to have
  * one role or more roles for a given resource. In other words: an user can be the Auditor and the Monitor of the

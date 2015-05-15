@@ -39,9 +39,9 @@ public interface OrganizationMembershipService {
      * Retrieves the memberships that a given Persona has across all Organizations.
      * <br/><br/>
      * Example:<br/>
-     * User "jdoe" is member of "Operations" with the role "Super User"<br/>
+     * User "jdoe" is member of "Operations" with the role "SuperUser"<br/>
      * Organization "Operations" is a member of "Acme, Inc"<br/>
-     * Only jdoe's membership as "Super User" on "Operations" is returned by this method.<br/>
+     * Only jdoe's membership as "SuperUser" on "Operations" is returned by this method.<br/>
      *
      * @param persona    the persona
      * @return the memberships of this persona across all organizations

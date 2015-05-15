@@ -16,9 +16,9 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
+import org.hawkular.accounts.api.NamedRole;
 import org.hawkular.accounts.api.RoleService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
-import org.hawkular.accounts.api.NamedRole;
 import org.hawkular.accounts.api.model.Role;
 import org.hawkular.accounts.api.model.Role_;
 
@@ -70,7 +70,7 @@ public class RoleServiceImpl implements RoleService {
     public Set<Role> getImplicitUserRoles(String name) {
         Set<Role> implicitRoles = new HashSet<>(7);
         switch (name) {
-            case "Super User":
+            case "SuperUser":
                 implicitRoles.add(getByName("Auditor"));
                 implicitRoles.add(getByName("Administrator"));
                 implicitRoles.add(getByName("Deployer"));
@@ -106,8 +106,8 @@ public class RoleServiceImpl implements RoleService {
             case "Deployer":
             case "Administrator":
             case "Auditor":
-                implicitRoles.add(getByName("Super User"));
-            case "Super User":
+                implicitRoles.add(getByName("SuperUser"));
+            case "SuperUser":
                 break;
             default:
                 throw new IllegalArgumentException("Unrecognized role: '" + name + "'");
