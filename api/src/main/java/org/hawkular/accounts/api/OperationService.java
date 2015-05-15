@@ -63,7 +63,7 @@ public interface OperationService {
      * Convenience builder-style interface for setting up operations with the required roles. When adding roles, all
      * implicit roles are also included. For instance, if a system has two roles, "SuperUser" and "Monitor", and
      * "SuperUser" includes all permissions from "Monitor", then adding "SuperUser" will also add "Monitor".
-     * Note that changes are effective only when the {@link #commit()} is called.
+     * Note that changes are effective only when the {@link #persist()} is called.
      * <p>
      * The following example could be used for setting up four operations:
      *     <pre>
@@ -151,7 +151,7 @@ public interface OperationService {
          *
          * @return the Operation related to this setup
          */
-        OperationService commit();
+        OperationService persist();
 
         /**
          * Instructs the builder that the setup has finished. The changes are applied and the resulting operation is

@@ -92,19 +92,19 @@ public class SetupHawkularAccountsImpl implements ServletContextListener {
         operationService
                 .setup("organization-create")
                 .add("Monitor") // means: all roles
-                .commit()
+                .persist()
 
                 .setup("organization-read")
                 .add("Maintainer")
-                .commit()
+                .persist()
 
                 .setup("organization-delete")
                 .add("SuperUser")
-                .commit()
+                .persist()
 
                 .setup("organization-update")
                 .add("Maintainer")
-                .commit();
+                .persist();
 
         logger.infoFinishedSetupAccounts();
     }

@@ -162,18 +162,18 @@ public class OperationServiceImpl implements OperationService {
         }
 
         @Override
-        public OperationService commit() {
-            persist();
+        public OperationService persist() {
+            doPersist();
             return OperationServiceImpl.this;
         }
 
         @Override
         public Operation make() {
-            persist();
+            doPersist();
             return operation;
         }
 
-        private void persist() {
+        private void doPersist() {
             if (rolesHaveChanged) {
                 // here, we have two options: first is to do a bulk delete, based on the operation
                 // something like: DELETE FROM Permission p where p.operation = operation

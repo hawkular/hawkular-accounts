@@ -84,7 +84,7 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
         operationService
                 .setup(operation)
                 .add(monitor)
-                .commit();
+                .persist();
         entityManager.getTransaction().commit();
 
         Set<Role> roles = permissionService.getPermittedRoles(operation);
@@ -108,7 +108,7 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
         operationService
                 .setup(operation)
                 .add(superUser)
-                .commit();
+                .persist();
         entityManager.getTransaction().commit();
 
         Set<Role> roles = permissionService.getPermittedRoles(operation);
@@ -148,7 +148,7 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
                 .add(auditor)
                 .clear()
                 .add(superUser)
-                .commit();
+                .persist();
         entityManager.getTransaction().commit();
 
         Set<Role> roles = permissionService.getPermittedRoles(operation);
@@ -170,7 +170,7 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
         operationService
                 .setup(operation)
                 .add(superUser)
-                .commit();
+                .persist();
         entityManager.getTransaction().commit();
 
         Set<Permission> permissions = permissionService.getPermissionsForOperation(operation);
@@ -181,7 +181,7 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
         operationService
                 .setup(operation)
                 .add(superUser)
-                .commit();
+                .persist();
         entityManager.getTransaction().commit();
 
         Set<Permission> permissionsAfter = permissionService.getPermissionsForOperation(operation);
@@ -206,7 +206,7 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
         operationService
                 .setup(operation)
                 .add(superUser)
-                .commit();
+                .persist();
         entityManager.flush();
         entityManager.getTransaction().commit();
 
@@ -219,7 +219,7 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
                 .setup(operation)
                 .clear()
                 .add(superUser)
-                .commit();
+                .persist();
         entityManager.flush();
         entityManager.getTransaction().commit();
 
