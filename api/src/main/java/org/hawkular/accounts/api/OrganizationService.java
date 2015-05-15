@@ -31,6 +31,10 @@ import java.util.List;
  *     </pre>
  * </p>
  * Concrete implementations do not hold any state, but it's advised to get an instance through CDI or as an EJB.
+ * <p>
+ *     NOTE: At this moment, it is possible to add organizations to other organizations, but this behavior is currently
+ *     blocked on the main REST endpoint (see the 'accounts' module).
+ * </p>
  *
  * @author Juraci Paixão Kröhling
  */

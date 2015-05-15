@@ -111,6 +111,11 @@ public class OrganizationEndpoint {
      * Creates a new {@link org.hawkular.accounts.api.model.Organization} based on the parameters of the incoming
      * {@link org.hawkular.accounts.backend.entity.rest.OrganizationRequest}.
      *
+     * <p>
+     * Note that an organization cannot, currently, create an organization. The main Accounts API allows that, but we
+     * block it on this endpoint as other components might not be able to deal with this situation.
+     * </p>
+     *
      * @param request the incoming request as {@link org.hawkular.accounts.backend.entity.rest.OrganizationRequest}
      * @return a {@link javax.ws.rs.core.Response} whose entity is an
      * {@link org.hawkular.accounts.api.model.Organization}
@@ -118,6 +123,14 @@ public class OrganizationEndpoint {
     @POST
     @Path("/")
     public Response createOrganization(@NotNull OrganizationRequest request) {
+        if (!persona.equals(user)) {
+            // HAWKULAR-180 - organizations cannot create other organizations
+            // so, we check if the current persona is the same as the current user, as users can only
+            // impersonate organizations, and organizations exist only when impersonated.
+            String message = "Organizations cannot create sub-organizations.";
+            return Response.status(Response.Status.FORBIDDEN).entity(message).build();
+        }
+
         Organization organization = organizationService.createOrganization(
                 request.getName(),
                 request.getDescription(),

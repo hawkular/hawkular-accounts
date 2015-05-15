@@ -54,6 +54,10 @@ Hawkular Accounts is based on the following concepts:
 * *Owner* - owns a Resource, and can be (currently) either a Hawkular User or an Organization.
 * *Member* - a User or Organization that can be part of an Organization.
 
+Note that the main Accounts API allows an Organization to be the Owner of another Organization. As some Hawkular
+components might not be able to deal with this scenario, however, this is currently blocked from the REST endpoint.
+This effectively means that organizations cannot create sub organizations.
+
 To retrieve the current Persona:
 [source,java]
 ----
