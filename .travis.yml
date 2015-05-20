@@ -9,7 +9,7 @@ notifications:
 install:
 - mvn -version -B
 script:
-- mvn -s .travis.maven.settings.xml verify | grep -vF "[INFO] Downloading:" | grep
+- mvn -s .travis.maven.settings.xml verify -Psample,distribution | grep -vF "[INFO] Downloading:" | grep
   -vF "[INFO] Downloaded:"; test ${PIPESTATUS[0]} -eq 0
 env:
   global:
@@ -19,5 +19,5 @@ after_success:
 - PROJECT_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\['`
 - if [[ "$PROJECT_VERSION" =~ .*SNAPSHOT ]] && [[ "${TRAVIS_BRANCH}" = "master" ]] && [[ "${TRAVIS_PULL_REQUEST}" = "false" ]];
   then
-    mvn -s .travis.maven.settings.xml deploy -DskipTests ;
+    mvn -s .travis.maven.settings.xml deploy -DskipTests -Pdistribution ;
   fi
