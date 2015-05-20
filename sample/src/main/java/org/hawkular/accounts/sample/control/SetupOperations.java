@@ -40,19 +40,19 @@ public class SetupOperations {
         operationService
                 .setup("sample-create")
                 .add("Monitor") // means: all roles
-                .commit()
+                .persist()
 
                 .setup("sample-read")
                 .add("Maintainer")
-                .commit()
+                .persist()
 
                 .setup("sample-delete")
                 .add("SuperUser")
-                .commit()
+                .persist()
 
                 .setup("sample-update")
                 .add("Maintainer")
-                .commit();
+                .persist();
         logger.infoFinishedSetupSample();
     }
 
