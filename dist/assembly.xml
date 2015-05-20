@@ -64,7 +64,7 @@
       </excludes>
     </fileSet>
     <fileSet>
-      <directory>${project.build.directory}/unpacked/wildfly-${version.wildfly}/</directory>
+      <directory>${project.build.directory}/unpacked/wildfly-${version.org.wildfly}/</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>
@@ -72,7 +72,7 @@
       <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>${project.build.directory}/unpacked/wildfly-${version.wildfly}/</directory>
+      <directory>${project.build.directory}/unpacked/wildfly-${version.org.wildfly}/</directory>
       <outputDirectory>/</outputDirectory>
       <directoryMode>0755</directoryMode>
       <includes>

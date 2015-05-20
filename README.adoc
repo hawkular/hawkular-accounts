@@ -20,8 +20,7 @@ respective module's README files.
 
 * accounts: the REST backend, handling the actions from the Hawkular Accounts UI.
 * api: the components that are intended to be consumed by other Hawkular components.
-* distribution: assembles a complete Wildfly with Keycloak and Hawkular Accounts, suitable for isolated
-  development/testing.
+* dist: assembles a complete Wildfly with Keycloak and Hawkular Accounts, suitable for isolated development/testing.
 * sample: a sample on how to integrate Accounts into other Hawkular projects.
 
 The hawt.io UI for Hawkular Accounts is located in the hawkular-ui-components project.

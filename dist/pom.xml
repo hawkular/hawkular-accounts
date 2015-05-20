@@ -67,14 +67,14 @@
                   <groupId>org.wildfly</groupId>
                   <artifactId>wildfly-dist</artifactId>
                   <type>zip</type>
-                  <version>${version.wildfly}</version>
+                  <version>${version.org.wildfly}</version>
                   <outputDirectory>${project.build.directory}/unpacked</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.keycloak</groupId>
                   <artifactId>keycloak-server-overlay</artifactId>
                   <type>zip</type>
-                  <version>${version.keycloak}</version>
+                  <version>${version.org.keycloak}</version>
                   <outputDirectory>${project.build.directory}/keycloak</outputDirectory>
                 </artifactItem>
               </artifactItems>
@@ -96,12 +96,12 @@
             <configuration>
               <transformationSets>
                 <transformationSet>
-                  <dir>${project.build.directory}/unpacked/wildfly-${version.wildfly}/standalone/configuration</dir>
+                  <dir>${project.build.directory}/unpacked/wildfly-${version.org.wildfly}/standalone/configuration</dir>
                   <stylesheet>src/main/xslt/standalone.xsl</stylesheet>
                   <includes>
                     <include>standalone*.xml</include>
                   </includes>
-                  <outputDir>${project.build.directory}/unpacked/wildfly-${version.wildfly}/standalone/configuration</outputDir>
+                  <outputDir>${project.build.directory}/unpacked/wildfly-${version.org.wildfly}/standalone/configuration</outputDir>
                   <parameters>
                     <parameter>
                       <name>uuid.hawkular.accounts.backend</name>

@@ -102,8 +102,7 @@
   </distributionManagement>
 
   <properties>
-    <version.keycloak>1.2.0.CR1</version.keycloak>
-    <version.wildfly>8.2.0.Final</version.wildfly>
+    <version.org.keycloak>1.2.0.CR1</version.org.keycloak>
     <failOnMissingWebXml>false</failOnMissingWebXml>
     <jboss.releases.repo.url>
       https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/
@@ -118,7 +117,7 @@
       <dependency>
         <groupId>org.wildfly.bom</groupId>
         <artifactId>jboss-javaee-7.0-with-all</artifactId>
-        <version>${version.wildfly}</version>
+        <version>${version.org.wildfly}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -126,7 +125,7 @@
       <dependency>
         <groupId>org.wildfly</groupId>
         <artifactId>wildfly-spec-api</artifactId>
-        <version>${version.wildfly}</version>
+        <version>${version.org.wildfly}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -139,12 +138,12 @@
       <dependency>
         <groupId>org.keycloak</groupId>
         <artifactId>keycloak-core</artifactId>
-        <version>${version.keycloak}</version>
+        <version>${version.org.keycloak}</version>
       </dependency>
       <dependency>
         <groupId>org.keycloak</groupId>
         <artifactId>keycloak-war-dist-all</artifactId>
-        <version>${version.keycloak}</version>
+        <version>${version.org.keycloak}</version>
         <type>zip</type>
         <exclusions>
           <exclusion>
@@ -172,7 +171,7 @@
       <dependency>
         <groupId>org.keycloak</groupId>
         <artifactId>keycloak-wildfly-adapter-dist</artifactId>
-        <version>${version.keycloak}</version>
+        <version>${version.org.keycloak}</version>
         <type>zip</type>
         <exclusions>
           <exclusion>
@@ -205,7 +204,7 @@
     <profile>
       <id>distribution</id>
       <modules>
-        <module>distribution</module>
+        <module>dist</module>
       </modules>
     </profile>
     <profile>

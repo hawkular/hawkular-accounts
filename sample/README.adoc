@@ -22,7 +22,7 @@ $ mvn clean install -Pdistribution,sample
 ----
 
 The sample WAR file is not deployed by default. Just copy the generated WAR file as "hawkular-accounts-sample.war" into
-Wildfly's deployment directory from the "distribution" module.
+Wildfly's deployment directory from the "dist" module.
 
 Note that for your own component, you'll have to adapt the standalone.xsl to include your deployment under the
 "secure-deployments" section.
