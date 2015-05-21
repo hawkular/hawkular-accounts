@@ -155,7 +155,7 @@ public class PersonaServiceImpl implements PersonaService {
     @Produces
     public Persona getCurrent() {
         // for now, this is sufficient. In a future improvement, we'll have a way to switch users
-        String personaId = httpRequest.getHeader("X-Hawkular-Persona");
+        String personaId = httpRequest.getHeader("Hawkular-Persona");
         if (personaId != null && !personaId.isEmpty()) {
             // TODO: check permissions!
             return get(personaId);
