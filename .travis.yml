@@ -19,5 +19,5 @@ after_success:
 - PROJECT_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\['`
 - if [[ "$PROJECT_VERSION" =~ .*SNAPSHOT ]] && [[ "${TRAVIS_BRANCH}" = "master" ]] && [[ "${TRAVIS_PULL_REQUEST}" = "false" ]];
   then
-    mvn -s .travis.maven.settings.xml deploy -DskipTests -Pdistribution ;
+    mvn -s .travis.maven.settings.xml clean deploy -DskipTests -Pdistribution ;
   fi
