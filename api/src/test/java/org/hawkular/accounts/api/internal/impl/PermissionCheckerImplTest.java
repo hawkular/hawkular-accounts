@@ -218,6 +218,25 @@ public class PermissionCheckerImplTest extends BaseEntityManagerEnabledTest {
         assertFalse(permissionChecker.isAllowedTo(metricsCreate, resource, jsmith));
     }
 
+    @Test
+    public void userIsOwnerOfSubResource() {
+        entityManager.getTransaction().begin();
+        // persona jdoe registers himself
+        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
+        Resource resourceT = new Resource(jdoe);
+        Resource resourceE = new Resource(resourceT);
+        PersonaResourceRole resourceRole = new PersonaResourceRole(jdoe, superUser, resourceT);
+
+        entityManager.persist(jdoe);
+        entityManager.persist(resourceT);
+        entityManager.persist(resourceE);
+        entityManager.persist(resourceRole);
+        entityManager.getTransaction().commit();
+
+        assertTrue(permissionChecker.isAllowedTo(metricsCreate, resourceE, jdoe));
+    }
+
+
     Operation metricsCreate = new Operation("metric-create");
     Operation metricsRead = new Operation("metric-read");
     Operation metricsUpdate = new Operation("metric-update");

@@ -66,6 +66,12 @@ public class PermissionCheckerImpl implements PermissionChecker {
             throw new IllegalArgumentException("Persona that performs the operation is invalid (null).");
         }
 
+        if (null == resource.getPersona()) {
+            // if we have an empty persona it means that we should have a parent and that we should assume whatever
+            // the parent sets for ownership
+            return isAllowedTo(operation, resource.getParent(), persona);
+        }
+
         if (persona.equals(resource.getPersona())) {
             // owner is always allowed
             return true;
