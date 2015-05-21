@@ -102,7 +102,7 @@
   </distributionManagement>
 
   <properties>
-    <version.org.keycloak>1.2.0.CR1</version.org.keycloak>
+    <version.org.keycloak>1.2.0.Final</version.org.keycloak>
     <failOnMissingWebXml>false</failOnMissingWebXml>
     <jboss.releases.repo.url>
       https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/
