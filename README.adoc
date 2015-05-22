@@ -125,7 +125,15 @@ Keycloak instance appropriately.
 
 As a one-time setup, the permission set needs to be configured. With that, a list of operations needs to be provided,
 as well as which roles are allowed to perform those operations. To facilitate this procedure, the `OrganizationService`
-can be used as a `@Singleton @Startup` EJB, with the setup on a `@PostConstruct` method. For example:
+can be used as a `@Singleton @Startup` EJB, with the setup on a `@PostConstruct` method. Another possible approach,
+if you need to have control on the ordering of the startup items, is to implement it as a ServletContextListener. You
+might refer to the `SetupOperations` on the `sample` module, which uses the `@Singleton @Startup` approach or
+`SetupHawkularAccountsImpl` on the `accounts` module, which uses the `ServletContextListener` approach.
+
+WARNING: Keep in mind that this setup is supposed to run only once during the lifecycle of your deployed module. By
+nature, you might have several operations, so, your transaction might run for a longer period of time than normal
+transactions. If you have concurrent calls to your setup procedure, one transaction might overlap the other, causing
+data consistency exceptions.
 
 [source,java]
 ----
