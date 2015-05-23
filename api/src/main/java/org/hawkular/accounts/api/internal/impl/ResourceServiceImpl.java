@@ -118,7 +118,7 @@ public class ResourceServiceImpl implements ResourceService {
 
         Resource resource = get(id);
         if (resource != null) {
-            em.remove(id);
+            em.remove(resource);
         }
     }
 }
