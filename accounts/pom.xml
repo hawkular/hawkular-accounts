@@ -109,12 +109,20 @@
       <groupId>com.mattbertolini</groupId>
       <artifactId>liquibase-slf4j</artifactId>
     </dependency>
-
+      <!-- liquibase really should have transitive deps that get imported but it seems that we
+           need to package junit and jetty-server to avoid spamming the server log with missing
+           class errors at runtime. Note, junit is also needed for test -->
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+      <scope>runtime</scope>
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <scope>test</scope>
+      <!--  <scope>test</scope>  -->
     </dependency>
+
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-entitymanager</artifactId>
