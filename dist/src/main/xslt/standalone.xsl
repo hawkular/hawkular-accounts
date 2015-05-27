@@ -77,7 +77,8 @@
           <web-context>auth</web-context>
         </auth-server>
         <realm name="hawkular">
-          <auth-server-url>http://localhost:8080/auth</auth-server-url>
+          <auth-server-url>/auth</auth-server-url>
+          <auth-server-url-for-backend-requests>http://localhost:8080/auth</auth-server-url-for-backend-requests>
           <ssl-required>none</ssl-required>
         </realm>
         <secure-deployment name="hawkular-accounts.war">
@@ -85,6 +86,7 @@
           <resource>hawkular-accounts-backend</resource>
           <use-resource-role-mappings>true</use-resource-role-mappings>
           <enable-cors>true</enable-cors>
+          <enable-basic-auth>true</enable-basic-auth>
           <credential name="secret"><xsl:value-of select="$uuid.hawkular.accounts.backend" /></credential>
         </secure-deployment>
         <secure-deployment name="hawkular-accounts-sample.war">
