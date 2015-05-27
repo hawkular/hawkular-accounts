@@ -188,6 +188,19 @@
         <artifactId>liquibase-slf4j</artifactId>
         <version>1.2.1</version>
       </dependency>
+      <!-- liquibase really should have transitive deps that get imported but it seems that we
+           need to package junit and jetty-server to avoid spamming the server log with missing
+           class errors at runtime -->
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-server</artifactId>
+        <version>9.2.10.v20150310</version>
+      </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.12</version>
+      </dependency>
 
       <dependency>
         <groupId>com.h2database</groupId>
