@@ -40,9 +40,33 @@ public class ApplicationResources {
     private String serverUrl;
     private String resourceName;
     private String secret;
+    private String cassandraPort;
+    private String cassandraNodes;
 
     public void setServletContext(ServletContext servletContext) {
         this.servletContext = servletContext;
+    }
+
+    @Produces @CassandraNodes
+    public String getCassandraNodes() {
+        if (null == cassandraNodes) {
+            cassandraNodes = System.getenv("CASSANDRA_NODES");
+            if (null == cassandraNodes || cassandraNodes.isEmpty()) {
+                cassandraNodes = "127.0.0.1";
+            }
+        }
+        return cassandraNodes;
+    }
+
+    @Produces @CassandraPort
+    public String getCassandraPort() {
+        if (null == cassandraPort) {
+            cassandraPort = System.getenv("CASSANDRA_CQL_PORT");
+            if (null == cassandraPort || cassandraPort.isEmpty()) {
+                cassandraPort = "9042";
+            }
+        }
+        return cassandraPort;
     }
 
     @Produces @RealmConfiguration
@@ -105,7 +129,13 @@ public class ApplicationResources {
             int portOffset = Integer.parseInt(System.getProperty("jboss.socket.binding.port-offset", "0"));
             int defaultPort = Integer.parseInt(System.getProperty("jboss.http.port", "8080"));
             String host = System.getProperty("jboss.bind.address", "127.0.0.1");
-            serverUrl = "http://" + host + ":" + (defaultPort+portOffset) + authContextPath;
+
+            if (authContextPath.toLowerCase().startsWith("http")) {
+                serverUrl = authContextPath;
+            } else {
+                serverUrl = "http://" + host + ":" + (defaultPort+portOffset) + authContextPath;
+            }
+
         }
 
         realmConfigurationParsed = true;

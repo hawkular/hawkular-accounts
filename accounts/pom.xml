@@ -40,6 +40,11 @@
       <artifactId>hawkular-accounts-api</artifactId>
       <version>1.0.17.Final-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>org.hawkular.accounts</groupId>
+      <artifactId>hawkular-accounts-undertow-filter</artifactId>
+      <version>1.0.17.Final-SNAPSHOT</version>
+    </dependency>
 
     <dependency>
       <groupId>org.hawkular.commons</groupId>
@@ -134,6 +139,16 @@
     <dependency>
       <groupId>com.mattbertolini</groupId>
       <artifactId>liquibase-slf4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.spec.javax.json</groupId>
+      <artifactId>jboss-json-api_1.0_spec</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>

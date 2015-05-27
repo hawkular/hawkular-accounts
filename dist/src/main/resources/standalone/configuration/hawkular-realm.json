@@ -29,7 +29,7 @@
       "temporary" : false
     } ],
     "requiredActions" : [ ],
-    "realmRoles" : [ "user" ],
+    "realmRoles" : [ "user", "offline_access" ],
     "applicationRoles" : {
       "account" : [ "view-profile", "manage-account" ]
     }
@@ -94,12 +94,17 @@
     {
       "name": "hawkular-ui",
       "enabled": true,
-      "bearerOnly" : false,
+      "bearerOnly": false,
       "publicClient": true,
       "secret": "${uuid.hawkular.ui}",
-      "fullScopeAllowed" : false,
-      "redirectUris": ["/*", "http://localhost:2772/*"],
-      "webOrigins": ["http://localhost:2772"],
+      "fullScopeAllowed": false,
+      "redirectUris": [
+        "/*",
+        "http://localhost:2772/*"
+      ],
+      "webOrigins": [
+        "http://localhost:2772"
+      ],
       "claims": {
         "username": true,
         "name": true,

@@ -55,6 +55,34 @@
       <directoryMode>0755</directoryMode>
       <fileMode>0755</fileMode>
     </dependencySet>
+    <!-- the secret store backend -->
+    <dependencySet>
+      <outputDirectory>standalone/deployments</outputDirectory>
+      <includes>
+        <include>org.hawkular.accounts:hawkular-accounts-secret-store:war</include>
+      </includes>
+      <outputFileNameMapping>hawkular-accounts-secret-store.war</outputFileNameMapping>
+      <useProjectArtifact>false</useProjectArtifact>
+      <useProjectAttachments>false</useProjectAttachments>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useTransitiveFiltering>false</useTransitiveFiltering>
+      <directoryMode>0755</directoryMode>
+      <fileMode>0755</fileMode>
+    </dependencySet>
+    <!-- the embedded cassandra -->
+    <dependencySet>
+      <outputDirectory>standalone/deployments</outputDirectory>
+      <includes>
+        <include>org.hawkular.commons:hawkular-commons-embedded-cassandra-ear</include>
+      </includes>
+      <outputFileNameMapping>hawkular-commons-embedded-cassandra.ear</outputFileNameMapping>
+      <useProjectArtifact>false</useProjectArtifact>
+      <useProjectAttachments>false</useProjectAttachments>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useTransitiveFiltering>false</useTransitiveFiltering>
+      <directoryMode>0755</directoryMode>
+      <fileMode>0755</fileMode>
+    </dependencySet>
     <!-- Keycloak theme -->
     <dependencySet>
       <outputDirectory>modules/org/hawkular/keycloak/theme/main</outputDirectory>

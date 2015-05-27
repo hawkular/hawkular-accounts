@@ -24,6 +24,11 @@
   <display-name>Hawkular Accounts</display-name>
 
   <context-param>
+    <param-name>org.hawkular.secretstore.enabled</param-name>
+    <param-value>true</param-value>
+  </context-param>
+
+  <context-param>
     <param-name>liquibase.changelog</param-name>
     <param-value>org/hawkular/accounts/db/db.changelog-master.xml</param-value>
   </context-param>
@@ -44,6 +49,10 @@
 
   <listener>
     <listener-class>org.hawkular.accounts.backend.control.SetupHawkularAccountsImpl</listener-class>
+  </listener>
+
+  <listener>
+    <listener-class>org.hawkular.accounts.common.ServletContextEnhancer</listener-class>
   </listener>
 
   <security-constraint>

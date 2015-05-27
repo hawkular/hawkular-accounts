@@ -52,6 +52,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.hawkular.accounts</groupId>
+      <artifactId>hawkular-accounts-undertow-filter</artifactId>
+      <version>1.0.17.Final-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-jaxrs</artifactId>
       <scope>provided</scope>

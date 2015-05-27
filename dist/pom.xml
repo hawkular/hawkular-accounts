@@ -49,6 +49,12 @@
     </dependency>
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
+      <artifactId>hawkular-accounts-secret-store</artifactId>
+      <version>1.0.17.Final-SNAPSHOT</version>
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-keycloak-theme</artifactId>
       <version>1.0.17.Final-SNAPSHOT</version>
       <type>jar</type>
@@ -66,6 +72,11 @@
       <version>1.0.17.Final-SNAPSHOT</version>
       <classifier>module</classifier>
       <type>zip</type>
+    </dependency>
+    <dependency>
+      <groupId>org.hawkular.commons</groupId>
+      <artifactId>hawkular-commons-embedded-cassandra-ear</artifactId>
+      <type>ear</type>
     </dependency>
     <dependency>
       <groupId>org.keycloak</groupId>
@@ -163,29 +174,6 @@
                 <descriptor>assembly.xml</descriptor>
               </descriptors>
               <appendAssemblyId>false</appendAssemblyId>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.gmaven</groupId>
-        <artifactId>gmaven-plugin</artifactId>
-        <version>1.5</version>
-        <executions>
-          <execution>
-            <id>set-custom-property</id>
-            <phase>initialize</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <source>
-                import java.util.UUID
-                def uuidBackend = UUID.randomUUID().toString()
-                def uuidUi = UUID.randomUUID().toString()
-                project.properties.setProperty('uuid.hawkular.accounts.backend', uuidBackend.toString())
-                project.properties.setProperty('uuid.hawkular.ui', uuidUi.toString())
-              </source>
             </configuration>
           </execution>
         </executions>

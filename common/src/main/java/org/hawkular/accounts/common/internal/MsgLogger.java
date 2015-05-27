@@ -51,4 +51,11 @@ public interface MsgLogger {
     @Message(id = 150004, value = "Could not process what are our IPs. Host synonyms will *not* work properly")
     void cannotDetermineLocalIPs(@Cause Throwable t);
 
+    @LogMessage(level = Logger.Level.FATAL)
+    @Message(id = 150005, value = "Could not connect to Cassandra after enough attempts. Giving up. Reason")
+    void cannotConnectToCassandra(@Cause Throwable t);
+
+    @LogMessage(level = Logger.Level.DEBUG)
+    @Message(id = 150006, value = "Cassandra is not available (yet?). Attempts left: [%d]. Reason")
+    void attemptToConnectToCassandraFailed(int attempt, @Cause Throwable t);
 }

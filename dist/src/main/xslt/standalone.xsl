@@ -39,6 +39,10 @@
         <xsl:attribute name="name">hawkular.events.listener.rest.endpoint</xsl:attribute>
         <xsl:attribute name="value">http://localhost:8080/hawkular-accounts-events-backend/events</xsl:attribute>
       </property>
+      <property>
+        <xsl:attribute name="name">hawkular.backend</xsl:attribute>
+        <xsl:attribute name="value">&#36;{hawkular.backend:embedded_cassandra}</xsl:attribute>
+      </property>
     </system-properties>
   </xsl:template>
 
@@ -80,6 +84,12 @@
     <xsl:copy>
       <xsl:copy-of select="node()|@*"/>
     </xsl:copy>
+    <cache-container name="keycloak" jndi-name="infinispan/Keycloak">
+      <local-cache name="realms"/>
+      <local-cache name="users"/>
+      <local-cache name="sessions"/>
+      <local-cache name="loginFailures"/>
+    </cache-container>
     <cache-container name="hawkular-accounts" default-cache="role-cache">
       <local-cache name="role-cache"/>
       <local-cache name="operation-cache"/>
@@ -124,6 +134,14 @@
           <resource>hawkular-ui</resource>
           <enable-cors>true</enable-cors>
           <credential name="secret"><xsl:value-of select="$uuid.hawkular.ui" /></credential>
+        </secure-deployment>
+        <secure-deployment name="hawkular-accounts-secret-store.war">
+          <realm>hawkular</realm>
+          <resource>hawkular-accounts-backend</resource>
+          <use-resource-role-mappings>true</use-resource-role-mappings>
+          <enable-cors>true</enable-cors>
+          <enable-basic-auth>true</enable-basic-auth>
+          <credential name="secret"><xsl:value-of select="$uuid.hawkular.accounts.backend" /></credential>
         </secure-deployment>
         <secure-deployment name="hawkular-accounts-sample.war">
           <realm>hawkular</realm>
