@@ -57,7 +57,7 @@
   <fileSets>
     <fileSet>
       <directory>src/main/resources</directory>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory/>
       <excludes>
         <!-- We handle this file specially (at the end of this file) -->
         <exclude>**/hawkular-realm*json</exclude>
@@ -65,15 +65,15 @@
     </fileSet>
     <fileSet>
       <directory>${project.build.directory}/unpacked/wildfly-${version.org.wildfly}/</directory>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory/>
     </fileSet>
     <fileSet>
       <directory>${project.build.directory}/keycloak/</directory>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory/>
     </fileSet>
     <fileSet>
       <directory>${project.build.directory}/unpacked/wildfly-${version.org.wildfly}/</directory>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory/>
       <directoryMode>0755</directoryMode>
       <includes>
         <include>**/*.sh</include>
@@ -84,7 +84,7 @@
   <files>
     <file>
       <source>src/main/resources/standalone/configuration/hawkular-realm.json</source>
-      <outputDirectory>/standalone/configuration/</outputDirectory>
+      <outputDirectory>standalone/configuration/</outputDirectory>
       <filtered>true</filtered>
     </file>
   </files>
