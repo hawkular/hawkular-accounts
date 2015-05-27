@@ -41,6 +41,15 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!--
+      HAWKULAR-177 - Temporary module, until the following gets fixed: https://liquibase.jira.com/browse/CORE-2024
+    -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>hawkular-accounts-liquibase</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- Provided runtime dependencies, present on the Wildfly BOM -->
     <dependency>
       <groupId>org.jboss.resteasy</groupId>

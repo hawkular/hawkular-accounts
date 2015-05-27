@@ -36,6 +36,7 @@
     <module>accounts</module>
     <module>api</module>
     <module>keycloak-theme</module>
+    <module>liquibase</module>
   </modules>
 
   <inceptionYear>2015</inceptionYear>
