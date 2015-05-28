@@ -27,11 +27,22 @@
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes" xalan:indent-amount="4" standalone="no"/>
   <xsl:strip-space elements="*"/>
 
+  <!-- add system properties -->
+  <xsl:template name="system-properties">
+    <system-properties>
+      <property>
+        <xsl:attribute name="name">keycloak.import</xsl:attribute>
+        <xsl:attribute name="value">&#36;{jboss.home.dir}/standalone/configuration/hawkular-realm.json</xsl:attribute>
+      </property>
+    </system-properties>
+  </xsl:template>
+
   <xsl:template match="node()[name(.)='extensions']">
     <xsl:copy>
       <xsl:apply-templates select="node()|@*"/>
       <extension module="org.keycloak.keycloak-subsystem"/>
     </xsl:copy>
+    <xsl:call-template name="system-properties"/>
   </xsl:template>
 
   <!-- Add our data source -->
