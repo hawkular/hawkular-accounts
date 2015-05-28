@@ -23,7 +23,7 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
 
-  <changeSet author="jpkroehling" id="changelog-1.0">
+  <changeSet author="hawkular-accounts" id="changelog-1.0">
 
     <createTable tableName="Member">
       <column name="id" type="varchar(255)">
