@@ -197,6 +197,18 @@ $ mvn clean install -Pdistribution,sample
 Note that none of those currently ships with the UI. Follow the instructions on
 link:https://github.com/hawkular/hawkular-ui-components[hawkular-ui-components] in order to run the UI.
 
+== Releasing
+
+To perform a release of Hawkular Accounts, you'll need push
+permissions to the GitHub repository and execute the following:
+
+[source,bash]
+----
+mvn release:prepare release:perform -Psample,distribution
+----
+
+And accept all the default values (for versions and tags).
+
 == License
 
 Hawkular Accounts is released under Apache License, Version 2.0 as described in the link:LICENSE[LICENSE] document
