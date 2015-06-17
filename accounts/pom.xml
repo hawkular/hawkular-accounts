@@ -36,18 +36,18 @@
 
   <dependencies>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-api</artifactId>
-      <version>${project.version}</version>
+      <version>1.0.6-SNAPSHOT</version>
     </dependency>
 
     <!--
       HAWKULAR-177 - Temporary module, until the following gets fixed: https://liquibase.jira.com/browse/CORE-2024
     -->
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-liquibase</artifactId>
-      <version>${project.version}</version>
+      <version>1.0.6-SNAPSHOT</version>
     </dependency>
 
     <!-- Provided runtime dependencies, present on the Wildfly BOM -->
