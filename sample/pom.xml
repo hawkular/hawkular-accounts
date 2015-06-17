@@ -48,7 +48,7 @@
 
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
-      <artifactId>jaxrs-api</artifactId>
+      <artifactId>resteasy-jaxrs</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>

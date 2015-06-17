@@ -40,7 +40,8 @@
   <xsl:template match="node()[name(.)='extensions']">
     <xsl:copy>
       <xsl:apply-templates select="node()|@*"/>
-      <extension module="org.keycloak.keycloak-subsystem"/>
+      <extension module="org.keycloak.keycloak-adapter-subsystem"/>
+      <extension module="org.keycloak.keycloak-server-subsystem"/>
     </xsl:copy>
     <xsl:call-template name="system-properties"/>
   </xsl:template>
@@ -82,11 +83,10 @@
   <xsl:template match="node()[name(.)='profile']">
     <xsl:copy>
       <xsl:apply-templates select="node()|@*"/>
-      <subsystem xmlns="urn:jboss:domain:keycloak:1.0">
-        <auth-server name="main-auth-server">
-          <enabled>true</enabled>
-          <web-context>auth</web-context>
-        </auth-server>
+      <subsystem xmlns="urn:jboss:domain:keycloak-server:1.1">
+        <web-context>auth</web-context>
+      </subsystem>
+      <subsystem xmlns="urn:jboss:domain:keycloak:1.1">
         <realm name="hawkular">
           <auth-server-url>/auth</auth-server-url>
           <auth-server-url-for-backend-requests><xsl:text disable-output-escaping="yes">http://${jboss.bind.address:127.0.0.1}:${jboss.http.port:8080}/auth</xsl:text></auth-server-url-for-backend-requests>
