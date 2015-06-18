@@ -21,7 +21,7 @@
  * @author Juraci Paixão Kröhling
  */
 @XmlJavaTypeAdapters({@XmlJavaTypeAdapter(type=ZonedDateTime.class,value=ZonedDateTimeXmlAdapter.class)})
-package org.hawkular.accounts.api.model;
+package org.hawkular.accounts.sample.entity;
 
 import org.hawkular.accounts.jaxb.adapters.ZonedDateTimeXmlAdapter;
 

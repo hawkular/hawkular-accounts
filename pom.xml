@@ -37,6 +37,7 @@
     <module>api</module>
     <module>keycloak-theme</module>
     <module>liquibase</module>
+    <module>jaxb-adapters</module>
   </modules>
 
   <inceptionYear>2015</inceptionYear>
