@@ -35,9 +35,13 @@
   <modules>
     <module>accounts</module>
     <module>api</module>
+    <module>events-backend</module>
+    <module>events-listener</module>
+    <module>jaxb-adapters</module>
+    <module>keycloak-event-listener-rest</module>
+    <module>keycloak-event-listener-jms</module>
     <module>keycloak-theme</module>
     <module>liquibase</module>
-    <module>jaxb-adapters</module>
   </modules>
 
   <inceptionYear>2015</inceptionYear>

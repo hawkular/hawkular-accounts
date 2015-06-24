@@ -14,30 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.sample.control;
+package org.hawkular.accounts.events.listener.internal;
 
 import org.jboss.logging.Logger;
+import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.LogMessage;
 import org.jboss.logging.annotations.Message;
+import org.jboss.logging.annotations.MessageLogger;
 import org.jboss.logging.annotations.ValidIdRange;
 
 /**
  * @author Juraci Paixão Kröhling
  */
-@org.jboss.logging.annotations.MessageLogger(projectCode = "HAWKACC")
-@ValidIdRange(min = 190000, max = 199999)
+@MessageLogger(projectCode = "HAWKACC")
+@ValidIdRange(min = 140000, max = 149999)
 public interface MsgLogger {
     MsgLogger LOGGER = Logger.getMessageLogger(MsgLogger.class, MsgLogger.class.getPackage().getName());
 
-    @LogMessage(level = Logger.Level.INFO)
-    @Message(id = 190000, value = "Started setting up Hawkular Accounts - Sample")
-    void infoStartedSetupSample();
+    @LogMessage(level = Logger.Level.DEBUG)
+    @Message(id = 140000, value = "Event received by Accounts Message Listener.")
+    void eventReceived();
 
-    @LogMessage(level = Logger.Level.INFO)
-    @Message(id = 190001, value = "Finished setting up Hawkular Accounts - Sample")
-    void infoFinishedSetupSample();
+    @LogMessage(level = Logger.Level.ERROR)
+    @Message(id = 140001, value = "An error occurred while trying to process event.")
+    void errorProcessingEvent(@Cause Throwable e);
 
-    @LogMessage(level = Logger.Level.INFO)
-    @Message(id = 190002, value = "CDI Event from Accounts received by Sample: %s, %s, %s")
-    void cdiEventReceived(String action, String eventId, String personaId);
+    @LogMessage(level = Logger.Level.DEBUG)
+    @Message(id = 140002, value = "Event processed by Accounts API: %s, %s, %s")
+    void eventProcessed(String action, String eventId, String userId);
 }

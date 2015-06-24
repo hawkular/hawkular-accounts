@@ -34,12 +34,17 @@
         <xsl:attribute name="name">keycloak.import</xsl:attribute>
         <xsl:attribute name="value">&#36;{jboss.home.dir}/standalone/configuration/hawkular-realm.json</xsl:attribute>
       </property>
+      <property>
+        <xsl:attribute name="name">hawkular.events.listener.rest.endpoint</xsl:attribute>
+        <xsl:attribute name="value">http://localhost:8080/hawkular-accounts-events-backend/events</xsl:attribute>
+      </property>
     </system-properties>
   </xsl:template>
 
   <xsl:template match="node()[name(.)='extensions']">
     <xsl:copy>
       <xsl:apply-templates select="node()|@*"/>
+      <extension module="org.jboss.as.messaging"/>
       <extension module="org.keycloak.keycloak-adapter-subsystem"/>
       <extension module="org.keycloak.keycloak-server-subsystem"/>
     </xsl:copy>
@@ -80,6 +85,17 @@
     </cache-container>
   </xsl:template>
 
+  <!-- Add MDB support for Hawkular Accounts -->
+  <xsl:template match="node()[name(.)='session-bean'][1]">
+    <xsl:copy>
+      <xsl:copy-of select="node()|@*"/>
+    </xsl:copy>
+    <mdb>
+      <resource-adapter-ref resource-adapter-name="hornetq-ra.rar"/>
+      <bean-instance-pool-ref pool-name="mdb-strict-max-pool"/>
+    </mdb>
+  </xsl:template>
+
   <xsl:template match="node()[name(.)='profile']">
     <xsl:copy>
       <xsl:apply-templates select="node()|@*"/>
@@ -108,6 +124,43 @@
           <enable-basic-auth>true</enable-basic-auth>
           <credential name="secret"><xsl:value-of select="$uuid.hawkular.accounts.backend" /></credential>
         </secure-deployment>
+      </subsystem>
+      <subsystem xmlns="urn:jboss:domain:messaging:3.0">
+        <hornetq-server>
+          <connectors>
+            <in-vm-connector name="in-vm" server-id="0"/>
+          </connectors>
+          <acceptors>
+            <in-vm-acceptor name="in-vm" server-id="0"/>
+          </acceptors>
+          <jms-connection-factories>
+            <connection-factory name="InVmConnectionFactory">
+              <connectors>
+                <connector-ref connector-name="in-vm"/>
+              </connectors>
+              <entries>
+                <entry name="java:/ConnectionFactory"/>
+              </entries>
+            </connection-factory>
+            <pooled-connection-factory name="hornetq-ra">
+              <transaction mode="xa"/>
+              <connectors>
+                <connector-ref connector-name="in-vm"/>
+              </connectors>
+              <entries>
+                <entry name="java:/JmsXA"/>
+                <!-- Global JNDI entry used to provide a default JMS Connection factory to EE application -->
+                <entry name="java:jboss/DefaultJMSConnectionFactory"/>
+                <entry name="java:/HawkularBusConnectionFactory"/>
+              </entries>
+            </pooled-connection-factory>
+          </jms-connection-factories>
+          <jms-destinations>
+            <jms-topic name="HawkularAccountsEvents">
+              <entry name="java:/topic/HawkularAccountsEvents"/>
+            </jms-topic>
+          </jms-destinations>
+        </hornetq-server>
       </subsystem>
     </xsl:copy>
   </xsl:template>

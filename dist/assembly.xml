@@ -27,13 +27,27 @@
   <!-- Base dir required for use in wildfly-maven-plugin -->
   <includeBaseDirectory>true</includeBaseDirectory>
   <dependencySets>
-    <!-- our backend -->
+    <!-- the main backend -->
     <dependencySet>
       <outputDirectory>standalone/deployments</outputDirectory>
       <includes>
         <include>org.hawkular.accounts:hawkular-accounts:war</include>
       </includes>
       <outputFileNameMapping>hawkular-accounts.war</outputFileNameMapping>
+      <useProjectArtifact>false</useProjectArtifact>
+      <useProjectAttachments>false</useProjectAttachments>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useTransitiveFiltering>false</useTransitiveFiltering>
+      <directoryMode>0755</directoryMode>
+      <fileMode>0755</fileMode>
+    </dependencySet>
+    <!-- the events backend -->
+    <dependencySet>
+      <outputDirectory>standalone/deployments</outputDirectory>
+      <includes>
+        <include>org.hawkular.accounts:hawkular-accounts-events-backend:war</include>
+      </includes>
+      <outputFileNameMapping>hawkular-accounts-events-backend.war</outputFileNameMapping>
       <useProjectArtifact>false</useProjectArtifact>
       <useProjectAttachments>false</useProjectAttachments>
       <useTransitiveDependencies>false</useTransitiveDependencies>
@@ -48,6 +62,29 @@
         <include>org.hawkular.accounts:hawkular-accounts-keycloak-theme:jar</include>
       </includes>
       <outputFileNameMapping>hawkular-accounts-keycloak-theme.jar</outputFileNameMapping>
+      <useProjectArtifact>false</useProjectArtifact>
+      <useProjectAttachments>false</useProjectAttachments>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useTransitiveFiltering>false</useTransitiveFiltering>
+    </dependencySet>
+    <!-- Keycloak Event Listeners -->
+    <dependencySet>
+      <outputDirectory>modules/org/hawkular/keycloak/events/rest/main</outputDirectory>
+      <includes>
+        <include>org.hawkular.accounts:hawkular-accounts-keycloak-event-listener-rest:jar</include>
+      </includes>
+      <outputFileNameMapping>hawkular-accounts-keycloak-event-listener-rest.jar</outputFileNameMapping>
+      <useProjectArtifact>false</useProjectArtifact>
+      <useProjectAttachments>false</useProjectAttachments>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useTransitiveFiltering>false</useTransitiveFiltering>
+    </dependencySet>
+    <dependencySet>
+      <outputDirectory>modules/org/hawkular/keycloak/events/jms/main</outputDirectory>
+      <includes>
+        <include>org.hawkular.accounts:hawkular-accounts-keycloak-event-listener-jms:jar</include>
+      </includes>
+      <outputFileNameMapping>hawkular-accounts-keycloak-event-listener-jms.jar</outputFileNameMapping>
       <useProjectArtifact>false</useProjectArtifact>
       <useProjectAttachments>false</useProjectAttachments>
       <useTransitiveDependencies>false</useTransitiveDependencies>

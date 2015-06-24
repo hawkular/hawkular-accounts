@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.sample.control;
+package org.hawkular.accounts.events.control;
 
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.LogMessage;
@@ -22,22 +22,20 @@ import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.ValidIdRange;
 
 /**
+ * JBoss Logging integration, with the possible messages that we have for this backend.
+ *
  * @author Juraci Paixão Kröhling
  */
 @org.jboss.logging.annotations.MessageLogger(projectCode = "HAWKACC")
-@ValidIdRange(min = 190000, max = 199999)
+@ValidIdRange(min = 130000, max = 139999)
 public interface MsgLogger {
     MsgLogger LOGGER = Logger.getMessageLogger(MsgLogger.class, MsgLogger.class.getPackage().getName());
 
-    @LogMessage(level = Logger.Level.INFO)
-    @Message(id = 190000, value = "Started setting up Hawkular Accounts - Sample")
-    void infoStartedSetupSample();
+    @LogMessage(level = Logger.Level.DEBUG)
+    @Message(id = 130000, value = "Event received by Accounts.")
+    void eventReceived();
 
-    @LogMessage(level = Logger.Level.INFO)
-    @Message(id = 190001, value = "Finished setting up Hawkular Accounts - Sample")
-    void infoFinishedSetupSample();
-
-    @LogMessage(level = Logger.Level.INFO)
-    @Message(id = 190002, value = "CDI Event from Accounts received by Sample: %s, %s, %s")
-    void cdiEventReceived(String action, String eventId, String personaId);
+    @LogMessage(level = Logger.Level.DEBUG)
+    @Message(id = 130001, value = "Event published to the queue by Accounts")
+    void eventPublished();
 }

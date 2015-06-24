@@ -23,6 +23,10 @@
          version="3.0">
   <display-name>Hawkular Accounts</display-name>
 
+  <listener>
+    <listener-class>org.hawkular.accounts.sample.control.SetupOperations</listener-class>
+  </listener>
+
   <security-constraint>
     <web-resource-collection>
       <web-resource-name>REST endpoints</web-resource-name>

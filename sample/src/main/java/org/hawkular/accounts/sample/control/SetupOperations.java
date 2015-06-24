@@ -18,24 +18,26 @@ package org.hawkular.accounts.sample.control;
 
 import org.hawkular.accounts.api.OperationService;
 
-import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
+import javax.annotation.Resource;
 import javax.inject.Inject;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.transaction.SystemException;
+import javax.transaction.UserTransaction;
 
 /**
  * @author Juraci Paixão Kröhling
  */
-@Startup
-@Singleton
-public class SetupOperations {
+public class SetupOperations implements ServletContextListener {
     private final MsgLogger logger = MsgLogger.LOGGER;
 
     @Inject
     OperationService operationService;
 
-    @PostConstruct
-    public void setupOperations() {
+    @Resource
+    UserTransaction tx;
+
+    public void setup() {
         logger.infoStartedSetupSample();
         operationService
                 .setup("sample-create")
@@ -56,4 +58,23 @@ public class SetupOperations {
         logger.infoFinishedSetupSample();
     }
 
+    @Override
+    public void contextInitialized(ServletContextEvent servletContextEvent) {
+        try {
+            tx.begin();
+            setup();
+            tx.commit();
+        } catch (Exception e) {
+            try {
+                tx.rollback();
+            } catch (SystemException e1) {
+                // couldn't rollback... but let's ignore this one, as we've got another more important exception to log
+            }
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent servletContextEvent) {
+    }
 }

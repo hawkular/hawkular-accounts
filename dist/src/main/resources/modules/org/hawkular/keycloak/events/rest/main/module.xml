@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" ?>
 <!--
 
     Copyright 2015 Red Hat, Inc. and/or its affiliates
@@ -17,20 +17,13 @@
     limitations under the License.
 
 -->
-<jboss:jboss
-    xmlns="http://java.sun.com/xml/ns/javaee"
-    xmlns:jboss="http://www.jboss.com/xml/ns/javaee"
-    xmlns:s="urn:security:1.1"
-    version="3.1" impl-version="2.0">
-
-  <assembly-descriptor>
-    <s:security>
-      <ejb-name>AccountsMessageListener</ejb-name>
-      <s:security-domain>other</s:security-domain>
-    </s:security>
-    <s:security>
-      <ejb-name>*</ejb-name>
-      <s:security-domain>keycloak</s:security-domain>
-    </s:security>
-  </assembly-descriptor>
-</jboss:jboss>
+<module xmlns="urn:jboss:module:1.1" name="org.hawkular.keycloak.events.rest">
+  <resources>
+    <resource-root path="hawkular-accounts-keycloak-event-listener-rest.jar"/>
+  </resources>
+  <dependencies>
+    <module name="org.keycloak.keycloak-core"/>
+    <module name="org.keycloak.keycloak-model-api"/>
+    <module name="org.keycloak.keycloak-events-api"/>
+  </dependencies>
+</module>

@@ -43,7 +43,25 @@
     </dependency>
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
+      <artifactId>hawkular-accounts-events-backend</artifactId>
+      <version>1.0.7-SNAPSHOT</version>
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-keycloak-theme</artifactId>
+      <version>1.0.7-SNAPSHOT</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.hawkular.accounts</groupId>
+      <artifactId>hawkular-accounts-keycloak-event-listener-rest</artifactId>
+      <version>1.0.7-SNAPSHOT</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.hawkular.accounts</groupId>
+      <artifactId>hawkular-accounts-keycloak-event-listener-jms</artifactId>
       <version>1.0.7-SNAPSHOT</version>
       <type>jar</type>
     </dependency>
