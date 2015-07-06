@@ -57,13 +57,15 @@
       <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-keycloak-event-listener-rest</artifactId>
       <version>1.0.8.Final-SNAPSHOT</version>
-      <type>jar</type>
+      <classifier>module</classifier>
+      <type>zip</type>
     </dependency>
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-keycloak-event-listener-jms</artifactId>
       <version>1.0.8.Final-SNAPSHOT</version>
-      <type>jar</type>
+      <classifier>module</classifier>
+      <type>zip</type>
     </dependency>
     <dependency>
       <groupId>org.keycloak</groupId>

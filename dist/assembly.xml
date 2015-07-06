@@ -69,26 +69,14 @@
     </dependencySet>
     <!-- Keycloak Event Listeners -->
     <dependencySet>
-      <outputDirectory>modules/org/hawkular/keycloak/events/rest/main</outputDirectory>
+      <outputDirectory>/modules</outputDirectory>
       <includes>
-        <include>org.hawkular.accounts:hawkular-accounts-keycloak-event-listener-rest:jar</include>
+        <include>org.hawkular.accounts:hawkular-accounts-keycloak-event-listener-rest:zip:module</include>
+        <include>org.hawkular.accounts:hawkular-accounts-keycloak-event-listener-jms:zip:module</include>
       </includes>
-      <outputFileNameMapping>hawkular-accounts-keycloak-event-listener-rest.jar</outputFileNameMapping>
-      <useProjectArtifact>false</useProjectArtifact>
-      <useProjectAttachments>false</useProjectAttachments>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useTransitiveFiltering>false</useTransitiveFiltering>
-    </dependencySet>
-    <dependencySet>
-      <outputDirectory>modules/org/hawkular/keycloak/events/jms/main</outputDirectory>
-      <includes>
-        <include>org.hawkular.accounts:hawkular-accounts-keycloak-event-listener-jms:jar</include>
-      </includes>
-      <outputFileNameMapping>hawkular-accounts-keycloak-event-listener-jms.jar</outputFileNameMapping>
-      <useProjectArtifact>false</useProjectArtifact>
-      <useProjectAttachments>false</useProjectAttachments>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useTransitiveFiltering>false</useTransitiveFiltering>
+      <unpack>true</unpack>
+      <fileMode>0644</fileMode>
+      <directoryMode>0755</directoryMode>
     </dependencySet>
   </dependencySets>
   <fileSets>
