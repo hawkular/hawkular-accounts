@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.hawkular.accounts</groupId>
     <artifactId>hawkular-accounts-parent</artifactId>
-    <version>1.0.7.Final</version>
+    <version>1.0.8.Final-SNAPSHOT</version>
   </parent>
 
   <name>Hawkular - Accounts - Distribution</name>
@@ -38,31 +38,31 @@
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts</artifactId>
-      <version>1.0.7.Final</version>
+      <version>1.0.8.Final-SNAPSHOT</version>
       <type>war</type>
     </dependency>
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-events-backend</artifactId>
-      <version>1.0.7.Final</version>
+      <version>1.0.8.Final-SNAPSHOT</version>
       <type>war</type>
     </dependency>
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-keycloak-theme</artifactId>
-      <version>1.0.7.Final</version>
+      <version>1.0.8.Final-SNAPSHOT</version>
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-keycloak-event-listener-rest</artifactId>
-      <version>1.0.7.Final</version>
+      <version>1.0.8.Final-SNAPSHOT</version>
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-keycloak-event-listener-jms</artifactId>
-      <version>1.0.7.Final</version>
+      <version>1.0.8.Final-SNAPSHOT</version>
       <type>jar</type>
     </dependency>
     <dependency>

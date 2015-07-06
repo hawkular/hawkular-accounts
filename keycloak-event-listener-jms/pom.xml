@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.hawkular.accounts</groupId>
     <artifactId>hawkular-accounts-parent</artifactId>
-    <version>1.0.7.Final</version>
+    <version>1.0.8.Final-SNAPSHOT</version>
   </parent>
 
   <name>Hawkular - Accounts - Keycloak Event Listener JMS</name>
