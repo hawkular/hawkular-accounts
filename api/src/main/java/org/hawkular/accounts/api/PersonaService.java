@@ -18,6 +18,7 @@ package org.hawkular.accounts.api;
 
 import java.util.Set;
 
+import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
 import org.hawkular.accounts.api.model.Role;
@@ -68,4 +69,13 @@ public interface PersonaService {
      * @return the current persona.
      */
     Persona getCurrent();
+
+    /**
+     * Checks if the current user is allowed to impersonate the given persona. At this moment, this implementation
+     * returns only "true", but will soon be changed to the appropriate behavior.
+     * @param actual           the logged in user
+     * @param toImpersonate    the persona to be impersonated
+     * @return  whether or not the current user can impersona the given persona
+     */
+    boolean isAllowedToImpersonate(HawkularUser actual, Persona toImpersonate);
 }

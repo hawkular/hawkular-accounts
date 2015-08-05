@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hawkular Accounts - WebSockets sample</title>
+    <style>
+        #messageBox {
+            border: 2px solid darkgreen;
+            width: 40%;
+            padding: 50px;
+            float: left;
+        }
+
+        #errorBox {
+            border: 2px solid darkred;
+            width: 40%;
+            padding: 50px;
+            float: right;
+        }
+
+        #boxes {
+            padding: 50px;
+        }
+
+        #actions {
+            clear: both;
+            padding: 50px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="actions">
+    <button onclick="sendEchoMessage()">Send 'echo' message.</button>
+</div>
+
+<div id="boxes">
+    <div id="messageBox">
+        Message box!
+    </div>
+
+    <div id="errorBox">
+        Errors box!
+    </div>
+</div>
+
+</body>
+<script src="websocket.js"></script>
+</html>

@@ -36,6 +36,7 @@ import org.hawkular.accounts.api.OrganizationService;
 import org.hawkular.accounts.api.PersonaService;
 import org.hawkular.accounts.api.UserService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
 import org.hawkular.accounts.api.model.Persona;
@@ -158,11 +159,21 @@ public class PersonaServiceImpl implements PersonaService {
         // for now, this is sufficient. In a future improvement, we'll have a way to switch users
         String personaId = httpRequest.getHeader("Hawkular-Persona");
         if (personaId != null && !personaId.isEmpty()) {
-            // TODO: check permissions!
-            return get(personaId);
+            Persona persona = get(personaId);
+            if (isAllowedToImpersonate(userService.getCurrent(), persona)) {
+                return persona;
+            } else {
+                throw new RuntimeException("User is not allowed to impersonate this persona.");
+            }
         }
 
         // we don't have a persona on the request, so, assume it's the current user
         return userService.getCurrent();
+    }
+
+    @Override
+    public boolean isAllowedToImpersonate(HawkularUser actual, Persona toImpersonate) {
+        // TODO: check the permissions, to see if the user indeed has the permissions to impersonate...
+        return true;
     }
 }

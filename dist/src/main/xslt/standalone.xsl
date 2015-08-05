@@ -83,6 +83,9 @@
       <local-cache name="role-cache"/>
       <local-cache name="operation-cache"/>
     </cache-container>
+    <cache-container name="hawkular-accounts-websocket" default-cache="session-cache">
+      <local-cache name="session-cache"/>
+    </cache-container>
   </xsl:template>
 
   <!-- Add MDB support for Hawkular Accounts -->
@@ -117,6 +120,22 @@
           <credential name="secret"><xsl:value-of select="$uuid.hawkular.accounts.backend" /></credential>
         </secure-deployment>
         <secure-deployment name="hawkular-accounts-sample.war">
+          <realm>hawkular</realm>
+          <resource>hawkular-accounts-backend</resource>
+          <use-resource-role-mappings>true</use-resource-role-mappings>
+          <enable-cors>true</enable-cors>
+          <enable-basic-auth>true</enable-basic-auth>
+          <credential name="secret"><xsl:value-of select="$uuid.hawkular.accounts.backend" /></credential>
+        </secure-deployment>
+        <secure-deployment name="hawkular-accounts-sample-websocket-backend.war">
+          <realm>hawkular</realm>
+          <resource>hawkular-accounts-backend</resource>
+          <use-resource-role-mappings>true</use-resource-role-mappings>
+          <enable-cors>true</enable-cors>
+          <enable-basic-auth>true</enable-basic-auth>
+          <credential name="secret"><xsl:value-of select="$uuid.hawkular.accounts.backend" /></credential>
+        </secure-deployment>
+        <secure-deployment name="hawkular-accounts-sample-websocket-secured.war">
           <realm>hawkular</realm>
           <resource>hawkular-accounts-backend</resource>
           <use-resource-role-mappings>true</use-resource-role-mappings>

@@ -1,0 +1,125 @@
+= Hawkular Accounts - Web Socket API
+
+This API is intended to be used for securing Web Socket Server Endpoints for Hawkular components. Unfortunately,
+there's no standard way of securing Web Socket server endpoints other than the basic HTTP mechanisms, such as
+Cookies, Basic and Client Certificate. In any case, those are applied only while the connection is being
+established, meaning that if the session is not valid anymore at any given time during the life of the connection, for
+any reason, the connection is not forcibly closed. In other words, in a situation where the user "jdoe" logs in,
+opens a long-lived connection and has its account removed by an administrator in the meantime won't have the
+connection interrupted.
+
+If the situation above is acceptable for your use case, a simple solution is to get your deployment completely
+secured by Keycloak. See the example `sample-websocket-secured`. In this case, both the client and the server
+endpoints reside on the same deployment. In order for `index.html` to be served, the user has to login first.
+Subsequent HTTP calls are authenticated via cookie, including the initial HTTP Upgrade request.
+
+For the cases where the described situation is not acceptable, or when the frontend is not located on the same
+deployment as the backend, this API should help with the authentication aspect.
+
+Basic flow:
+
+- Client's frontend is secured via Keycloak (via JavaScript Adapter, for instance);
+- Client's frontend sends messages as JSON;
+- Client's frontend embeds an authentication object within at least the first message
+- The authentication object contains either an authentication token or an username/password pair
+- The Server Endpoint explicitly calls the API's `Authenticator#authenticate` method
+- The API is free to close the connection and/or throw exceptions, so that the message is not processed if it's not
+authenticated.
+
+== Usage
+
+The intended usage is to have your Server Web Socket endpoints as a separate deployment, without Keycloak's
+configuration at web.xml. This way, authentication can be performed by the socket itself. The Client Web Socket
+endpoint, on the other hand, should have access to an authentication token, usually obtainable via the JavaScript
+adapter.
+
+The client should send messages in JSON format. The only requirement is to have an authentication object embedded
+into this JSON message. Optionally, the persona could also be sent, if the current user is impersonating an
+organization.
+
+Example:
+[source,javascript]
+----
+websocket.send(JSON.stringify({
+  "message": "Hello World!",
+  "authentication": {
+    "token": keycloak.token,
+    "persona": keycloak.subject
+  }
+}));
+----
+
+On the server side, the first step is to add the Maven dependency to this API:
+
+[source,xml]
+----
+ <dependency>
+   <groupId>org.hawkular.accounts</groupId>
+   <artifactId>hawkular-accounts-websocket-api</artifactId>
+ </dependency>
+----
+
+Add a Context Listener to your web.xml, which will serve as our repository for the Servlet Context (as there's
+currently no way to get it from a Web Socket):
+
+[source,java]
+----
+  <listener>
+    <listener-class>org.hawkular.accounts.common.ServletContextEnhancer</listener-class>
+  </listener>
+----
+
+Then, just inject the authenticator into your Web Socket and call the `authenticate` method:
+
+[source,java]
+----
+@ServerEndpoint(value = "/socket")
+public class Socket {
+    @Inject
+    Authenticator authenticator;
+
+    @OnMessage
+    public String onMessage(String message, Session session) throws IOException {
+        authenticate(message, session);
+        JsonReader jsonReader = Json.createReader(new StringReader(message));
+        JsonObject jsonMessage = jsonReader.readObject();
+        return jsonMessage.getString("message");
+    }
+
+    private void authenticate(String message, Session session) throws IOException {
+        try {
+            authenticator.authenticate(message, session);
+        } catch (WebsocketAuthenticationException e) {
+            session.close(new CloseReason(CloseReason.CloseCodes.CLOSED_ABNORMALLY, e.getLocalizedMessage()));
+        }
+    }
+}
+----
+
+== Further reading
+
+The implementation details and general contracts can be found as JavaDoc for the classes in this module.
+
+== License
+
+Hawkular Accounts is released under Apache License, Version 2.0 as described in the link:LICENSE[LICENSE] document
+
+----
+   Copyright 2015 Red Hat, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+----
+
+
+
+
