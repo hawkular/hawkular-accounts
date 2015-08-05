@@ -16,6 +16,21 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.security.PermitAll;
+import javax.ejb.Stateless;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletRequest;
+
 import org.hawkular.accounts.api.OrganizationMembershipService;
 import org.hawkular.accounts.api.OrganizationService;
 import org.hawkular.accounts.api.PersonaService;
@@ -29,20 +44,6 @@ import org.hawkular.accounts.api.model.PersonaResourceRole_;
 import org.hawkular.accounts.api.model.Persona_;
 import org.hawkular.accounts.api.model.Resource;
 import org.hawkular.accounts.api.model.Role;
-
-import javax.annotation.security.PermitAll;
-import javax.ejb.Stateless;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-import javax.servlet.http.HttpServletRequest;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Main implementation of the {@link org.hawkular.accounts.api.PersonaService}. Consumers should get an instance of this

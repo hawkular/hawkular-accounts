@@ -16,10 +16,10 @@
  */
 package org.hawkular.accounts.sample.control;
 
-import org.hawkular.accounts.events.listener.AccountsEvent;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
+
+import org.hawkular.accounts.events.listener.AccountsEvent;
 
 /**
  * @author Juraci Paixão Kröhling

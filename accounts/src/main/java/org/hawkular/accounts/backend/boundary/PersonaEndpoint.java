@@ -16,11 +16,8 @@
  */
 package org.hawkular.accounts.backend.boundary;
 
-import org.hawkular.accounts.api.CurrentUser;
-import org.hawkular.accounts.api.OrganizationService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
-import org.hawkular.accounts.api.model.HawkularUser;
-import org.hawkular.accounts.api.model.Persona;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
@@ -29,8 +26,12 @@ import javax.persistence.EntityManager;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.hawkular.accounts.api.CurrentUser;
+import org.hawkular.accounts.api.OrganizationService;
+import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.model.HawkularUser;
+import org.hawkular.accounts.api.model.Persona;
 
 /**
  * @author Juraci Paixão Kröhling

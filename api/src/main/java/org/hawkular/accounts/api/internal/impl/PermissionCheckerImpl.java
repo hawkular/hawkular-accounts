@@ -16,6 +16,12 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
+import java.util.Set;
+
+import javax.annotation.security.PermitAll;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
 import org.hawkular.accounts.api.PermissionChecker;
 import org.hawkular.accounts.api.PermissionService;
 import org.hawkular.accounts.api.PersonaService;
@@ -24,11 +30,6 @@ import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
 import org.hawkular.accounts.api.model.Role;
-
-import javax.annotation.security.PermitAll;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import java.util.Set;
 
 /**
  * Main implementation of the {@link org.hawkular.accounts.api.PermissionChecker}. Consumers should get an instance of

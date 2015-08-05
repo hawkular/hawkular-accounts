@@ -16,11 +16,11 @@
  */
 package org.hawkular.accounts.api;
 
+import java.util.List;
+
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
 import org.hawkular.accounts.api.model.Persona;
-
-import java.util.List;
 
 /**
  * Service intended to manage the memberships that a {@link Persona} holds in an

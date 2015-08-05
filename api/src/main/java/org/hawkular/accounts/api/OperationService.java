@@ -16,10 +16,10 @@
  */
 package org.hawkular.accounts.api;
 
+import javax.enterprise.inject.spi.InjectionPoint;
+
 import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Role;
-
-import javax.enterprise.inject.spi.InjectionPoint;
 
 /**
  * Service intended to manage {@link Operation} entities. Can be injected via CDI into managed beans as follows:

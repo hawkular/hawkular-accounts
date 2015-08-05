@@ -16,13 +16,14 @@
  */
 package org.hawkular.accounts.api.model;
 
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.PreUpdate;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.UUID;
+
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.PreUpdate;
 
 /**
  * Base entity, providing some common properties that all entities should have.

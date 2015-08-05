@@ -16,17 +16,17 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.util.UUID;
+
 import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.UUID;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Juraci Paixão Kröhling

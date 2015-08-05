@@ -16,11 +16,11 @@
  */
 package org.hawkular.accounts.api.model;
 
-import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+
+import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
+import org.junit.Test;
 
 /**
  * @author Juraci Paixão Kröhling

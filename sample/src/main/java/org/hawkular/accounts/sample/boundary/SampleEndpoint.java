@@ -16,16 +16,7 @@
  */
 package org.hawkular.accounts.sample.boundary;
 
-import org.hawkular.accounts.api.PermissionChecker;
-import org.hawkular.accounts.api.ResourceService;
-import org.hawkular.accounts.api.NamedOperation;
-import org.hawkular.accounts.api.model.Operation;
-import org.hawkular.accounts.api.model.Persona;
-import org.hawkular.accounts.api.model.Resource;
-import org.hawkular.accounts.sample.control.HawkularAccountsSample;
-import org.hawkular.accounts.sample.entity.Sample;
-import org.hawkular.accounts.sample.entity.SampleRequest;
-import org.hawkular.accounts.sample.entity.Sample_;
+import java.util.UUID;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
@@ -40,7 +31,16 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
-import java.util.UUID;
+
+import org.hawkular.accounts.api.NamedOperation;
+import org.hawkular.accounts.api.PermissionChecker;
+import org.hawkular.accounts.api.ResourceService;
+import org.hawkular.accounts.api.model.Operation;
+import org.hawkular.accounts.api.model.Persona;
+import org.hawkular.accounts.api.model.Resource;
+import org.hawkular.accounts.sample.control.HawkularAccountsSample;
+import org.hawkular.accounts.sample.entity.Sample;
+import org.hawkular.accounts.sample.entity.SampleRequest;
 
 /**
  * REST endpoint that exemplifies how to get instances of Hawkular Accounts services and how to consume them.

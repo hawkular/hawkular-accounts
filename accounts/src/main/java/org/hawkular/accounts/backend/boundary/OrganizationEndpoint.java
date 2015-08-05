@@ -16,20 +16,6 @@
  */
 package org.hawkular.accounts.backend.boundary;
 
-import org.hawkular.accounts.api.CurrentUser;
-import org.hawkular.accounts.api.OrganizationService;
-import org.hawkular.accounts.api.PermissionChecker;
-import org.hawkular.accounts.api.ResourceService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
-import org.hawkular.accounts.api.NamedOperation;
-import org.hawkular.accounts.api.model.HawkularUser;
-import org.hawkular.accounts.api.model.Operation;
-import org.hawkular.accounts.api.model.Organization;
-import org.hawkular.accounts.api.model.Organization_;
-import org.hawkular.accounts.api.model.Persona;
-import org.hawkular.accounts.backend.entity.rest.ErrorResponse;
-import org.hawkular.accounts.backend.entity.rest.OrganizationRequest;
-
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -44,6 +30,20 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
+
+import org.hawkular.accounts.api.CurrentUser;
+import org.hawkular.accounts.api.NamedOperation;
+import org.hawkular.accounts.api.OrganizationService;
+import org.hawkular.accounts.api.PermissionChecker;
+import org.hawkular.accounts.api.ResourceService;
+import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.model.HawkularUser;
+import org.hawkular.accounts.api.model.Operation;
+import org.hawkular.accounts.api.model.Organization;
+import org.hawkular.accounts.api.model.Organization_;
+import org.hawkular.accounts.api.model.Persona;
+import org.hawkular.accounts.backend.entity.rest.ErrorResponse;
+import org.hawkular.accounts.backend.entity.rest.OrganizationRequest;
 
 /**
  * REST service responsible for managing {@link org.hawkular.accounts.api.model.Organization}.
