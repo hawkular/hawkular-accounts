@@ -16,11 +16,6 @@
  */
 package org.hawkular.accounts.keycloak.events;
 
-import org.keycloak.events.Event;
-import org.keycloak.events.EventListenerProvider;
-import org.keycloak.events.EventType;
-import org.keycloak.events.admin.AdminEvent;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,6 +26,11 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Set;
 import java.util.UUID;
+
+import org.keycloak.events.Event;
+import org.keycloak.events.EventListenerProvider;
+import org.keycloak.events.EventType;
+import org.keycloak.events.admin.AdminEvent;
 
 /**
  * @author Juraci Paixão Kröhling

@@ -16,16 +16,16 @@
  */
 package org.hawkular.accounts.keycloak.events;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.keycloak.Config;
 import org.keycloak.events.EventListenerProvider;
 import org.keycloak.events.EventListenerProviderFactory;
 import org.keycloak.events.EventType;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author Juraci Paixão Kröhling

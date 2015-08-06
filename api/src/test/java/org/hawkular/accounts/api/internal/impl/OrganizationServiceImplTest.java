@@ -16,6 +16,11 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
+import java.util.UUID;
+
 import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Organization;
@@ -23,11 +28,6 @@ import org.hawkular.accounts.api.model.OrganizationMembership;
 import org.hawkular.accounts.api.model.Role;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Juraci Paixão Kröhling

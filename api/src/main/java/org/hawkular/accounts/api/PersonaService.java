@@ -16,11 +16,11 @@
  */
 package org.hawkular.accounts.api;
 
+import java.util.Set;
+
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
 import org.hawkular.accounts.api.model.Role;
-
-import java.util.Set;
 
 /**
  * Provides an interface for querying and managing {@link Persona}. Can be injected via CDI into managed beans as

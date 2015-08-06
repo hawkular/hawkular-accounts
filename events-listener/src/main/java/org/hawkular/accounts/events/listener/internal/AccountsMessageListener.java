@@ -17,11 +17,6 @@
 
 package org.hawkular.accounts.events.listener.internal;
 
-import org.hawkular.accounts.api.PersonaService;
-import org.hawkular.accounts.api.UserService;
-import org.hawkular.accounts.api.model.Persona;
-import org.hawkular.accounts.events.listener.AccountsEvent;
-
 import javax.annotation.security.PermitAll;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
@@ -30,6 +25,11 @@ import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+
+import org.hawkular.accounts.api.PersonaService;
+import org.hawkular.accounts.api.UserService;
+import org.hawkular.accounts.api.model.Persona;
+import org.hawkular.accounts.events.listener.AccountsEvent;
 
 /**
  * @author Juraci Paixão Kröhling

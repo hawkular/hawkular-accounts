@@ -16,10 +16,11 @@
  */
 package org.hawkular.accounts.jaxb.adapters;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  * JAX-B adapter for ZonedDateTime, converting to and from the ISO Date Time format.

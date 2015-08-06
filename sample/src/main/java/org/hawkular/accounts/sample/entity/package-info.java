@@ -23,8 +23,9 @@
 @XmlJavaTypeAdapters({@XmlJavaTypeAdapter(type=ZonedDateTime.class,value=ZonedDateTimeXmlAdapter.class)})
 package org.hawkular.accounts.sample.entity;
 
-import org.hawkular.accounts.jaxb.adapters.ZonedDateTimeXmlAdapter;
+import java.time.ZonedDateTime;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapters;
-import java.time.ZonedDateTime;
+
+import org.hawkular.accounts.jaxb.adapters.ZonedDateTimeXmlAdapter;

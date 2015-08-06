@@ -16,13 +16,13 @@
  */
 package org.hawkular.accounts.jaxb.adapters;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 /**
  * @author Juraci Paixão Kröhling

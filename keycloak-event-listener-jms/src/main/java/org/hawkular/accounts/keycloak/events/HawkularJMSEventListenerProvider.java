@@ -16,10 +16,8 @@
  */
 package org.hawkular.accounts.keycloak.events;
 
-import org.keycloak.events.Event;
-import org.keycloak.events.EventListenerProvider;
-import org.keycloak.events.EventType;
-import org.keycloak.events.admin.AdminEvent;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.jms.Message;
 import javax.jms.MessageProducer;
@@ -30,8 +28,11 @@ import javax.jms.TopicConnectionFactory;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import java.util.Set;
-import java.util.UUID;
+
+import org.keycloak.events.Event;
+import org.keycloak.events.EventListenerProvider;
+import org.keycloak.events.EventType;
+import org.keycloak.events.admin.AdminEvent;
 
 /**
  * @author Juraci Paixão Kröhling

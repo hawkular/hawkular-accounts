@@ -16,11 +16,11 @@
  */
 package org.hawkular.accounts.api;
 
+import java.util.Set;
+
 import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Permission;
 import org.hawkular.accounts.api.model.Role;
-
-import java.util.Set;
 
 /**
  * Service providing access to permission-related queries. Can be injected via CDI into managed beans as follows:

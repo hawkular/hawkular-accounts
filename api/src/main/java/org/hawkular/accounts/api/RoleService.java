@@ -16,10 +16,11 @@
  */
 package org.hawkular.accounts.api;
 
-import org.hawkular.accounts.api.model.Role;
+import java.util.Set;
 
 import javax.enterprise.inject.spi.InjectionPoint;
-import java.util.Set;
+
+import org.hawkular.accounts.api.model.Role;
 
 /**
  * Provides access to information related to {@link Role}. Can be injected via CDI into managed beans as follows:

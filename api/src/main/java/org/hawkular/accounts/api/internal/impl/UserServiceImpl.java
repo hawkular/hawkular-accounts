@@ -16,12 +16,7 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
-import org.hawkular.accounts.api.CurrentUser;
-import org.hawkular.accounts.api.UserService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
-import org.hawkular.accounts.api.model.HawkularUser;
-import org.hawkular.accounts.api.model.HawkularUser_;
-import org.keycloak.KeycloakPrincipal;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
@@ -33,7 +28,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import java.util.List;
+
+import org.hawkular.accounts.api.CurrentUser;
+import org.hawkular.accounts.api.UserService;
+import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.model.HawkularUser;
+import org.hawkular.accounts.api.model.HawkularUser_;
+import org.keycloak.KeycloakPrincipal;
 
 /**
  * Main implementation of the {@link org.hawkular.accounts.api.UserService}. Consumers should get an instance of this
