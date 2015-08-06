@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.hawkular.accounts</groupId>
     <artifactId>hawkular-accounts-parent</artifactId>
-    <version>1.0.9.Final</version>
+    <version>1.0.10.Final-SNAPSHOT</version>
   </parent>
 
   <name>Hawkular - Accounts - Keycloak Event Listener REST</name>

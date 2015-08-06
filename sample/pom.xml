@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.hawkular.accounts</groupId>
     <artifactId>hawkular-accounts-parent</artifactId>
-    <version>1.0.9.Final</version>
+    <version>1.0.10.Final-SNAPSHOT</version>
   </parent>
 
   <name>Hawkular - Accounts - Sample</name>
@@ -38,17 +38,17 @@
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-api</artifactId>
-      <version>1.0.9.Final</version>
+      <version>1.0.10.Final-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-event-listener</artifactId>
-      <version>1.0.9.Final</version>
+      <version>1.0.10.Final-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-jaxb-adapters</artifactId>
-      <version>1.0.9.Final</version>
+      <version>1.0.10.Final-SNAPSHOT</version>
     </dependency>
 
     <dependency>
