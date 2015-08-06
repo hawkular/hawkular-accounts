@@ -16,10 +16,11 @@
  */
 package org.hawkular.accounts.jaxb.adapters;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  * JAX-B adapter for ZonedDateTime, converting to and from the ISO Date Time format.
@@ -39,11 +40,11 @@ public class ZonedDateTimeXmlAdapter extends XmlAdapter<String, ZonedDateTime> {
     }
 
     /**
-     * When marshalling, the provided zonedDateTime is normalized to UTC, so that the output is consistent between
-     * dates and time zones.
+     * When marshalling, the provided zonedDateTime is normalized to UTC, so that the output is consistent between dates
+     * and time zones.
      *
-     * @param zonedDateTime    the zonedDateTime to marshall
-     * @return                  the UTC-based date time in ISO format
+     * @param zonedDateTime the zonedDateTime to marshall
+     * @return the UTC-based date time in ISO format
      */
     @Override
     public String marshal(ZonedDateTime zonedDateTime) {

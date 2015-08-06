@@ -16,11 +16,11 @@
  */
 package org.hawkular.accounts.api;
 
+import java.util.List;
+
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
 import org.hawkular.accounts.api.model.Persona;
-
-import java.util.List;
 
 /**
  * Service intended to handle data related to an {@link Organization}. Can be injected via CDI into managed beans as

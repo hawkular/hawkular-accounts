@@ -16,10 +16,8 @@
  */
 package org.hawkular.accounts.backend.control;
 
-import org.hawkular.accounts.api.OperationService;
-import org.hawkular.accounts.api.RoleService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
-import org.hawkular.accounts.api.model.Role;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -28,8 +26,11 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
-import java.util.HashSet;
-import java.util.Set;
+
+import org.hawkular.accounts.api.OperationService;
+import org.hawkular.accounts.api.RoleService;
+import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.model.Role;
 
 /**
  * Startup singleton that takes care of initializing data that we need for both the main Accounts module and for this

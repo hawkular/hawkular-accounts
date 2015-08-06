@@ -16,20 +16,20 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
 import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Permission;
 import org.hawkular.accounts.api.model.Role;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Juraci Paixão Kröhling

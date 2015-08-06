@@ -16,12 +16,7 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
-import org.hawkular.accounts.api.OrganizationMembershipService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
-import org.hawkular.accounts.api.model.Organization;
-import org.hawkular.accounts.api.model.OrganizationMembership;
-import org.hawkular.accounts.api.model.OrganizationMembership_;
-import org.hawkular.accounts.api.model.Persona;
+import java.util.List;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
@@ -30,7 +25,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import java.util.List;
+
+import org.hawkular.accounts.api.OrganizationMembershipService;
+import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.model.Organization;
+import org.hawkular.accounts.api.model.OrganizationMembership;
+import org.hawkular.accounts.api.model.OrganizationMembership_;
+import org.hawkular.accounts.api.model.Persona;
 
 /**
  * @author Juraci Paixão Kröhling

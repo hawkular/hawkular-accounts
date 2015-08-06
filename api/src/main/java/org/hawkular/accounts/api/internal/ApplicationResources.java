@@ -16,11 +16,11 @@
  */
 package org.hawkular.accounts.api.internal;
 
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.persistence.PersistenceContext;
+
+import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 
 /**
  * Provides CDI producers for resources required by the API.

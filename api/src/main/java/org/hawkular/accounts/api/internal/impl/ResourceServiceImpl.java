@@ -16,14 +16,7 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
-import org.hawkular.accounts.api.NamedRole;
-import org.hawkular.accounts.api.ResourceService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
-import org.hawkular.accounts.api.model.Persona;
-import org.hawkular.accounts.api.model.PersonaResourceRole;
-import org.hawkular.accounts.api.model.Resource;
-import org.hawkular.accounts.api.model.Resource_;
-import org.hawkular.accounts.api.model.Role;
+import java.util.List;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
@@ -32,7 +25,15 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import java.util.List;
+
+import org.hawkular.accounts.api.NamedRole;
+import org.hawkular.accounts.api.ResourceService;
+import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.model.Persona;
+import org.hawkular.accounts.api.model.PersonaResourceRole;
+import org.hawkular.accounts.api.model.Resource;
+import org.hawkular.accounts.api.model.Resource_;
+import org.hawkular.accounts.api.model.Role;
 
 /**
  * Main implementation of the {@link org.hawkular.accounts.api.ResourceService}. Consumers should get an instance of

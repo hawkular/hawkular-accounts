@@ -16,14 +16,14 @@
  */
 package org.hawkular.accounts.sample.control;
 
-import org.hawkular.accounts.api.OperationService;
-
 import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
+
+import org.hawkular.accounts.api.OperationService;
 
 /**
  * @author Juraci Paixão Kröhling

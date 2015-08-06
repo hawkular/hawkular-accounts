@@ -16,21 +16,22 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
-import org.hawkular.accounts.api.OrganizationMembershipService;
-import org.hawkular.accounts.api.OrganizationService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
-import org.hawkular.accounts.api.NamedRole;
-import org.hawkular.accounts.api.model.Organization;
-import org.hawkular.accounts.api.model.OrganizationMembership;
-import org.hawkular.accounts.api.model.Persona;
-import org.hawkular.accounts.api.model.Role;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import java.util.List;
-import java.util.stream.Collectors;
+
+import org.hawkular.accounts.api.NamedRole;
+import org.hawkular.accounts.api.OrganizationMembershipService;
+import org.hawkular.accounts.api.OrganizationService;
+import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.model.Organization;
+import org.hawkular.accounts.api.model.OrganizationMembership;
+import org.hawkular.accounts.api.model.Persona;
+import org.hawkular.accounts.api.model.Role;
 
 /**
  * @author Juraci Paixão Kröhling

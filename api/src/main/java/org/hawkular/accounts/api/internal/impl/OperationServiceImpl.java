@@ -16,15 +16,8 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
-import org.hawkular.accounts.api.NamedOperation;
-import org.hawkular.accounts.api.OperationService;
-import org.hawkular.accounts.api.PermissionService;
-import org.hawkular.accounts.api.RoleService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
-import org.hawkular.accounts.api.model.Operation;
-import org.hawkular.accounts.api.model.Operation_;
-import org.hawkular.accounts.api.model.Permission;
-import org.hawkular.accounts.api.model.Role;
+import java.util.List;
+import java.util.Set;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
@@ -35,8 +28,16 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import java.util.List;
-import java.util.Set;
+
+import org.hawkular.accounts.api.NamedOperation;
+import org.hawkular.accounts.api.OperationService;
+import org.hawkular.accounts.api.PermissionService;
+import org.hawkular.accounts.api.RoleService;
+import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.model.Operation;
+import org.hawkular.accounts.api.model.Operation_;
+import org.hawkular.accounts.api.model.Permission;
+import org.hawkular.accounts.api.model.Role;
 
 /**
  * Concrete implementation of {@link OperationService}.

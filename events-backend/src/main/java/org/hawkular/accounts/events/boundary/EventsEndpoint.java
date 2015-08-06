@@ -16,9 +16,6 @@
  */
 package org.hawkular.accounts.events.boundary;
 
-import org.hawkular.accounts.events.control.MsgLogger;
-import org.hawkular.accounts.events.entity.EventCreateRequest;
-
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.jms.JMSException;
@@ -32,6 +29,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.hawkular.accounts.events.control.MsgLogger;
+import org.hawkular.accounts.events.entity.EventCreateRequest;
 
 /**
  * @author Juraci Paixão Kröhling

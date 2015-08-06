@@ -16,11 +16,9 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
-import org.hawkular.accounts.api.NamedRole;
-import org.hawkular.accounts.api.RoleService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
-import org.hawkular.accounts.api.model.Role;
-import org.hawkular.accounts.api.model.Role_;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
@@ -31,9 +29,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
+import org.hawkular.accounts.api.NamedRole;
+import org.hawkular.accounts.api.RoleService;
+import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.model.Role;
+import org.hawkular.accounts.api.model.Role_;
 
 /**
  * @author Juraci Paixão Kröhling

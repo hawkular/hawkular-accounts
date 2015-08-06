@@ -16,13 +16,16 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
-import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
-import org.hawkular.accounts.api.model.HawkularUser;
-import org.junit.Before;
-import org.junit.Test;
-import org.keycloak.KeycloakPrincipal;
-import org.keycloak.KeycloakSecurityContext;
-import org.keycloak.representations.AccessToken;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.security.Identity;
+import java.security.Principal;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.UUID;
 
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
@@ -31,16 +34,14 @@ import javax.ejb.EJBObject;
 import javax.ejb.SessionContext;
 import javax.ejb.TimerService;
 import javax.transaction.UserTransaction;
-import java.security.Identity;
-import java.security.Principal;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
+import org.hawkular.accounts.api.model.HawkularUser;
+import org.junit.Before;
+import org.junit.Test;
+import org.keycloak.KeycloakPrincipal;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.representations.AccessToken;
 
 /**
  * @author Juraci Paixão Kröhling
