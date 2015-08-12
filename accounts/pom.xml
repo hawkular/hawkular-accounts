@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.hawkular.accounts</groupId>
     <artifactId>hawkular-accounts-parent</artifactId>
-    <version>1.0.10.Final</version>
+    <version>1.0.11.Final-SNAPSHOT</version>
   </parent>
 
   <name>Hawkular - Accounts - Backend</name>
@@ -38,7 +38,7 @@
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-api</artifactId>
-      <version>1.0.10.Final</version>
+      <version>1.0.11.Final-SNAPSHOT</version>
     </dependency>
 
     <!--
@@ -47,7 +47,7 @@
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-liquibase</artifactId>
-      <version>1.0.10.Final</version>
+      <version>1.0.11.Final-SNAPSHOT</version>
     </dependency>
 
     <!-- Provided runtime dependencies, present on the Wildfly BOM -->
