@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.hawkular.accounts</groupId>
     <artifactId>hawkular-accounts-parent</artifactId>
-    <version>1.0.11.Final-SNAPSHOT</version>
+    <version>1.0.11.Final</version>
   </parent>
 
   <name>Hawkular - Accounts - Liquibase Temporary Fixes</name>
