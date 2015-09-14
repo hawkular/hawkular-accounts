@@ -16,6 +16,7 @@
  */
 package org.hawkular.accounts.websocket;
 
+import static org.hawkular.accounts.websocket.internal.AuthenticationMode.CREDENTIALS;
 import static org.hawkular.accounts.websocket.internal.AuthenticationMode.MESSAGE;
 import static org.hawkular.accounts.websocket.internal.AuthenticationMode.TOKEN;
 
@@ -127,7 +128,7 @@ public class Authenticator {
      */
     public void authenticateWithCredentials(String username, String password, String personaId, Session session)
             throws WebsocketAuthenticationException {
-        authenticate(TOKEN, personaId, session, null, null, username, password);
+        authenticate(CREDENTIALS, personaId, session, null, null, username, password);
     }
 
     private void authenticate(
@@ -151,13 +152,13 @@ public class Authenticator {
             try {
                 switch (mode) {
                     case CREDENTIALS:
-                        cachedSession = doAuthenticationWithToken(personaId, token);
+                        cachedSession = doAuthenticationWithCredentials(personaId, username, password);
                         break;
                     case MESSAGE:
                         cachedSession = doAuthenticationWithMessage(personaId, jsonAuth);
                         break;
                     case TOKEN:
-                        cachedSession = doAuthenticationWithCredentials(personaId, username, password);
+                        cachedSession = doAuthenticationWithToken(personaId, token);
                         break;
                     default:
                         throw new WebsocketAuthenticationException("Could not determine the authentication mode " +
