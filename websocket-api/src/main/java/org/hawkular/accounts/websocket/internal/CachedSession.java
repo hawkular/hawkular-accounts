@@ -22,16 +22,18 @@ import org.hawkular.accounts.api.model.Persona;
  * @author Juraci Paixão Kröhling
  */
 public class CachedSession {
-    private final String token;
+    private final String authToken;
+    private final String parsedToken;
     private final Persona persona;
     private long expiresAt;
 
-    public CachedSession(String token, Persona persona, long expiresAt) {
+    public CachedSession(String authToken, String parsedToken, Persona persona, long expiresAt) {
+        this.authToken = authToken;
         if (null == persona) {
             throw new IllegalStateException("Persona cannot be null for a session");
         }
 
-        if (null == token) {
+        if (null == parsedToken) {
             throw new IllegalStateException("Token cannot be null for a session");
         }
 
@@ -39,13 +41,13 @@ public class CachedSession {
             throw new IllegalStateException("Invalid expiration date/time for session");
         }
 
-        this.token = token;
+        this.parsedToken = parsedToken;
         this.persona = persona;
         this.expiresAt = expiresAt;
     }
 
-    public String getToken() {
-        return token;
+    public String getParsedToken() {
+        return parsedToken;
     }
 
     public Persona getPersona() {
@@ -54,5 +56,9 @@ public class CachedSession {
 
     public long getExpiresAt() {
         return expiresAt;
+    }
+
+    public String getAuthToken() {
+        return authToken;
     }
 }

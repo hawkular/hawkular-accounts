@@ -23,7 +23,6 @@ var wsUri = "ws://"
 var websocket = new WebSocket(wsUri);
 var messageBox = document.getElementById("messageBox");
 var errorBox = document.getElementById("errorBox");
-var counter = 0;
 
 websocket.onopen = function(event) {
     messageBox.innerHTML = "<li>Opened connection to "+wsUri+".</li>";
@@ -49,25 +48,26 @@ websocket.onerror = function(event) {
 };
 
 function sendEchoMessage() {
-    //websocket.send(JSON.stringify({
-    //    "message": "Hello World!",
-    //    "authentication": {
-    //        "token": keycloak.token,
-    //        "persona": keycloak.subject
-    //    }
-    //}));
+    keycloak.updateToken(5).success(function () {
+        console.log("Keycloak token to send on the payload: " + keycloak.token);
+        var payload = {"message": "Hello World!"};
 
-    var payload = {"message": "Hello World!"};
-
-    if (counter == 0) {
+        //payload.authentication = {
+        //    "token": keycloak.token,
+        //    "persona": keycloak.subject
+        //};
         payload.authentication = {
-            "token": keycloak.token,
-            "persona": keycloak.subject
-        }
-    }
+            "login": {
+                "username": "jdoe",
+                "password": "password"
+            }
+        };
 
-    var message = JSON.stringify(payload);
-    console.debug("Sending this message: " + message);
-    websocket.send(message);
-    counter++;
+        var message = JSON.stringify(payload);
+        console.debug("Sending this message: " + message);
+        websocket.send(message);
+    }).error(function (e) {
+        console.log("An error occurred while updating the token.");
+        console.log(e);
+    });
 }

@@ -96,7 +96,7 @@ public class Authenticator {
             JsonObject jsonMessage = jsonReader.readObject();
             JsonObject jsonAuth = jsonMessage.getJsonObject("authentication");
             String personaId = null;
-            if (jsonAuth != null) {
+            if (jsonAuth != null && jsonAuth.containsKey("persona")) {
                 personaId = jsonAuth.getString("persona");
             }
 
@@ -142,33 +142,32 @@ public class Authenticator {
     ) throws WebsocketAuthenticationException {
         // do we have this session on the cache?
         CachedSession cachedSession = cachedSessions.get(session.getId());
+        boolean isSessionValid = isValid(cachedSession, personaId, token, jsonAuth);
 
-        if (isValid(cachedSession, personaId)) {
+        if (isSessionValid) {
             // the session is still valid, so, just return
             return;
         }
 
-        if (null == cachedSession || !isValid(cachedSession, personaId)) {
-            try {
-                switch (mode) {
-                    case CREDENTIALS:
-                        cachedSession = doAuthenticationWithCredentials(personaId, username, password);
-                        break;
-                    case MESSAGE:
-                        cachedSession = doAuthenticationWithMessage(personaId, jsonAuth);
-                        break;
-                    case TOKEN:
-                        cachedSession = doAuthenticationWithToken(personaId, token);
-                        break;
-                    default:
-                        throw new WebsocketAuthenticationException("Could not determine the authentication mode " +
-                                "(token, message, credentials).");
-                }
-            } catch (WebsocketAuthenticationException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+        try {
+            switch (mode) {
+                case CREDENTIALS:
+                    cachedSession = doAuthenticationWithCredentials(personaId, username, password);
+                    break;
+                case MESSAGE:
+                    cachedSession = doAuthenticationWithMessage(personaId, jsonAuth);
+                    break;
+                case TOKEN:
+                    cachedSession = doAuthenticationWithToken(personaId, token);
+                    break;
+                default:
+                    throw new WebsocketAuthenticationException("Could not determine the authentication mode " +
+                            "(token, message, credentials).");
             }
+        } catch (WebsocketAuthenticationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         // cached session is valid!
@@ -262,16 +261,34 @@ public class Authenticator {
             persona = actualUser;
         }
 
-        return new CachedSession(accessToken, persona, expirationTime);
+        return new CachedSession(authToken, accessToken, persona, expirationTime);
     }
 
-    private boolean isValid(CachedSession cachedSession, String personaId) {
+    private boolean isValid(CachedSession cachedSession, String personaId, String authToken, JsonObject jsonAuth) {
+        // conditions to be considered valid:
+        // 1) there's a cachedSession object (ie: not null)
+        // 2) the persona for the current request is the same as the cached one
+        // 3) the authToken is the same (ie: not a refreshed one)
+        // 4) it has not expired
+
         if (null == cachedSession) {
             return false;
         }
 
         if (personaId != null && !cachedSession.getPersona().getId().equals(personaId)) {
             // session is for a different persona, force a new authentication
+            return false;
+        }
+
+        if (null == authToken && null != jsonAuth) {
+            // we might have this token on the jsonAuth:
+            if (jsonAuth.containsKey("token")) {
+                authToken = jsonAuth.getString("token");
+            }
+        }
+
+        if (!cachedSession.getAuthToken().equals(authToken)) {
+            // this is a new token, validate it again!
             return false;
         }
 
