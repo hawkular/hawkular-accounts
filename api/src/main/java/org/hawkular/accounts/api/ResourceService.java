@@ -16,6 +16,8 @@
  */
 package org.hawkular.accounts.api;
 
+import java.util.List;
+
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
 
@@ -81,4 +83,11 @@ public interface ResourceService {
      * @throws IllegalArgumentException if the given ID is null
      */
     void delete(String id);
+
+    /**
+     * Lists all the resources that belong to a given persona.
+     * @param persona   the persona that owns the resources
+     * @return  a List of Resource containing the resources owned by the persona
+     */
+    List<Resource> getByPersona(Persona persona);
 }

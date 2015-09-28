@@ -166,6 +166,15 @@ public class OrganizationEndpoint {
             return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
         }
 
+        // check if there are resources
+        if (resourceService.getByPersona(organization).size() > 0) {
+            ErrorResponse response = new ErrorResponse("This organization is the owner of resources. Please, remove " +
+                    "or transfer those resources before removing this organization.");
+
+            return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
+        }
+
+        // check if it's allowed to remove
         if (permissionChecker.isAllowedTo(operationDelete, id, persona)) {
             organizationService.deleteOrganization(organization);
             return Response.ok().build();

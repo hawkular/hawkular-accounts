@@ -122,4 +122,19 @@ public class ResourceServiceImpl implements ResourceService {
             em.remove(resource);
         }
     }
+
+    @Override
+    public List<Resource> getByPersona(Persona persona) {
+        if (null == persona) {
+            throw new IllegalArgumentException("The given persona is invalid (null).");
+        }
+
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<Resource> query = builder.createQuery(Resource.class);
+        Root<Resource> root = query.from(Resource.class);
+        query.select(root);
+        query.where(builder.equal(root.get(Resource_.persona), persona));
+
+        return em.createQuery(query).getResultList();
+    }
 }
