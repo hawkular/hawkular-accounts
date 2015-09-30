@@ -22,6 +22,7 @@ import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
+import javax.enterprise.event.Event;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -34,6 +35,7 @@ import org.hawkular.accounts.api.UserService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.HawkularUser_;
+import org.hawkular.accounts.api.model.NameChangedEvent;
 import org.keycloak.KeycloakPrincipal;
 
 /**
@@ -52,6 +54,9 @@ public class UserServiceImpl implements UserService {
     @Resource
     SessionContext sessionContext;
 
+    @Inject
+    Event<NameChangedEvent> event;
+
     @Produces @CurrentUser
     public HawkularUser getCurrent() {
         KeycloakPrincipal principal = (KeycloakPrincipal) sessionContext.getCallerPrincipal();
@@ -59,7 +64,14 @@ public class UserServiceImpl implements UserService {
         String name = principal.getKeycloakSecurityContext().getToken().getName();
 
         HawkularUser user = getOrCreateById(id);
-        user.setName(name);
+
+        if (user.getName() == null || !user.getName().equals(name)) {
+            user.setName(name);
+            if (event != null) {
+                // if we are in an environment where events are supported, let's propagate this event
+                event.fire(new NameChangedEvent(user));
+            }
+        }
 
         return user;
     }

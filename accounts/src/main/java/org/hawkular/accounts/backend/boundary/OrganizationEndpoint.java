@@ -182,4 +182,22 @@ public class OrganizationEndpoint {
 
         return Response.status(Response.Status.FORBIDDEN).build();
     }
+
+    /**
+     * Retrieves a specific organization based on its ID.
+     *
+     * @return a {@link javax.ws.rs.core.Response} whose entity is an {@link Organization}
+     */
+    @GET
+    @Path("/{id}")
+    public Response getOrganization(@PathParam("id") String id) {
+        Organization organization = organizationService.get(id);
+
+        if (organization == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        return Response.ok().entity(organization).build();
+    }
+
 }

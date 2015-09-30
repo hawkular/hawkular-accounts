@@ -23,6 +23,9 @@ import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import org.hawkular.accounts.api.NamedRole;
 import org.hawkular.accounts.api.OrganizationMembershipService;
@@ -30,6 +33,7 @@ import org.hawkular.accounts.api.OrganizationService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
+import org.hawkular.accounts.api.model.Organization_;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Role;
 
@@ -78,5 +82,29 @@ public class OrganizationServiceImpl implements OrganizationService {
     public void deleteOrganization(Organization organization) {
         membershipService.getMembershipsForOrganization(organization).stream().forEach(em::remove);
         em.remove(organization);
+    }
+
+    @Override
+    public Organization get(String id) {
+        if (null == id) {
+            throw new IllegalArgumentException("The given resource ID is invalid (null).");
+        }
+
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<Organization> query = builder.createQuery(Organization.class);
+        Root<Organization> root = query.from(Organization.class);
+        query.select(root);
+        query.where(builder.equal(root.get(Organization_.id), id));
+
+        List<Organization> results = em.createQuery(query).getResultList();
+        if (results.size() == 1) {
+            return results.get(0);
+        }
+
+        if (results.size() > 1) {
+            throw new IllegalStateException("More than one organization found for ID " + id);
+        }
+
+        return null;
     }
 }

@@ -76,4 +76,13 @@ public interface OrganizationService {
      * @param organization    the organization to be removed
      */
     void deleteOrganization(Organization organization);
+
+    /**
+     * Retrieves an {@link Organization} based on its ID.
+     *
+     * @param id             the organization's ID
+     * @return the existing {@link Organization} or null if the resource doesn't exists.
+     * @throws IllegalArgumentException if the given ID is null
+     */
+    Organization get(String id);
 }
