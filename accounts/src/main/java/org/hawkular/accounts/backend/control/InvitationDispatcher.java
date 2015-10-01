@@ -14,39 +14,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.api.internal.impl;
+package org.hawkular.accounts.backend.control;
 
+import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
-import javax.ejb.Asynchronous;
 import javax.ejb.Singleton;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.mail.Session;
 import javax.persistence.EntityManager;
 
-import org.hawkular.accounts.api.UserService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
-import org.hawkular.accounts.api.model.HawkularUser;
-import org.hawkular.accounts.api.model.NameChangedEvent;
+import org.hawkular.accounts.api.model.Invitation;
+import org.hawkular.accounts.backend.entity.InvitationCreatedEvent;
 
 /**
  * @author Juraci Paixão Kröhling
  */
-@Singleton
 @PermitAll
-public class NameChangeObserver {
+@Singleton
+public class InvitationDispatcher {
+    MsgLogger logger = MsgLogger.LOGGER;
 
-    @Inject
-    @HawkularAccounts
+    @Inject @HawkularAccounts
     EntityManager em;
 
-    @Inject
-    UserService userService;
+    @Resource
+    Session mailSession;
 
-    @Asynchronous
-    public void persistNameChange(@Observes NameChangedEvent event) {
-        HawkularUser user = userService.getById(event.getUser().getId());
-        user.setName(event.getUser().getName());
-        em.persist(user);
+    public void dispatchInvitation(@Observes InvitationCreatedEvent event) {
+        Invitation invitation = event.getInvitation();
+        if (null == invitation) {
+            throw new IllegalArgumentException("Invitation event doesn't contain an invitation.");
+        }
+
+        invitation = em.merge(invitation);
+        invitation.setDispatched();
+        em.persist(invitation);
+        logger.invitationSubmitted(invitation.getId(), invitation.getToken());
     }
 
 }

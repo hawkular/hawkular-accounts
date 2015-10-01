@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2015 Red Hat, Inc. and/or its affiliates
+    and other contributors as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+
+  <changeSet author="hawkular-accounts" id="changelog-1.1">
+    <createTable tableName="Invitation">
+      <column name="id" type="varchar(255)">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="createdAt" type="timestamp"/>
+      <column name="updatedAt" type="timestamp"/>
+      <column name="acceptedAt" type="timestamp"/>
+      <column name="dispatchedAt" type="timestamp"/>
+      <column name="email" type="varchar(255)"/>
+      <column name="token" type="varchar(255)">
+        <constraints unique="true"/>
+      </column>
+      <column name="acceptedBy_id" type="varchar(255)">
+        <constraints foreignKeyName="fk_invitation_acceptedby_user_id" references="HawkularUser(id)"/>
+      </column>
+      <column name="invitedBy_id" type="varchar(255)">
+        <constraints foreignKeyName="fk_invitation_invitedby_user_id" references="HawkularUser(id)"/>
+      </column>
+      <column name="organization_id" type="varchar(255)">
+        <constraints foreignKeyName="fk_invitation_organization_id" references="Organization(id)"/>
+      </column>
+      <column name="role_id" type="varchar(255)">
+        <constraints foreignKeyName="fk_invitation_role_id" references="Role(id)"/>
+      </column>
+    </createTable>
+
+    <addColumn tableName="HawkularUser">
+      <column name="name" type="varchar(255)"/>
+    </addColumn>
+
+  </changeSet>
+
+</databaseChangeLog>

@@ -14,33 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.api.model;
+package org.hawkular.accounts.api;
 
-import javax.persistence.Entity;
+import org.hawkular.accounts.api.model.Invitation;
 
 /**
- * Represents a real person. The actual data for this user resides on Keycloak. For us, suffice to know the
- * user's ID on Keycloak.
- *
  * @author Juraci Paixão Kröhling
  */
-@Entity
-public class HawkularUser extends Persona {
-    private String name;
+public interface InvitationService {
 
-    protected HawkularUser() { // JPA happy
-    }
+    /**
+     * Retrieves an {@link Invitation} based on the token.
+     * @param token the token that was received by the invited user
+     * @return the invitation related to the token
+     */
+    Invitation getByToken(String token);
 
-    public HawkularUser(String id) {
-        super(id);
-    }
+    /**
+     * Retrieves an {@link Invitation} based on the ID.
+     * @param id    the invitation's ID
+     * @return  the invitation
+     */
+    Invitation get(String id);
 
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }

@@ -14,33 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.api.model;
-
-import javax.persistence.Entity;
+package org.hawkular.accounts.backend.entity.rest;
 
 /**
- * Represents a real person. The actual data for this user resides on Keycloak. For us, suffice to know the
- * user's ID on Keycloak.
- *
  * @author Juraci Paixão Kröhling
  */
-@Entity
-public class HawkularUser extends Persona {
-    private String name;
+public class InvitationRequest {
+    private String organizationId;
+    private String emails;
 
-    protected HawkularUser() { // JPA happy
+    public String getOrganizationId() {
+        return organizationId;
     }
 
-    public HawkularUser(String id) {
-        super(id);
+    public void setOrganizationId(String organizationId) {
+        this.organizationId = organizationId;
     }
 
-    @Override
-    public String getName() {
-        return name;
+    public String getEmails() {
+        return emails;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setEmails(String emails) {
+        this.emails = emails;
     }
 }

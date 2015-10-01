@@ -14,22 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.api.model;
+package org.hawkular.accounts.backend.entity.rest;
 
 /**
- * CDI event for propagating the change of an user's full name.
- *
  * @author Juraci Paixão Kröhling
  */
-public class NameChangedEvent {
+public class InvitationAcceptRequest {
+    private String token;
 
-    private HawkularUser user;
-
-    public NameChangedEvent(HawkularUser user) {
-        this.user = user;
+    public String getToken() {
+        return token;
     }
 
-    public HawkularUser getUser() {
-        return user;
+    public void setToken(String token) {
+        this.token = token;
     }
 }

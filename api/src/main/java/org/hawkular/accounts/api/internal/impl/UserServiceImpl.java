@@ -22,7 +22,6 @@ import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
-import javax.enterprise.event.Event;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -35,7 +34,6 @@ import org.hawkular.accounts.api.UserService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.HawkularUser_;
-import org.hawkular.accounts.api.model.NameChangedEvent;
 import org.keycloak.KeycloakPrincipal;
 
 /**
@@ -54,28 +52,21 @@ public class UserServiceImpl implements UserService {
     @Resource
     SessionContext sessionContext;
 
-    @Inject
-    Event<NameChangedEvent> event;
-
     @Produces @CurrentUser
+    @Override
     public HawkularUser getCurrent() {
         KeycloakPrincipal principal = (KeycloakPrincipal) sessionContext.getCallerPrincipal();
         String id = principal.getName();
         String name = principal.getKeycloakSecurityContext().getToken().getName();
-
-        HawkularUser user = getOrCreateById(id);
-
-        if (user.getName() == null || !user.getName().equals(name)) {
+        HawkularUser user = getOrCreateByIdAndName(id, name);
+        if (!name.equals(user.getName())) {
             user.setName(name);
-            if (event != null) {
-                // if we are in an environment where events are supported, let's propagate this event
-                event.fire(new NameChangedEvent(user));
-            }
+            em.persist(user);
         }
-
         return user;
     }
 
+    @Override
     public HawkularUser getById(String id) {
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<HawkularUser> query = builder.createQuery(HawkularUser.class);
@@ -95,10 +86,23 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+    @Override
     public HawkularUser getOrCreateById(String id) {
         HawkularUser user = getById(id);
         if (null == user) {
             user = new HawkularUser(id);
+            em.persist(user);
+        }
+
+        return user;
+    }
+
+    @Override
+    public HawkularUser getOrCreateByIdAndName(String id, String name) {
+        HawkularUser user = getById(id);
+        if (null == user) {
+            user = new HawkularUser(id);
+            user.setName(name);
             em.persist(user);
         }
 

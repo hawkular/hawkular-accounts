@@ -32,11 +32,17 @@ import javax.persistence.Converter;
 public class ZonedDateTimeAdapter implements AttributeConverter<ZonedDateTime, Timestamp> {
     @Override
     public Timestamp convertToDatabaseColumn(ZonedDateTime attribute) {
+        if (null == attribute) {
+            return null;
+        }
         return Timestamp.valueOf(attribute.toLocalDateTime());
     }
 
     @Override
     public ZonedDateTime convertToEntityAttribute(Timestamp dbData) {
+        if (null == dbData) {
+            return null;
+        }
         return ZonedDateTime.of(dbData.toLocalDateTime(), ZoneOffset.UTC);
     }
 }

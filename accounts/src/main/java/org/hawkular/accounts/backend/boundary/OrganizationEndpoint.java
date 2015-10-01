@@ -16,6 +16,8 @@
  */
 package org.hawkular.accounts.backend.boundary;
 
+import java.util.List;
+
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -97,14 +99,8 @@ public class OrganizationEndpoint {
     @GET
     @Path("/")
     public Response getOrganizationsForPersona() {
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<Organization> query = builder.createQuery(Organization.class);
-        Root<Organization> root = query.from(Organization.class);
-        query.select(root);
-
-        query.where(builder.equal(root.get(Organization_.owner), persona));
-
-        return Response.ok().entity(em.createQuery(query).getResultList()).build();
+        List<Organization> organizations = organizationService.getOrganizationsForPersona(persona);
+        return Response.ok().entity(organizations).build();
     }
 
     /**

@@ -55,4 +55,14 @@ public interface UserService {
      * @return an {@link HawkularUser} instance representing the user with the given ID. It's never null.
      */
     HawkularUser getOrCreateById(String id);
+
+    /**
+     * Retrieves an {@link HawkularUser} based on its ID. If no user is found, a new one is created and returned. The
+     * name parameter is used only in case the user doesn't exist.
+     *
+     * @param id the user ID
+     * @param name the full name for the user. Used only if the user doesn't exist, when creating the new user.
+     * @return an {@link HawkularUser} instance representing the user with the given ID. It's never null.
+     */
+    HawkularUser getOrCreateByIdAndName(String id, String name);
 }

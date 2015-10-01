@@ -46,4 +46,12 @@ public interface MsgLogger {
     @LogMessage(level = Logger.Level.INFO)
     @Message(id = 110003, value = "Finished database update")
     void infoFinishedDatabaseUpdate();
+
+    @LogMessage(level = Logger.Level.INFO)
+    @Message(id = 110004, value = "Invitation [%s] submitted. Token: [%s]")
+    void invitationSubmitted(String invitationId, String token);
+
+    @LogMessage(level = Logger.Level.WARN)
+    @Message(id = 110005, value = "Invitation [%s] is being reused by a different user [%s]. It was accepted by: [%s]")
+    void invitationReused(String invitationId, String userTryingToUse, String acceptedBy);
 }
