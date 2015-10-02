@@ -138,6 +138,10 @@
                       <name>uuid.hawkular.accounts.backend</name>
                       <value>${uuid.hawkular.accounts.backend}</value>
                     </parameter>
+                    <parameter>
+                      <name>uuid.hawkular.ui</name>
+                      <value>${uuid.hawkular.ui}</value>
+                    </parameter>
                   </parameters>
                 </transformationSet>
               </transformationSets>
