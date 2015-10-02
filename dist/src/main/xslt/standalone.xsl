@@ -23,6 +23,7 @@
 
   <xsl:param name="config"/>
   <xsl:param name="uuid.hawkular.accounts.backend"/>
+  <xsl:param name="uuid.hawkular.ui"/>
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes" xalan:indent-amount="4" standalone="no"/>
   <xsl:strip-space elements="*"/>
@@ -118,6 +119,12 @@
           <enable-cors>true</enable-cors>
           <enable-basic-auth>true</enable-basic-auth>
           <credential name="secret"><xsl:value-of select="$uuid.hawkular.accounts.backend" /></credential>
+        </secure-deployment>
+        <secure-deployment name="hawkular-accounts-sample-ui.war">
+          <realm>hawkular</realm>
+          <resource>hawkular-ui</resource>
+          <enable-cors>true</enable-cors>
+          <credential name="secret"><xsl:value-of select="$uuid.hawkular.ui" /></credential>
         </secure-deployment>
         <secure-deployment name="hawkular-accounts-sample.war">
           <realm>hawkular</realm>
