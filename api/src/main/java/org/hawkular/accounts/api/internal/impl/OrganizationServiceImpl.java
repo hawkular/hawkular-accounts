@@ -87,7 +87,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     public Organization get(String id) {
         if (null == id) {
-            throw new IllegalArgumentException("The given resource ID is invalid (null).");
+            throw new IllegalArgumentException("The given organization ID is invalid (null).");
         }
 
         CriteriaBuilder builder = em.getCriteriaBuilder();

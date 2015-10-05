@@ -22,18 +22,23 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import org.hawkular.accounts.api.CurrentUser;
 import org.hawkular.accounts.api.InvitationService;
+import org.hawkular.accounts.api.NamedOperation;
 import org.hawkular.accounts.api.OrganizationService;
+import org.hawkular.accounts.api.PermissionChecker;
 import org.hawkular.accounts.api.RoleService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Invitation;
+import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
 import org.hawkular.accounts.api.model.Role;
@@ -71,9 +76,48 @@ public class InvitationEndpoint {
     @Inject
     Event<InvitationCreatedEvent> event;
 
+    @Inject
+    PermissionChecker permissionChecker;
+
+    @Inject
+    @NamedOperation("organization-list-invitations")
+    Operation operationListInvitations;
+
+    @Inject
+    @NamedOperation("organization-invite")
+    Operation operationInvite;
+
+    @GET
+    public Response listPendingInvitations(@QueryParam("organizationId") String organizationId) {
+        Organization organization = organizationService.get(organizationId);
+
+        if (null == organization) {
+            String message = "The organization could not be found.";
+            return Response.status(Response.Status.NOT_FOUND).entity(message).build();
+        }
+
+        if (!permissionChecker.isAllowedTo(operationListInvitations, organizationId)) {
+            String message = "Insufficient permissions to list the pending invitations for this organization.";
+            return Response.status(Response.Status.FORBIDDEN).entity(message).build();
+        }
+
+        return Response.ok(invitationService.getPendingInvitationsForOrganization(organization)).build();
+    }
+
     @POST
     public Response inviteUserToOrganization(@NotNull InvitationRequest request) {
         Organization organization = organizationService.get(request.getOrganizationId());
+
+        if (null == organization) {
+            String message = "The organization could not be found.";
+            return Response.status(Response.Status.NOT_FOUND).entity(message).build();
+        }
+
+        if (!permissionChecker.isAllowedTo(operationInvite, organization.getId())) {
+            String message = "Insufficient permissions to list the pending invitations for this organization.";
+            return Response.status(Response.Status.FORBIDDEN).entity(message).build();
+        }
+
         Role role = roleService.getByName(DEFAULT_ROLE);
 
         String[] emails = request.getEmails().split("[, ]");

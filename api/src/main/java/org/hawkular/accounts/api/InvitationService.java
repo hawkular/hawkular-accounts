@@ -16,7 +16,10 @@
  */
 package org.hawkular.accounts.api;
 
+import java.util.List;
+
 import org.hawkular.accounts.api.model.Invitation;
+import org.hawkular.accounts.api.model.Organization;
 
 /**
  * @author Juraci Paixão Kröhling
@@ -36,5 +39,12 @@ public interface InvitationService {
      * @return  the invitation
      */
     Invitation get(String id);
+
+    /**
+     * Retrieves the pending invitations for the given organization.
+     * @param organization    the organization of which pending invitations are queried from.
+     * @return  a List of Invitation which are not accepted yet.
+     */
+    List<Invitation> getPendingInvitationsForOrganization(Organization organization);
 
 }

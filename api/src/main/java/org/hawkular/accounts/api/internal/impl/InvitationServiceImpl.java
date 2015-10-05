@@ -30,6 +30,7 @@ import org.hawkular.accounts.api.InvitationService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.Invitation;
 import org.hawkular.accounts.api.model.Invitation_;
+import org.hawkular.accounts.api.model.Organization;
 
 /**
  * @author Juraci Paixão Kröhling
@@ -87,5 +88,22 @@ public class InvitationServiceImpl implements InvitationService {
         }
 
         return null;
+    }
+
+    @Override public List<Invitation> getPendingInvitationsForOrganization(Organization organization) {
+        if (null == organization) {
+            throw new IllegalArgumentException("The given Organization is invalid (null).");
+        }
+
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<Invitation> query = builder.createQuery(Invitation.class);
+        Root<Invitation> root = query.from(Invitation.class);
+        query.select(root);
+        query.where(
+                builder.equal(root.get(Invitation_.organization), organization),
+                builder.isNull(root.get(Invitation_.acceptedAt))
+        );
+
+        return em.createQuery(query).getResultList();
     }
 }
