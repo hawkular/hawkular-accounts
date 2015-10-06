@@ -55,4 +55,11 @@ public interface OrganizationMembershipService {
      * @return the memberships of this persona across all organizations
      */
     List<OrganizationMembership> getMembershipsForOrganization(Organization organization);
+
+    /**
+     * Retrieves an {@link OrganizationMembership} by its ID.
+     * @param id    the ID of the organization membership
+     * @return  the membership, or null if it's not found.
+     */
+    OrganizationMembership getMembershipById(String id);
 }

@@ -30,6 +30,7 @@ import org.hawkular.accounts.api.ResourceService;
 import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
+import org.hawkular.accounts.backend.entity.rest.ErrorResponse;
 import org.hawkular.accounts.backend.entity.rest.PermissionResponse;
 
 /**
@@ -58,24 +59,24 @@ public class PermissionEndpoint {
 
         if (null == resourceId) {
             String message = "The given resource ID is invalid (null).";
-            return Response.status(Response.Status.BAD_REQUEST).entity(message).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(message)).build();
         }
 
         if (null == operationName || operationName.isEmpty()) {
             String message = "The given operation name is invalid (null or empty).";
-            return Response.status(Response.Status.BAD_REQUEST).entity(message).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(message)).build();
         }
 
         Resource resource = resourceService.get(resourceId);
         if (null == resource) {
             String message = "The given resource ID is invalid (not found).";
-            return Response.status(Response.Status.NOT_FOUND).entity(message).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
         }
 
         Operation operation = operationService.getByName(operationName);
         if (null == operation) {
             String message = "The given operation is invalid (not found).";
-            return Response.status(Response.Status.NOT_FOUND).entity(message).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
         }
 
         boolean isAllowedTo = permissionChecker.isAllowedTo(operation, resource);

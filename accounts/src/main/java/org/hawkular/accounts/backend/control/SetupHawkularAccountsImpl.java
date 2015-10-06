@@ -113,6 +113,14 @@ public class SetupHawkularAccountsImpl implements ServletContextListener {
 
                 .setup("organization-list-invitations")
                 .add("Administrator")
+                .persist()
+
+                .setup("organization-change-role-of-members")
+                .add("Administrator")
+                .persist()
+
+                .setup("organization-transfer")
+                .add("SuperUser")
                 .persist();
 
         logger.infoFinishedSetupAccounts();

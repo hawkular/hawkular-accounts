@@ -61,4 +61,8 @@ public class OrganizationMembership extends BaseEntity {
     public Role getRole() {
         return role;
     }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 }

@@ -64,4 +64,27 @@ public class OrganizationMembershipServiceImpl implements OrganizationMembership
 
         return em.createQuery(query).getResultList();
     }
+
+    @Override public OrganizationMembership getMembershipById(String id) {
+        if (null == id) {
+            throw new IllegalArgumentException("The given membership ID is invalid (null).");
+        }
+
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<OrganizationMembership> query = builder.createQuery(OrganizationMembership.class);
+        Root<OrganizationMembership> root = query.from(OrganizationMembership.class);
+        query.select(root);
+        query.where(builder.equal(root.get(OrganizationMembership_.id), id));
+
+        List<OrganizationMembership> results = em.createQuery(query).getResultList();
+        if (results.size() == 1) {
+            return results.get(0);
+        }
+
+        if (results.size() > 1) {
+            throw new IllegalStateException("More than one membership found for ID " + id);
+        }
+
+        return null;
+    }
 }
