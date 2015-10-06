@@ -25,3 +25,56 @@
     background: #161616 url("../img/bg-login.jpg") top left no-repeat;
     background-size: 100% auto;
 }
+
+#kc-container-wrapper {
+    position: absolute;
+    width: 100%;
+    bottom: 13%
+}
+
+#kc-header-wrapper {
+    margin-bottom: 10px;
+    margin-left: 60px;
+    color: #fff;
+    text-transform: uppercase;
+    font-size: 22px
+}
+
+#kc-feedback {
+    font-size: 13px;
+    margin-top: 10px;
+}
+
+.feedback-error {
+    color: #a30000;
+}
+
+#kc-content {
+    padding-bottom: 30px;
+    padding-top: 30px;
+    position: static;
+}
+
+@media(max-width:767px) {
+    #kc-logo-wrapper {
+        height: 40px;
+        margin: 50px 20px;
+    }
+
+    #kc-container-wrapper {
+        position: static;
+    }
+
+    #kc-header-wrapper {
+        margin-left: 0;
+    }
+
+    #kc-feedback {
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+
+    #kc-content {
+        clear: both;
+    }
+}
