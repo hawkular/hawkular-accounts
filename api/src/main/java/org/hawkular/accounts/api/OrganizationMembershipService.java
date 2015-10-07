@@ -21,6 +21,7 @@ import java.util.List;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
 import org.hawkular.accounts.api.model.Persona;
+import org.hawkular.accounts.api.model.Role;
 
 /**
  * Service intended to manage the memberships that a {@link Persona} holds in an
@@ -57,9 +58,26 @@ public interface OrganizationMembershipService {
     List<OrganizationMembership> getMembershipsForOrganization(Organization organization);
 
     /**
+     * Retrieves the memberships for a given Organization.
+     *
+     * @param organization the organization
+     * @return the memberships of this persona across all organizations
+     */
+    List<OrganizationMembership> getPersonaMembershipsForOrganization(Persona persona, Organization organization);
+
+    /**
      * Retrieves an {@link OrganizationMembership} by its ID.
      * @param id    the ID of the organization membership
      * @return  the membership, or null if it's not found.
      */
     OrganizationMembership getMembershipById(String id);
+
+    /**
+     * Changes the membership and all related data so that the member only has the given role.
+     *
+     * @param membership    the membership to be changed
+     * @param role          the new role for the membership.
+     * @return  an updated membership, which might or not be the same as the original membership.
+     */
+    OrganizationMembership changeRole(OrganizationMembership membership, Role role);
 }

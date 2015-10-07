@@ -30,11 +30,13 @@ import javax.persistence.criteria.Root;
 import org.hawkular.accounts.api.NamedRole;
 import org.hawkular.accounts.api.OrganizationMembershipService;
 import org.hawkular.accounts.api.OrganizationService;
+import org.hawkular.accounts.api.ResourceService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
 import org.hawkular.accounts.api.model.Organization_;
 import org.hawkular.accounts.api.model.Persona;
+import org.hawkular.accounts.api.model.Resource;
 import org.hawkular.accounts.api.model.Role;
 
 /**
@@ -49,6 +51,9 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Inject
     OrganizationMembershipService membershipService;
+
+    @Inject
+    ResourceService resourceService;
 
     @Inject
     @NamedRole("SuperUser")
@@ -85,6 +90,23 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
+    public void transfer(Organization organization, Persona newOwner) {
+        // first, we remove all the current memberships of the new owner, as it will now be super user
+        membershipService.getPersonaMembershipsForOrganization(newOwner, organization).stream().forEach(em::remove);
+
+        // now, we add as super user
+        em.persist(new OrganizationMembership(organization, newOwner, superUser));
+
+        // we change the Resource's owner
+        Resource resource = resourceService.get(organization.getId());
+        resourceService.transfer(resource, newOwner);
+
+        // and finally, we change the owner on the organization
+        organization.setOwner(newOwner);
+        em.persist(organization);
+    }
+
+    @Override
     public Organization get(String id) {
         if (null == id) {
             throw new IllegalArgumentException("The given organization ID is invalid (null).");
@@ -106,5 +128,17 @@ public class OrganizationServiceImpl implements OrganizationService {
         }
 
         return null;
+    }
+
+    @Override
+    public List<Organization> getSubOrganizations(Organization organization) {
+        // check if there are sub-organizations
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<Organization> query = builder.createQuery(Organization.class);
+        Root<Organization> root = query.from(Organization.class);
+        query.select(root);
+
+        query.where(builder.equal(root.get(Organization_.owner), organization));
+        return em.createQuery(query).getResultList();
     }
 }

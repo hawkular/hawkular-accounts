@@ -22,13 +22,11 @@ import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
@@ -37,15 +35,17 @@ import org.hawkular.accounts.api.CurrentUser;
 import org.hawkular.accounts.api.NamedOperation;
 import org.hawkular.accounts.api.OrganizationService;
 import org.hawkular.accounts.api.PermissionChecker;
+import org.hawkular.accounts.api.PersonaService;
 import org.hawkular.accounts.api.ResourceService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Organization;
-import org.hawkular.accounts.api.model.Organization_;
 import org.hawkular.accounts.api.model.Persona;
+import org.hawkular.accounts.api.model.Resource;
 import org.hawkular.accounts.backend.entity.rest.ErrorResponse;
 import org.hawkular.accounts.backend.entity.rest.OrganizationRequest;
+import org.hawkular.accounts.backend.entity.rest.OrganizationTransferRequest;
 
 /**
  * REST service responsible for managing {@link org.hawkular.accounts.api.model.Organization}.
@@ -85,10 +85,17 @@ public class OrganizationEndpoint {
     Operation operationDelete;
 
     @Inject
+    @NamedOperation("organization-transfer")
+    Operation operationTransfer;
+
+    @Inject
     ResourceService resourceService;
 
     @Inject
     OrganizationService organizationService;
+
+    @Inject
+    PersonaService personaService;
 
     /**
      * Retrieves all organizations to which this {@link org.hawkular.accounts.api.model.HawkularUser} has access to.
@@ -146,16 +153,10 @@ public class OrganizationEndpoint {
     @DELETE
     @Path("/{id}")
     public Response deleteOrganization(@NotNull @PathParam("id") String id) {
-        Organization organization = em.find(Organization.class, id);
+        Organization organization = organizationService.get(id);
+        List<Organization> subOrganizations = organizationService.getSubOrganizations(organization);
 
-        // check if there are sub-organizations
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<Organization> query = builder.createQuery(Organization.class);
-        Root<Organization> root = query.from(Organization.class);
-        query.select(root);
-
-        query.where(builder.equal(root.get(Organization_.owner), organization));
-        if (em.createQuery(query).getResultList().size() > 0) {
+        if (subOrganizations.size() > 0) {
             ErrorResponse response = new ErrorResponse("This organization has sub-organizations. Please, remove those" +
                     " before removing this organization.");
 
@@ -163,7 +164,8 @@ public class OrganizationEndpoint {
         }
 
         // check if there are resources
-        if (resourceService.getByPersona(organization).size() > 0) {
+        List<Resource> resources = resourceService.getByPersona(organization);
+        if (resources.size() > 0) {
             ErrorResponse response = new ErrorResponse("This organization is the owner of resources. Please, remove " +
                     "or transfer those resources before removing this organization.");
 
@@ -196,4 +198,38 @@ public class OrganizationEndpoint {
         return Response.ok().entity(organization).build();
     }
 
+    @PUT
+    @Path("/{id}")
+    public Response transferOrganization(@PathParam("id") String id, OrganizationTransferRequest request) {
+        if (null == id || id.isEmpty()) {
+            String message = "The given organization ID is invalid (null).";
+            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(message)).build();
+        }
+
+        if (null == request || null == request.getOwner() || request.getOwner().getId().isEmpty()) {
+            String message = "The given user ID is invalid (null).";
+            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(message)).build();
+        }
+
+        Organization organization = organizationService.get(id);
+        Persona newOwner = personaService.get(request.getOwner().getId());
+
+        if (null == organization) {
+            String message = "The specified organization is invalid (not found).";
+            return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
+        }
+
+        if (null == newOwner) {
+            String message = "The specified new owner is invalid (not found).";
+            return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
+        }
+
+        if (!permissionChecker.isAllowedTo(operationTransfer, organization.getId())) {
+            String message = "Insufficient permissions to change the role of users of this organization.";
+            return Response.status(Response.Status.FORBIDDEN).entity(new ErrorResponse(message)).build();
+        }
+
+        organizationService.transfer(organization, newOwner);
+        return Response.ok().entity(organization).build();
+    }
 }

@@ -28,9 +28,11 @@ import javax.persistence.criteria.Root;
 
 import org.hawkular.accounts.api.InvitationService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Invitation;
 import org.hawkular.accounts.api.model.Invitation_;
 import org.hawkular.accounts.api.model.Organization;
+import org.hawkular.accounts.api.model.OrganizationMembership;
 
 /**
  * @author Juraci Paixão Kröhling
@@ -90,7 +92,8 @@ public class InvitationServiceImpl implements InvitationService {
         return null;
     }
 
-    @Override public List<Invitation> getPendingInvitationsForOrganization(Organization organization) {
+    @Override
+    public List<Invitation> getPendingInvitationsForOrganization(Organization organization) {
         if (null == organization) {
             throw new IllegalArgumentException("The given Organization is invalid (null).");
         }
@@ -106,4 +109,27 @@ public class InvitationServiceImpl implements InvitationService {
 
         return em.createQuery(query).getResultList();
     }
+
+    @Override
+    public Invitation create(Invitation invitation) {
+        em.persist(invitation);
+        return invitation;
+    }
+
+    @Override
+    public Invitation accept(Invitation invitation, HawkularUser user) {
+        OrganizationMembership membership = new OrganizationMembership(
+                invitation.getOrganization(),
+                user,
+                invitation.getRole());
+
+        invitation.setAccepted();
+        invitation.setAcceptedBy(user);
+        em.persist(invitation);
+        em.persist(membership);
+
+        return invitation;
+    }
+
+
 }

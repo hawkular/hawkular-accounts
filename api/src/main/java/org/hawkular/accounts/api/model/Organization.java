@@ -55,6 +55,10 @@ public class Organization extends Persona {
         return owner;
     }
 
+    public void setOwner(Persona owner) {
+        this.owner = owner;
+    }
+
     @Override
     public String getName() {
         return name;

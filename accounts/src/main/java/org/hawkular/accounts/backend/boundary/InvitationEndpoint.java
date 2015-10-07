@@ -40,7 +40,6 @@ import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Invitation;
 import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Organization;
-import org.hawkular.accounts.api.model.OrganizationMembership;
 import org.hawkular.accounts.api.model.Role;
 import org.hawkular.accounts.backend.control.MsgLogger;
 import org.hawkular.accounts.backend.entity.InvitationCreatedEvent;
@@ -126,7 +125,7 @@ public class InvitationEndpoint {
                 continue;
             }
             Invitation invitation = new Invitation(email, user, organization, role);
-            em.persist(invitation);
+            invitation = invitationService.create(invitation);
             event.fire(new InvitationCreatedEvent(invitation));
         }
 
@@ -158,16 +157,7 @@ public class InvitationEndpoint {
             return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(message)).build();
         }
 
-        OrganizationMembership membership = new OrganizationMembership(
-                invitation.getOrganization(),
-                user,
-                invitation.getRole());
-
-        invitation.setAccepted();
-        invitation.setAcceptedBy(user);
-        em.persist(invitation);
-        em.persist(membership);
-
+        invitation = invitationService.accept(invitation, user);
         return Response.ok(invitation).build();
     }
 }

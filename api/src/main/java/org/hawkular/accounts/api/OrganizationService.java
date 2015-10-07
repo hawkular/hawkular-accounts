@@ -78,6 +78,13 @@ public interface OrganizationService {
     void deleteOrganization(Organization organization);
 
     /**
+     * Transfers the organization from the current owner to the specified persona.
+     * @param organization    the organization to have the ownership changed
+     * @param newOwner        the new owner
+     */
+    void transfer(Organization organization, Persona newOwner);
+
+    /**
      * Retrieves an {@link Organization} based on its ID.
      *
      * @param id             the organization's ID
@@ -85,4 +92,11 @@ public interface OrganizationService {
      * @throws IllegalArgumentException if the given ID is null
      */
     Organization get(String id);
+
+    /**
+     * Retrieves all the organizations whose parent is the given organization.
+     * @param organization    the parent organization
+     * @return  a list of direct sub organizations
+     */
+    List<Organization> getSubOrganizations(Organization organization);
 }

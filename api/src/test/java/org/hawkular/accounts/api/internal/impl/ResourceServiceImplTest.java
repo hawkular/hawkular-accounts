@@ -16,15 +16,19 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Persona;
+import org.hawkular.accounts.api.model.PersonaResourceRole;
 import org.hawkular.accounts.api.model.Resource;
+import org.hawkular.accounts.api.model.Role;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -130,6 +134,80 @@ public class ResourceServiceImplTest extends BaseEntityManagerEnabledTest {
 
         entityManager.getTransaction().begin();
         assertNotNull(resourceService.get(resource.getId()));
+        entityManager.getTransaction().commit();
+    }
+
+    @Test
+    public void revokeAll() {
+        entityManager.getTransaction().begin();
+        Persona jdoe = new HawkularUser(UUID.randomUUID().toString());
+        Persona jsmith = new HawkularUser(UUID.randomUUID().toString());
+        Resource resource = new Resource(jdoe);
+        Role superUser = new Role("SuperUser", "");
+        Role admin = new Role("Administrator", "");
+        Role maintainer = new Role("Maintainer", "");
+        entityManager.persist(jdoe);
+        entityManager.persist(jsmith);
+        entityManager.persist(resource);
+        entityManager.persist(superUser);
+        entityManager.persist(admin);
+        entityManager.persist(maintainer);
+        entityManager.getTransaction().commit();
+
+        entityManager.getTransaction().begin();
+        resourceService.addRoleToPersona(resource, jsmith, superUser);
+        resourceService.addRoleToPersona(resource, jsmith, maintainer);
+        resourceService.addRoleToPersona(resource, jsmith, admin);
+        entityManager.getTransaction().commit();
+
+        entityManager.getTransaction().begin();
+        assertEquals("jsmith should have three roles", 3, resourceService.getRolesForPersona(resource, jsmith).size());
+        entityManager.getTransaction().commit();
+
+        entityManager.getTransaction().begin();
+        resourceService.revokeAllForPersona(resource, jsmith);
+        entityManager.getTransaction().commit();
+
+        entityManager.getTransaction().begin();
+        assertEquals("jsmith should have no roles", 0, resourceService.getRolesForPersona(resource, jsmith).size());
+        entityManager.getTransaction().commit();
+    }
+
+    public void transferResource() {
+        entityManager.getTransaction().begin();
+        Persona jdoe = new HawkularUser(UUID.randomUUID().toString());
+        Persona jsmith = new HawkularUser(UUID.randomUUID().toString());
+        Resource resource = new Resource(jdoe);
+        Role superUser = new Role("SuperUser", "");
+        Role admin = new Role("Administrator", "");
+        Role maintainer = new Role("Maintainer", "");
+        entityManager.persist(jdoe);
+        entityManager.persist(jsmith);
+        entityManager.persist(resource);
+        entityManager.persist(superUser);
+        entityManager.persist(admin);
+        entityManager.persist(maintainer);
+        entityManager.getTransaction().commit();
+
+        entityManager.getTransaction().begin();
+        resourceService.addRoleToPersona(resource, jsmith, superUser);
+        resourceService.addRoleToPersona(resource, jsmith, maintainer);
+        resourceService.addRoleToPersona(resource, jsmith, admin);
+        entityManager.getTransaction().commit();
+
+        entityManager.getTransaction().begin();
+        assertEquals("jsmith should have three roles", 3, resourceService.getRolesForPersona(resource, jsmith).size());
+        entityManager.getTransaction().commit();
+
+        entityManager.getTransaction().begin();
+        resourceService.transfer(resource, jsmith);
+        entityManager.getTransaction().commit();
+
+        entityManager.getTransaction().begin();
+        List<PersonaResourceRole> personaResourceRoles = resourceService.getRolesForPersona(resource, jsmith);
+        assertEquals("jsmith should be super user", 1, personaResourceRoles.size());
+        assertEquals("jsmith should be super user", "SuperUser", personaResourceRoles.get(0).getRole().getName());
+        assertEquals("jsmith should be the owner", jsmith, personaResourceRoles.get(0).getPersona());
         entityManager.getTransaction().commit();
     }
 

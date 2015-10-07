@@ -31,6 +31,7 @@ import org.hawkular.accounts.api.ResourceService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.PersonaResourceRole;
+import org.hawkular.accounts.api.model.PersonaResourceRole_;
 import org.hawkular.accounts.api.model.Resource;
 import org.hawkular.accounts.api.model.Resource_;
 import org.hawkular.accounts.api.model.Role;
@@ -134,6 +135,59 @@ public class ResourceServiceImpl implements ResourceService {
         Root<Resource> root = query.from(Resource.class);
         query.select(root);
         query.where(builder.equal(root.get(Resource_.persona), persona));
+
+        return em.createQuery(query).getResultList();
+    }
+
+    @Override
+    public void transfer(Resource resource, Persona persona) {
+        resource.setPersona(persona);
+        em.persist(resource);
+        revokeAllForPersona(resource, persona);
+        addRoleToPersona(resource, persona, superUser);
+    }
+
+    @Override
+    public void revokeAllForPersona(Resource resource, Persona persona) {
+        List<PersonaResourceRole> results = getRolesForPersona(resource, persona);
+        results.stream().forEach(em::remove);
+    }
+
+    @Override
+    public PersonaResourceRole addRoleToPersona(Resource resource, Persona persona, Role role) {
+        // do we have already a PersonaResourceRole that matches the given specification?
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<PersonaResourceRole> query = builder.createQuery(PersonaResourceRole.class);
+        Root<PersonaResourceRole> root = query.from(PersonaResourceRole.class);
+        query.select(root);
+        query.where(
+                builder.equal(root.get(PersonaResourceRole_.resource), resource),
+                builder.equal(root.get(PersonaResourceRole_.persona), persona),
+                builder.equal(root.get(PersonaResourceRole_.role), role)
+        );
+
+        List<PersonaResourceRole> results = em.createQuery(query).getResultList();
+        if (results.size() == 1) {
+            // yes, we have it already, just return it
+            return results.get(0);
+        }
+
+        // no, we don't have it, create one
+        PersonaResourceRole resourceRole = new PersonaResourceRole(persona, role, resource);
+        em.persist(resourceRole);
+        return resourceRole;
+    }
+
+    @Override
+    public List<PersonaResourceRole> getRolesForPersona(Resource resource, Persona persona) {
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<PersonaResourceRole> query = builder.createQuery(PersonaResourceRole.class);
+        Root<PersonaResourceRole> root = query.from(PersonaResourceRole.class);
+        query.select(root);
+        query.where(
+                builder.equal(root.get(PersonaResourceRole_.resource), resource),
+                builder.equal(root.get(PersonaResourceRole_.persona), persona)
+        );
 
         return em.createQuery(query).getResultList();
     }

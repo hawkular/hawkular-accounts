@@ -39,7 +39,6 @@ import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
-import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Role;
 import org.hawkular.accounts.backend.entity.rest.ErrorResponse;
 import org.hawkular.accounts.backend.entity.rest.OrganizationMembershipUpdateRequest;
@@ -67,14 +66,28 @@ public class OrganizationMembershipEndpoint {
     RoleService roleService;
 
     @Inject
-    Persona persona;
-
-    @Inject
     PermissionChecker permissionChecker;
 
     @Inject
     @NamedOperation("organization-change-role-of-members")
     Operation changeMemberRole;
+
+    @GET
+    @Path("/{membershipId}")
+    public Response getMembership(@PathParam("membershipId") String membershipId) {
+        if (null == membershipId || membershipId.isEmpty()) {
+            String message = "The given membership ID is invalid (null).";
+            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(message)).build();
+        }
+
+        OrganizationMembership membership = membershipService.getMembershipById(membershipId);
+        if (null == membership) {
+            String message = "The specified membership is invalid (not found).";
+            return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
+        }
+
+        return Response.ok().entity(membership).build();
+    }
 
     @GET
     public Response getOrganizationMembershipsForOrganization(@QueryParam("organizationId") String organizationId) {
@@ -115,9 +128,7 @@ public class OrganizationMembershipEndpoint {
             return Response.status(Response.Status.FORBIDDEN).entity(new ErrorResponse(message)).build();
         }
 
-        membership.setRole(role);
-        em.persist(membership);
-
+        membership = membershipService.changeRole(membership, role);
         return Response.ok(membership).build();
      }
 }
