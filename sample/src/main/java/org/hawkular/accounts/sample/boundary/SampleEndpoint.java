@@ -33,8 +33,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import org.hawkular.accounts.api.NamedOperation;
+import org.hawkular.accounts.api.NamedSetting;
 import org.hawkular.accounts.api.PermissionChecker;
 import org.hawkular.accounts.api.ResourceService;
+import org.hawkular.accounts.api.UserSettingsService;
 import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
@@ -91,6 +93,13 @@ public class SampleEndpoint {
     @NamedOperation("sample-delete")
     Operation operationDelete;
 
+    @Inject
+    @NamedSetting("hawkular.accounts.sample.getAllSamples")
+    String allSamplesQueryPreference;
+
+    @Inject
+    UserSettingsService userSettingsService;
+
     @GET
     public Response getAllSamples() {
         CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -98,6 +107,9 @@ public class SampleEndpoint {
         Root<Sample> root = query.from(Sample.class);
         query.select(root);
         query.where(builder.equal(root.get(Sample_.ownerId), currentPersona.getId()));
+
+        // let's save a preference as well
+        userSettingsService.store("hawkular.accounts.sample.getAllSamples", "WithAllParameters");
 
         return Response.ok().entity(em.createQuery(query).getResultList()).build();
     }

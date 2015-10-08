@@ -20,7 +20,6 @@ import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -35,7 +34,6 @@ import org.hawkular.accounts.api.NamedOperation;
 import org.hawkular.accounts.api.OrganizationService;
 import org.hawkular.accounts.api.PermissionChecker;
 import org.hawkular.accounts.api.RoleService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Invitation;
 import org.hawkular.accounts.api.model.Operation;
@@ -56,9 +54,6 @@ import org.hawkular.accounts.backend.entity.rest.InvitationRequest;
 public class InvitationEndpoint {
     private static final MsgLogger logger = MsgLogger.LOGGER;
     private static final String DEFAULT_ROLE = "Monitor";
-
-    @Inject @HawkularAccounts
-    EntityManager em;
 
     @Inject
     RoleService roleService;
