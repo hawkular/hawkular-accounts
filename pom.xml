@@ -210,6 +210,11 @@
         <version>1.0.0.Final</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.hawkular.commons</groupId>
+        <artifactId>hawkular-commons-email</artifactId>
+        <version>0.2.2.Final-SRC-revision-f4f9deaa1b7dd4c0c7b61a39bdf12fd62d31a651</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

@@ -41,6 +41,11 @@
       <version>1.0.16.Final-SNAPSHOT</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.hawkular.commons</groupId>
+      <artifactId>hawkular-commons-email</artifactId>
+    </dependency>
+
     <!--
       HAWKULAR-177 - Temporary module, until the following gets fixed: https://liquibase.jira.com/browse/CORE-2024
     -->
@@ -110,6 +115,7 @@
     <dependency>
       <groupId>org.jboss.logging</groupId>
       <artifactId>jboss-logging</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.logging</groupId>

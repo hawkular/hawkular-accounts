@@ -16,26 +16,20 @@
  */
 package org.hawkular.accounts.backend.control;
 
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Singleton;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.persistence.EntityManager;
 
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.Invitation;
 import org.hawkular.accounts.backend.entity.InvitationCreatedEvent;
+import org.hawkular.commons.email.EmailDispatcher;
 
 /**
  * @author Juraci Paixão Kröhling
@@ -52,10 +46,8 @@ public class InvitationDispatcher {
     @Inject @HawkularAccounts
     EntityManager em;
 
-    @Resource(lookup = "java:jboss/mail/Default")
-    Session mailSession;
-
-    Map<String, String> defaultProperties = new HashMap<>();
+    @Inject
+    EmailDispatcher emailDispatcher;
 
     public void dispatchInvitation(@Observes InvitationCreatedEvent event) {
         Invitation invitation = event.getInvitation();
@@ -65,45 +57,32 @@ public class InvitationDispatcher {
 
         invitation = em.merge(invitation);
 
-        Message message = new MimeMessage(mailSession);
-        try {
-            StringBuilder sb = new StringBuilder();
-            sb.append("You have been invited to join the organization ");
-            sb.append(invitation.getOrganization().getName()).append(".\r\n");
-            sb.append("\r\n");
-            sb.append("To accept this invitation, simply click on the link below.\r\n");
-            sb.append("If you don't have an account yet, don't worry: just click on the link below and ");
-            sb.append("register for a new account.\r\n");
-            sb.append("\r\n");
-            sb.append(DEFAULT_HAWKULAR_BASE_URL);
-            sb.append("hawkular-ui/invitation/accept/");
-            sb.append(invitation.getToken());
-            sb.append("\r\n");
-            sb.append("\r\n");
-            sb.append("This invitation was submitted to you by ");
-            sb.append(invitation.getInvitedBy().getName());
-            sb.append("\r\n");
+        Map<String, Object> properties = new HashMap<>(3);
+        properties.put("acceptUrl",
+                DEFAULT_HAWKULAR_BASE_URL
+                        + "hawkular-ui/invitation/accept/"
+                        + invitation.getToken());
 
-            message.setFrom(new InternetAddress("noreply@hawkular.org", "Hawkular"));
-            message.setRecipient(Message.RecipientType.TO, new InternetAddress(invitation.getEmail()));
-            message.setSubject("[hawkular] - You have been invited to join an organization.");
-            message.setContent(sb.toString(), "text/plain");
-        } catch (MessagingException | UnsupportedEncodingException e) {
-            logger.invitationExceptionPreparingMessage(invitation.getId(), e.getMessage());
-            return;
-        }
+        properties.put("invitedBy", invitation.getInvitedBy().getName());
+        properties.put("orgName", invitation.getOrganization().getName());
 
+        boolean sent;
         try {
-            Transport.send(message);
-        } catch (MessagingException e) {
+            sent = emailDispatcher.dispatch(new InternetAddress(invitation.getEmail()),
+                    "[hawkular] - You have been invited to join an organization.",
+                    "invitation_plain.ftl",
+                    "invitation_html.ftl",
+                    properties);
+        } catch (Exception e) {
             logger.invitationExceptionSendingMessage(invitation.getId(), e.getMessage());
             return;
         }
 
-        // if we reached this point, everything went fine!
-        invitation.setDispatched();
-        em.persist(invitation);
-        logger.invitationSubmitted(invitation.getId(), invitation.getToken());
+        if (sent) {
+            invitation.setDispatched();
+            em.persist(invitation);
+            logger.invitationSubmitted(invitation.getId(), invitation.getToken());
+        }
     }
 
 }
