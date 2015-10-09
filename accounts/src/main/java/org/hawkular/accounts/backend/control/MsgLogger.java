@@ -54,4 +54,14 @@ public interface MsgLogger {
     @LogMessage(level = Logger.Level.WARN)
     @Message(id = 110005, value = "Invitation [%s] is being reused by a different user [%s]. It was accepted by: [%s]")
     void invitationReused(String invitationId, String userTryingToUse, String acceptedBy);
+
+    @LogMessage(level = Logger.Level.WARN)
+    @Message(id = 110006, value = "An exception has occurred while trying to prepare the message for invitation [%s]." +
+            " Exception: [%s]")
+    void invitationExceptionPreparingMessage(String invitationId, String address);
+
+    @LogMessage(level = Logger.Level.WARN)
+    @Message(id = 110007, value = "An exception has occurred while sending the message for invitation [%s]." +
+            " Exception: [%s]")
+    void invitationExceptionSendingMessage(String invitationId, String address);
 }
