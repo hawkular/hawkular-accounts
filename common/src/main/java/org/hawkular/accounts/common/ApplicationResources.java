@@ -17,10 +17,6 @@
 package org.hawkular.accounts.common;
 
 import java.io.StringReader;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -44,7 +40,6 @@ public class ApplicationResources {
     private String serverUrl;
     private String resourceName;
     private String secret;
-    private Set<String> hostSynonyms;
 
     public void setServletContext(ServletContext servletContext) {
         this.servletContext = servletContext;
@@ -88,16 +83,6 @@ public class ApplicationResources {
             parseRealmConfiguration();
         }
         return secret;
-    }
-
-    @Produces @HostSynonyms
-    public Set<String> getHostSynonyms() {
-        if (hostSynonyms == null) {
-            String synonyms = System.getProperty("org.hawkular.accounts.host.synonyms", "localhost,127.0.0.1,0.0.0.0");
-            hostSynonyms = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(synonyms.split(","))));
-        }
-
-        return hostSynonyms;
     }
 
     private void parseRealmConfiguration() {
