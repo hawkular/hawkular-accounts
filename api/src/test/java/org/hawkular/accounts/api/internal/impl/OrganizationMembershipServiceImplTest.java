@@ -21,40 +21,20 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 import java.util.UUID;
 
-import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
 import org.hawkular.accounts.api.model.HawkularUser;
+import org.hawkular.accounts.api.model.Invitation;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
-import org.hawkular.accounts.api.model.Role;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
  * @author Juraci Paixão Kröhling
  */
-public class OrganizationMembershipServiceImplTest extends BaseEntityManagerEnabledTest {
-
-    OrganizationMembershipServiceImpl membershipService = new OrganizationMembershipServiceImpl();
-    PersonaServiceImpl personaService = new PersonaServiceImpl();
-    ResourceServiceImpl resourceService = new ResourceServiceImpl();
-
-    @Before
-    public void prepare() {
-        resourceService.em = entityManager;
-        membershipService.em = entityManager;
-        personaService.em = entityManager;
-
-        membershipService.personaService = personaService;
-        membershipService.resourceService = resourceService;
-
-        personaService.membershipService = membershipService;
-    }
-
+public class OrganizationMembershipServiceImplTest extends BaseServicesTest {
     @Test
     public void listMembershipsForUserNotBelongingToAnyOrganization() {
         entityManager.getTransaction().begin();
-        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
-        entityManager.persist(jdoe);
+        HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         entityManager.getTransaction().commit();
 
         List<OrganizationMembership> memberships = membershipService.getMembershipsForPersona(jdoe);
@@ -64,14 +44,8 @@ public class OrganizationMembershipServiceImplTest extends BaseEntityManagerEnab
     @Test
     public void listMembershipsForUserBelongingToOrganization() {
         entityManager.getTransaction().begin();
-        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
-        Organization acme = new Organization(jdoe);
-        Role role = new Role("SuperUser", "can do anything");
-        OrganizationMembership membership = new OrganizationMembership(acme, jdoe, role);
-        entityManager.persist(jdoe);
-        entityManager.persist(acme);
-        entityManager.persist(role);
-        entityManager.persist(membership);
+        HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
+        organizationService.createOrganization("", "", jdoe);
         entityManager.getTransaction().commit();
 
         List<OrganizationMembership> memberships = membershipService.getMembershipsForPersona(jdoe);
@@ -81,14 +55,8 @@ public class OrganizationMembershipServiceImplTest extends BaseEntityManagerEnab
     @Test
     public void listMembershipsForSoleOrganization() {
         entityManager.getTransaction().begin();
-        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
-        Organization acme = new Organization(jdoe);
-        Role role = new Role("SuperUser", "can do anything");
-        OrganizationMembership membership = new OrganizationMembership(acme, jdoe, role);
-        entityManager.persist(jdoe);
-        entityManager.persist(acme);
-        entityManager.persist(role);
-        entityManager.persist(membership);
+        HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
+        Organization acme = organizationService.createOrganization("", "", jdoe);
         entityManager.getTransaction().commit();
 
         List<OrganizationMembership> memberships = membershipService.getMembershipsForPersona(acme);
@@ -98,21 +66,9 @@ public class OrganizationMembershipServiceImplTest extends BaseEntityManagerEnab
     @Test
     public void listMembershipsForOrganizationBelongingToOrganization() {
         entityManager.getTransaction().begin();
-        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
-        Organization acme = new Organization(jdoe);
-        Organization itDepartment = new Organization(acme);
-        Role superUser = new Role("SuperUser", "can do anything");
-        Role administrator = new Role("Administrator", "not quite everything");
-        OrganizationMembership membershipAcme = new OrganizationMembership(acme, jdoe, superUser);
-        OrganizationMembership membershipItDepartment = new OrganizationMembership(itDepartment, acme, superUser);
-
-        entityManager.persist(jdoe);
-        entityManager.persist(acme);
-        entityManager.persist(itDepartment);
-        entityManager.persist(superUser);
-        entityManager.persist(administrator);
-        entityManager.persist(membershipAcme);
-        entityManager.persist(membershipItDepartment);
+        HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
+        Organization acme = organizationService.createOrganization("", "", jdoe);
+        Organization itDepartment = organizationService.createOrganization("", "", acme);
         entityManager.getTransaction().commit();
 
         List<OrganizationMembership> memberships = membershipService.getMembershipsForPersona(acme);
@@ -122,25 +78,18 @@ public class OrganizationMembershipServiceImplTest extends BaseEntityManagerEnab
     @Test
     public void changeRole() {
         entityManager.getTransaction().begin();
-        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
-        HawkularUser jsmith = new HawkularUser(UUID.randomUUID().toString());
-        Organization acme = new Organization(jdoe);
-        Role superUser = new Role("SuperUser", "can do anything");
-        Role monitor = new Role("Monitor", "almost nothing");
-
-        entityManager.persist(jdoe);
-        entityManager.persist(jsmith);
-        entityManager.persist(acme);
-        entityManager.persist(superUser);
-        entityManager.persist(monitor);
+        HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
+        HawkularUser jsmith = userService.getOrCreateById(UUID.randomUUID().toString());
+        Organization acme = organizationService.createOrganization("", "", jdoe);
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
-        OrganizationMembership jsmithAtAcme = new OrganizationMembership(acme, jsmith, monitor);
-        entityManager.persist(jsmithAtAcme);
+        Invitation invitation = invitationService.create("", jdoe, acme, monitor);
+        invitationService.accept(invitation, jsmith);
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
+        OrganizationMembership jsmithAtAcme = membershipService.getMembershipsForPersona(jsmith).get(0);
         membershipService.changeRole(jsmithAtAcme, superUser);
         entityManager.getTransaction().commit();
 

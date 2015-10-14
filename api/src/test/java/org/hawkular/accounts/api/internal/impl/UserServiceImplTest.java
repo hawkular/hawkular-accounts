@@ -35,7 +35,6 @@ import javax.ejb.SessionContext;
 import javax.ejb.TimerService;
 import javax.transaction.UserTransaction;
 
-import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,14 +45,10 @@ import org.keycloak.representations.AccessToken;
 /**
  * @author Juraci Paixão Kröhling
  */
-public class UserServiceImplTest extends BaseEntityManagerEnabledTest {
-
-    UserServiceImpl userService = new UserServiceImpl();
-
+public class UserServiceImplTest extends BaseServicesTest {
     @Before
-    public void setup() {
+    public void addSessionContextToUserService() {
         userService.sessionContext = sessionContext;
-        userService.em = entityManager;
     }
 
     @Test

@@ -78,6 +78,12 @@ public class OrganizationServiceImpl implements OrganizationService {
         Organization organization = new Organization(owner);
         organization.setName(name);
         organization.setDescription(description);
+
+        // this is for the permission checker itself
+        Resource resource = resourceService.create(organization.getId(), owner);
+        resourceService.addRoleToPersona(resource, owner, superUser);
+
+        // this is for our organization management
         em.persist(organization);
         em.persist(new OrganizationMembership(organization, owner, superUser));
         return organization;
@@ -85,7 +91,10 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     public void deleteOrganization(Organization organization) {
+        Resource resource = resourceService.get(organization.getId());
         membershipService.getMembershipsForOrganization(organization).stream().forEach(em::remove);
+        resourceService.revokeAllForPersona(resource, organization.getOwner());
+        resourceService.delete(organization.getId());
         em.remove(organization);
     }
 

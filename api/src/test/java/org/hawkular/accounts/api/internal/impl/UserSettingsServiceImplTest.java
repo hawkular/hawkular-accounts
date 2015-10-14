@@ -22,31 +22,19 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.UUID;
 
-import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.UserSettings;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
  * @author Juraci Paixão Kröhling
  */
-public class UserSettingsServiceImplTest extends BaseEntityManagerEnabledTest {
-
-    UserSettingsServiceImpl service = new UserSettingsServiceImpl();
-
-    @Before
-    public void prepare() {
-        service.em = entityManager;
-    }
-
+public class UserSettingsServiceImplTest extends BaseServicesTest {
     @Test
     public void createSettingsIfNoneExists() {
         entityManager.getTransaction().begin();
-        HawkularUser user = new HawkularUser(UUID.randomUUID().toString());
-        UserSettings settings = service.getOrCreateByUser(user);
-        entityManager.persist(user);
-        entityManager.persist(settings);
+        HawkularUser user = userService.getOrCreateById(UUID.randomUUID().toString());
+        UserSettings settings = settingsService.getOrCreateByUser(user);
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
@@ -57,9 +45,8 @@ public class UserSettingsServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void doNotCreateSettingsIfNoneExists() {
         entityManager.getTransaction().begin();
-        HawkularUser user = new HawkularUser(UUID.randomUUID().toString());
-        UserSettings settings = service.getByUser(user);
-        entityManager.persist(user);
+        HawkularUser user = userService.getOrCreateById(UUID.randomUUID().toString());
+        UserSettings settings = settingsService.getByUser(user);
         assertNull("The settings should be empty at this point.", settings);
         entityManager.getTransaction().commit();
     }
@@ -67,16 +54,15 @@ public class UserSettingsServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void storeNonExistingKey() {
         entityManager.getTransaction().begin();
-        HawkularUser user = new HawkularUser(UUID.randomUUID().toString());
-        entityManager.persist(user);
+        HawkularUser user = userService.getOrCreateById(UUID.randomUUID().toString());
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
-        service.store(user, "hawkular.settings.foo", "bar");
+        settingsService.store(user, "hawkular.settings.foo", "bar");
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
-        UserSettings settings = service.getByUser(user);
+        UserSettings settings = settingsService.getByUser(user);
         assertEquals("One key should be stored at this point.", 1, settings.size());
         assertEquals("The key's value should be 'bar'.", "bar", settings.get("hawkular.settings.foo"));
         entityManager.getTransaction().commit();
@@ -85,12 +71,11 @@ public class UserSettingsServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void returnsDefaultValueIfNoneExists() {
         entityManager.getTransaction().begin();
-        HawkularUser user = new HawkularUser(UUID.randomUUID().toString());
-        entityManager.persist(user);
+        HawkularUser user = userService.getOrCreateById(UUID.randomUUID().toString());
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
-        String value = service.getSettingByKey(user, "hawkular.settings.foo", "bar");
+        String value = settingsService.getSettingByKey(user, "hawkular.settings.foo", "bar");
         assertEquals("Value returned should be 'bar'.", "bar", value);
         entityManager.getTransaction().commit();
     }
@@ -98,24 +83,23 @@ public class UserSettingsServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void removeExistingKey() {
         entityManager.getTransaction().begin();
-        HawkularUser user = new HawkularUser(UUID.randomUUID().toString());
-        entityManager.persist(user);
+        HawkularUser user = userService.getOrCreateById(UUID.randomUUID().toString());
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
-        service.store(user, "hawkular.settings.foo", "bar");
+        settingsService.store(user, "hawkular.settings.foo", "bar");
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
-        UserSettings settings = service.getByUser(user);
+        UserSettings settings = settingsService.getByUser(user);
         assertEquals("One key should be stored at this point.", 1, settings.size());
         assertEquals("The key's value should be 'bar'.", "bar", settings.get("hawkular.settings.foo"));
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
-        service.remove(user, "hawkular.settings.foo");
-        settings = service.getByUser(user);
-        String value = service.getSettingByKey(user, "hawkular.settings.foo");
+        settingsService.remove(user, "hawkular.settings.foo");
+        settings = settingsService.getByUser(user);
+        String value = settingsService.getSettingByKey(user, "hawkular.settings.foo");
         assertEquals("There should be no settings at this point.", 0, settings.size());
         assertEquals("Requesting the previously existing setting should return null.", null, value);
         entityManager.getTransaction().commit();
@@ -124,23 +108,22 @@ public class UserSettingsServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void removeNonExistingKeyFromExistingSettings() {
         entityManager.getTransaction().begin();
-        HawkularUser user = new HawkularUser(UUID.randomUUID().toString());
-        entityManager.persist(user);
+        HawkularUser user = userService.getOrCreateById(UUID.randomUUID().toString());
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
-        service.store(user, "hawkular.settings.foo", "bar");
+        settingsService.store(user, "hawkular.settings.foo", "bar");
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
-        UserSettings settings = service.getByUser(user);
+        UserSettings settings = settingsService.getByUser(user);
         assertEquals("One key should be stored at this point.", 1, settings.size());
         assertEquals("The key's value should be 'bar'.", "bar", settings.get("hawkular.settings.foo"));
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
-        service.remove(user, "NON_EXISTING_KEY");
-        String value = service.getSettingByKey(user, "NON_EXISTING_KEY");
+        settingsService.remove(user, "NON_EXISTING_KEY");
+        String value = settingsService.getSettingByKey(user, "NON_EXISTING_KEY");
         assertEquals("Requesting the a non-existing setting should return null.", null, value);
         entityManager.getTransaction().commit();
     }
@@ -148,13 +131,12 @@ public class UserSettingsServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void removeNonExistingKeyFromNonExistingSettings() {
         entityManager.getTransaction().begin();
-        HawkularUser user = new HawkularUser(UUID.randomUUID().toString());
-        entityManager.persist(user);
+        HawkularUser user = userService.getOrCreateById(UUID.randomUUID().toString());
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
-        service.remove(user, "NON_EXISTING_KEY");
-        String value = service.getSettingByKey(user, "NON_EXISTING_KEY");
+        settingsService.remove(user, "NON_EXISTING_KEY");
+        String value = settingsService.getSettingByKey(user, "NON_EXISTING_KEY");
         assertEquals("Requesting the a non-existing setting should return null.", null, value);
         entityManager.getTransaction().commit();
     }
@@ -162,26 +144,25 @@ public class UserSettingsServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void overwriteExistingKey() {
         entityManager.getTransaction().begin();
-        HawkularUser user = new HawkularUser(UUID.randomUUID().toString());
-        entityManager.persist(user);
+        HawkularUser user = userService.getOrCreateById(UUID.randomUUID().toString());
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
-        service.store(user, "hawkular.settings.foo", "bar");
+        settingsService.store(user, "hawkular.settings.foo", "bar");
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
-        UserSettings settings = service.getByUser(user);
+        UserSettings settings = settingsService.getByUser(user);
         assertEquals("One key should be stored at this point.", 1, settings.size());
         assertEquals("The key's value should be 'bar'.", "bar", settings.get("hawkular.settings.foo"));
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
-        service.store(user, "hawkular.settings.foo", "baz");
+        settingsService.store(user, "hawkular.settings.foo", "baz");
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
-        settings = service.getByUser(user);
+        settings = settingsService.getByUser(user);
         assertEquals("One key should be stored at this point.", 1, settings.size());
         assertEquals("The key's value should be 'baz'.", "baz", settings.get("hawkular.settings.foo"));
         entityManager.getTransaction().commit();

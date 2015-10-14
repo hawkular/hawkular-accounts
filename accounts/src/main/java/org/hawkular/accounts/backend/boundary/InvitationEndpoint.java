@@ -119,8 +119,7 @@ public class InvitationEndpoint {
             if (email.isEmpty()) {
                 continue;
             }
-            Invitation invitation = new Invitation(email, user, organization, role);
-            invitation = invitationService.create(invitation);
+            Invitation invitation = invitationService.create(email, user, organization, role);
             event.fire(new InvitationCreatedEvent(invitation));
         }
 

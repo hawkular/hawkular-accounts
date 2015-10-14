@@ -18,40 +18,20 @@ package org.hawkular.accounts.api.internal.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
 import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Permission;
 import org.hawkular.accounts.api.model.Role;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
  * @author Juraci Paixão Kröhling
  */
-public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
-
-    OperationServiceImpl operationService = new OperationServiceImpl();
-    PermissionServiceImpl permissionService = new PermissionServiceImpl();
-    RoleServiceImpl roleService = new RoleServiceImpl();
-
-    @Before
-    public void setup() {
-        roleService.em = entityManager;
-        permissionService.em = entityManager;
-        operationService.em = entityManager;
-        operationService.permissionService = permissionService;
-        operationService.roleService = roleService;
-        RoleServiceImplTest roleTest = new RoleServiceImplTest();
-        roleTest.initializeEntityManager();
-        roleTest.setup();
-    }
-
+public class OperationServiceImplTest extends BaseServicesTest {
     @Test
     public void loadExistingOperationByName() {
         Operation operation = new Operation("foo-create");
@@ -76,9 +56,6 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
         entityManager.persist(operation);
         entityManager.getTransaction().commit();
 
-        Role monitor = roleService.getByName("Monitor");
-        assertNotNull("We should have found a Monitor role", monitor);
-
         // on this basic operation, we should have only one role
         entityManager.getTransaction().begin();
         operationService
@@ -97,8 +74,6 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void testBasicSetupWithBasicRole() {
         Operation operation = new Operation("foo-create");
-        Role superUser = roleService.getByName("SuperUser");
-
         entityManager.getTransaction().begin();
         entityManager.persist(operation);
         entityManager.getTransaction().commit();
@@ -131,10 +106,6 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void clearShouldClearPreviousAdds() {
         Operation operation = new Operation("foo-create");
-        Role superUser = roleService.getByName("SuperUser");
-        Role auditor = roleService.getByName("Auditor");
-        Role deployer = roleService.getByName("Deployer");
-
         entityManager.getTransaction().begin();
         entityManager.persist(operation);
         entityManager.getTransaction().commit();
@@ -161,9 +132,6 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
         entityManager.getTransaction().begin();
         entityManager.persist(operation);
         entityManager.getTransaction().commit();
-
-        Role superUser = roleService.getByName("SuperUser");
-        assertNotNull("We should have found a SuperUser role", superUser);
 
         // on this basic operation, we should have only one role
         entityManager.getTransaction().begin();
@@ -197,9 +165,6 @@ public class OperationServiceImplTest extends BaseEntityManagerEnabledTest {
         entityManager.getTransaction().begin();
         entityManager.persist(operation);
         entityManager.getTransaction().commit();
-
-        Role superUser = roleService.getByName("SuperUser");
-        assertNotNull("We should have found a SuperUser role", superUser);
 
         // on this basic operation, we should have only one role
         entityManager.getTransaction().begin();

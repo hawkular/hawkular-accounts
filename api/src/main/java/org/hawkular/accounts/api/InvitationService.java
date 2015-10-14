@@ -22,6 +22,7 @@ import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Invitation;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
+import org.hawkular.accounts.api.model.Role;
 
 /**
  * @author Juraci Paixão Kröhling
@@ -50,11 +51,14 @@ public interface InvitationService {
     List<Invitation> getPendingInvitationsForOrganization(Organization organization);
 
     /**
-     * Stores the invitation
-     * @param invitation    the invitation to be persisted
-     * @return              the persisted invitation
+     * Stores an invitation with the given parameters.
+     * @param email           the user that has been invited
+     * @param invitedBy       the user who sent the invitation
+     * @param organization    the organization for which the user was invited to
+     * @param role            the role on the organization for the invited user
+     * @return  the persistent Invitation
      */
-    Invitation create(Invitation invitation);
+    Invitation create(String email, HawkularUser invitedBy, Organization organization, Role role);
 
     /**
      * Marks an invitation as accepted, converting the data from {@link Invitation} into an

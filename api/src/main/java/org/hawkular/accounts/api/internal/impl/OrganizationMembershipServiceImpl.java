@@ -54,6 +54,17 @@ public class OrganizationMembershipServiceImpl implements OrganizationMembership
     PersonaService personaService;
 
     @Override
+    public OrganizationMembership create(Organization organization, Persona persona, Role role) {
+        OrganizationMembership membership = new OrganizationMembership(organization, persona, role);
+        em.persist(membership);
+
+        // for permission checking
+        Resource resource = resourceService.get(organization.getId());
+        resourceService.addRoleToPersona(resource, persona, role);
+        return membership;
+    }
+
+    @Override
     public List<OrganizationMembership> getMembershipsForPersona(Persona persona) {
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<OrganizationMembership> query = builder.createQuery(OrganizationMembership.class);

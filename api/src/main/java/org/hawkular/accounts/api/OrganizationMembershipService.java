@@ -36,6 +36,8 @@ import org.hawkular.accounts.api.model.Role;
  * @author Juraci Paixão Kröhling
  */
 public interface OrganizationMembershipService {
+    OrganizationMembership create(Organization organization, Persona persona, Role role);
+
     /**
      * Retrieves the memberships that a given Persona has across all Organizations.
      * <br/><br/>

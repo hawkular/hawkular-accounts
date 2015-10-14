@@ -17,38 +17,23 @@
 package org.hawkular.accounts.api.internal.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.List;
 import java.util.UUID;
 
-import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Organization;
-import org.hawkular.accounts.api.model.OrganizationMembership;
-import org.hawkular.accounts.api.model.Role;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
  * @author Juraci Paixão Kröhling
  */
-public class OrganizationServiceImplTest extends BaseEntityManagerEnabledTest {
-
-    private OrganizationServiceImpl organizationService = new OrganizationServiceImpl();
-    private OrganizationMembershipServiceImpl membershipService = new OrganizationMembershipServiceImpl();
-
-    @Before
-    public void setup() {
-        membershipService.em = entityManager;
-        organizationService.em = entityManager;
-        organizationService.membershipService = membershipService;
-    }
-
+public class OrganizationServiceImplTest extends BaseServicesTest {
     @Test
     public void listOrganizationsForUserNotBelongingToAnyOrganization() {
         entityManager.getTransaction().begin();
-        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
-        entityManager.persist(jdoe);
+        HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         entityManager.getTransaction().commit();
 
         List<Organization> organizations = organizationService.getOrganizationsForPersona(jdoe);
@@ -58,14 +43,8 @@ public class OrganizationServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void listOrganizationsForUserBelongingToOrganization() {
         entityManager.getTransaction().begin();
-        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
-        Organization acme = new Organization(jdoe);
-        Role role = new Role("SuperUser", "can do anything");
-        OrganizationMembership membership = new OrganizationMembership(acme, jdoe, role);
-        entityManager.persist(jdoe);
-        entityManager.persist(acme);
-        entityManager.persist(role);
-        entityManager.persist(membership);
+        HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
+        Organization acme = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
         entityManager.getTransaction().commit();
 
         List<Organization> memberships = organizationService.getOrganizationsForPersona(jdoe);
@@ -75,14 +54,8 @@ public class OrganizationServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void listOrganizationsForSoleOrganization() {
         entityManager.getTransaction().begin();
-        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
-        Organization acme = new Organization(jdoe);
-        Role role = new Role("SuperUser", "can do anything");
-        OrganizationMembership membership = new OrganizationMembership(acme, jdoe, role);
-        entityManager.persist(jdoe);
-        entityManager.persist(acme);
-        entityManager.persist(role);
-        entityManager.persist(membership);
+        HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
+        Organization acme = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
         entityManager.getTransaction().commit();
 
         List<Organization> memberships = organizationService.getOrganizationsForPersona(acme);
@@ -92,25 +65,27 @@ public class OrganizationServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void listMembershipsForOrganizationBelongingToOrganization() {
         entityManager.getTransaction().begin();
-        HawkularUser jdoe = new HawkularUser(UUID.randomUUID().toString());
-        Organization acme = new Organization(jdoe);
-        Organization itDepartment = new Organization(acme);
-        Role superUser = new Role("SuperUser", "can do anything");
-        Role administrator = new Role("Administrator", "not quite everything");
-        OrganizationMembership membershipAcme = new OrganizationMembership(acme, jdoe, superUser);
-        OrganizationMembership membershipItDepartment = new OrganizationMembership(itDepartment, acme, superUser);
-
-        entityManager.persist(jdoe);
-        entityManager.persist(acme);
-        entityManager.persist(itDepartment);
-        entityManager.persist(superUser);
-        entityManager.persist(administrator);
-        entityManager.persist(membershipAcme);
-        entityManager.persist(membershipItDepartment);
+        HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
+        Organization acme = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
+        Organization itDepartment = organizationService.createOrganization("IT Dep", "IT Dep", acme);
         entityManager.getTransaction().commit();
 
         List<Organization> memberships = organizationService.getOrganizationsForPersona(acme);
         assertEquals("Acme is super persona of IT department", 1, memberships.size());
+    }
+
+    @Test
+    public void removeOrganization() {
+        entityManager.getTransaction().begin();
+        HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
+        Organization organization = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
+        entityManager.getTransaction().commit();
+
+        entityManager.getTransaction().begin();
+        organizationService.deleteOrganization(organization);
+        entityManager.getTransaction().commit();
+
+        assertNull("Organization should have been removed", organizationService.get(organization.getId()));
     }
 
 }

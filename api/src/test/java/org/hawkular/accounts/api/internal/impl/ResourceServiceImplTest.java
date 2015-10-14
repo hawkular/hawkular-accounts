@@ -23,54 +23,19 @@ import static org.junit.Assert.assertNull;
 import java.util.List;
 import java.util.UUID;
 
-import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
 import org.hawkular.accounts.api.model.HawkularUser;
-import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.PersonaResourceRole;
 import org.hawkular.accounts.api.model.Resource;
-import org.hawkular.accounts.api.model.Role;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
  * @author Juraci Paixão Kröhling
  */
-public class ResourceServiceImplTest extends BaseEntityManagerEnabledTest {
-    private ResourceServiceImpl resourceService;
-
-    @Before
-    public void prepareServices() {
-        this.resourceService = new ResourceServiceImpl();
-        this.resourceService.em = entityManager;
-        this.resourceService.persona = new HawkularUser(UUID.randomUUID().toString());
-        entityManager.getTransaction().begin();
-        entityManager.persist(this.resourceService.persona);
-        entityManager.getTransaction().commit();
-    }
-
-    @Test
-    public void existingResourceIsRetrieved() {
-        entityManager.getTransaction().begin();
-        Persona user = new HawkularUser(UUID.randomUUID().toString());
-        String resourceId = UUID.randomUUID().toString();
-        Resource resource = new Resource(resourceId, user);
-        entityManager.persist(user);
-        entityManager.persist(resource);
-        entityManager.getTransaction().commit();
-
-        entityManager.getTransaction().begin();
-        assertNotNull(resourceService.get(resourceId));
-        entityManager.getTransaction().commit();
-    }
-
+public class ResourceServiceImplTest extends BaseServicesTest {
     @Test
     public void nonExistingResourceIsCreatedWithOwner() {
         entityManager.getTransaction().begin();
-        Persona user = new HawkularUser(UUID.randomUUID().toString());
-        entityManager.persist(user);
-        entityManager.getTransaction().commit();
-
-        entityManager.getTransaction().begin();
+        HawkularUser user = userService.getOrCreateById(UUID.randomUUID().toString());
         Resource resource = resourceService.create(UUID.randomUUID().toString(), user);
         entityManager.getTransaction().commit();
 
@@ -82,12 +47,9 @@ public class ResourceServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void nonExistingResourceIsCreatedWithParentAndOwner() {
         entityManager.getTransaction().begin();
-        Persona user = new HawkularUser(UUID.randomUUID().toString());
-        Persona user2 = new HawkularUser(UUID.randomUUID().toString());
-        Resource parent = new Resource(user);
-        entityManager.persist(user);
-        entityManager.persist(user2);
-        entityManager.persist(parent);
+        HawkularUser user = userService.getOrCreateById(UUID.randomUUID().toString());
+        HawkularUser user2 = userService.getOrCreateById(UUID.randomUUID().toString());
+        Resource parent = resourceService.create(UUID.randomUUID().toString(), user);
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
@@ -104,10 +66,8 @@ public class ResourceServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void nonExistingResourceIsCreatedWithParent() {
         entityManager.getTransaction().begin();
-        Persona user = new HawkularUser(UUID.randomUUID().toString());
-        Resource parent = new Resource(user);
-        entityManager.persist(user);
-        entityManager.persist(parent);
+        HawkularUser user = userService.getOrCreateById(UUID.randomUUID().toString());
+        Resource parent = resourceService.create(UUID.randomUUID().toString(), user);
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
@@ -124,11 +84,7 @@ public class ResourceServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void resourceWithNullAsIdGetsNewId() {
         entityManager.getTransaction().begin();
-        Persona user = new HawkularUser(UUID.randomUUID().toString());
-        entityManager.persist(user);
-        entityManager.getTransaction().commit();
-
-        entityManager.getTransaction().begin();
+        HawkularUser user = userService.getOrCreateById(UUID.randomUUID().toString());
         Resource resource = resourceService.create(null, user);
         entityManager.getTransaction().commit();
 
@@ -140,24 +96,15 @@ public class ResourceServiceImplTest extends BaseEntityManagerEnabledTest {
     @Test
     public void revokeAll() {
         entityManager.getTransaction().begin();
-        Persona jdoe = new HawkularUser(UUID.randomUUID().toString());
-        Persona jsmith = new HawkularUser(UUID.randomUUID().toString());
-        Resource resource = new Resource(jdoe);
-        Role superUser = new Role("SuperUser", "");
-        Role admin = new Role("Administrator", "");
-        Role maintainer = new Role("Maintainer", "");
-        entityManager.persist(jdoe);
-        entityManager.persist(jsmith);
-        entityManager.persist(resource);
-        entityManager.persist(superUser);
-        entityManager.persist(admin);
-        entityManager.persist(maintainer);
+        HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
+        HawkularUser jsmith = userService.getOrCreateById(UUID.randomUUID().toString());
+        Resource resource = resourceService.create(UUID.randomUUID().toString(), jdoe);
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
         resourceService.addRoleToPersona(resource, jsmith, superUser);
         resourceService.addRoleToPersona(resource, jsmith, maintainer);
-        resourceService.addRoleToPersona(resource, jsmith, admin);
+        resourceService.addRoleToPersona(resource, jsmith, administrator);
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
@@ -173,26 +120,18 @@ public class ResourceServiceImplTest extends BaseEntityManagerEnabledTest {
         entityManager.getTransaction().commit();
     }
 
+    @Test
     public void transferResource() {
         entityManager.getTransaction().begin();
-        Persona jdoe = new HawkularUser(UUID.randomUUID().toString());
-        Persona jsmith = new HawkularUser(UUID.randomUUID().toString());
-        Resource resource = new Resource(jdoe);
-        Role superUser = new Role("SuperUser", "");
-        Role admin = new Role("Administrator", "");
-        Role maintainer = new Role("Maintainer", "");
-        entityManager.persist(jdoe);
-        entityManager.persist(jsmith);
-        entityManager.persist(resource);
-        entityManager.persist(superUser);
-        entityManager.persist(admin);
-        entityManager.persist(maintainer);
+        HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
+        HawkularUser jsmith = userService.getOrCreateById(UUID.randomUUID().toString());
+        Resource resource = resourceService.create(UUID.randomUUID().toString(), jdoe);
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
         resourceService.addRoleToPersona(resource, jsmith, superUser);
         resourceService.addRoleToPersona(resource, jsmith, maintainer);
-        resourceService.addRoleToPersona(resource, jsmith, admin);
+        resourceService.addRoleToPersona(resource, jsmith, administrator);
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();

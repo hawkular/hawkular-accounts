@@ -21,156 +21,128 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
-import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
 import org.hawkular.accounts.api.model.Role;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
  * @author Juraci Paixão Kröhling
  */
-public class RoleServiceImplTest extends BaseEntityManagerEnabledTest {
-
-    private RoleServiceImpl roleService = new RoleServiceImpl();
-
-    @Before
-    public void setup() {
-        roleService.em = entityManager;
-
-        Role superUser = new Role("SuperUser", "");
-        Role administrator = new Role("Administrator", "");
-        Role auditor = new Role("Auditor", "");
-        Role deployer = new Role("Deployer", "");
-        Role maintainer = new Role("Maintainer", "");
-        Role operator = new Role("Operator", "");
-        Role monitor = new Role("Monitor", "");
-
-        entityManager.getTransaction().begin();
-        entityManager.persist(superUser);
-        entityManager.persist(administrator);
-        entityManager.persist(auditor);
-        entityManager.persist(deployer);
-        entityManager.persist(maintainer);
-        entityManager.persist(operator);
-        entityManager.persist(monitor);
-        entityManager.getTransaction().commit();
-    }
-
+public class RoleServiceImplTest extends BaseServicesTest {
     @Test
     public void implicitUserRolesForSuperUser() {
-        Set<Role> implicitRoles = roleService.getImplicitUserRoles("SuperUser");
+        Set<Role> implicitRoles = roleService.getImplicitUserRoles(superUser);
         assertEquals("SuperUser should have all 6 other roles as implicit roles", 6, implicitRoles.size());
-        assertTrue(implicitRoles.contains(roleService.getByName("Monitor")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Operator")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Maintainer")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Deployer")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Administrator")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Auditor")));
+        assertTrue(implicitRoles.contains(monitor));
+        assertTrue(implicitRoles.contains(operator));
+        assertTrue(implicitRoles.contains(maintainer));
+        assertTrue(implicitRoles.contains(deployer));
+        assertTrue(implicitRoles.contains(administrator));
+        assertTrue(implicitRoles.contains(auditor));
     }
 
     @Test
     public void implicitUserRolesForMonitor() {
-        Set<Role> implicitRoles = roleService.getImplicitUserRoles("Monitor");
+        Set<Role> implicitRoles = roleService.getImplicitUserRoles(monitor);
         assertEquals("Monitor should have no implicit roles", 0, implicitRoles.size());
     }
 
     @Test
     public void implicitUserRolesForAuditor() {
-        Set<Role> implicitRoles = roleService.getImplicitUserRoles("Auditor");
+        Set<Role> implicitRoles = roleService.getImplicitUserRoles(auditor);
         assertEquals("Auditor should have 1 other role as implicit roles", 1, implicitRoles.size());
         assertTrue(implicitRoles.contains(roleService.getByName("Monitor")));
     }
 
     @Test
     public void implicitUserRolesForOperator() {
-        Set<Role> implicitRoles = roleService.getImplicitUserRoles("Operator");
+        Set<Role> implicitRoles = roleService.getImplicitUserRoles(operator);
         assertEquals("Operator should have 1 other role as implicit roles", 1, implicitRoles.size());
         assertTrue(implicitRoles.contains(roleService.getByName("Monitor")));
     }
 
     @Test
     public void implicitUserRolesForMaintainer() {
-        Set<Role> implicitRoles = roleService.getImplicitUserRoles("Maintainer");
+        Set<Role> implicitRoles = roleService.getImplicitUserRoles(maintainer);
         assertEquals("Maintainer should have 2 other roles as implicit roles", 2, implicitRoles.size());
-        assertTrue(implicitRoles.contains(roleService.getByName("Monitor")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Operator")));
+        assertTrue(implicitRoles.contains(monitor));
+        assertTrue(implicitRoles.contains(operator));
     }
 
     @Test
     public void implicitUserRolesForDeployer() {
-        Set<Role> implicitRoles = roleService.getImplicitUserRoles("Deployer");
+        Set<Role> implicitRoles = roleService.getImplicitUserRoles(deployer);
         assertEquals("Deployer should have 3 other roles as implicit roles", 3, implicitRoles.size());
-        assertTrue(implicitRoles.contains(roleService.getByName("Monitor")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Operator")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Maintainer")));
+        assertTrue(implicitRoles.contains(monitor));
+        assertTrue(implicitRoles.contains(operator));
+        assertTrue(implicitRoles.contains(maintainer));
     }
 
     @Test
     public void implicitUserRolesForAdministrator() {
-        Set<Role> implicitRoles = roleService.getImplicitUserRoles("Administrator");
+        Set<Role> implicitRoles = roleService.getImplicitUserRoles(administrator);
         assertEquals("Administrator should have 3 other roles as implicit roles", 3, implicitRoles.size());
-        assertTrue(implicitRoles.contains(roleService.getByName("Monitor")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Operator")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Maintainer")));
+        assertTrue(implicitRoles.contains(monitor));
+        assertTrue(implicitRoles.contains(operator));
+        assertTrue(implicitRoles.contains(maintainer));
     }
 
     @Test
     public void implicitPermittedRolesForSuperUser() {
-        Set<Role> implicitRoles = roleService.getImplicitPermittedRoles("SuperUser");
+        Set<Role> implicitRoles = roleService.getImplicitPermittedRoles(superUser);
         assertEquals("No other roles can execute operations marked with SuperUser.", 0, implicitRoles.size());
     }
 
     @Test
     public void implicitPermittedRolesForMonitor() {
-        Set<Role> implicitRoles = roleService.getImplicitPermittedRoles("Monitor");
+        Set<Role> implicitRoles = roleService.getImplicitPermittedRoles(monitor);
         assertEquals("Operator means that 6 other roles have also access to the operation.", 6, implicitRoles.size());
-        assertTrue(implicitRoles.contains(roleService.getByName("Operator")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Maintainer")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Deployer")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Administrator")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Auditor")));
-        assertTrue(implicitRoles.contains(roleService.getByName("SuperUser")));
+        assertTrue(implicitRoles.contains(operator));
+        assertTrue(implicitRoles.contains(maintainer));
+        assertTrue(implicitRoles.contains(deployer));
+        assertTrue(implicitRoles.contains(administrator));
+        assertTrue(implicitRoles.contains(auditor));
+        assertTrue(implicitRoles.contains(superUser));
     }
 
     @Test
     public void implicitPermittedRolesForOperator() {
-        Set<Role> implicitRoles = roleService.getImplicitPermittedRoles("Operator");
+        Set<Role> implicitRoles = roleService.getImplicitPermittedRoles(operator);
         assertEquals("Operator means that 4 other roles have also access to the operation.", 4, implicitRoles.size());
-        assertTrue(implicitRoles.contains(roleService.getByName("Maintainer")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Deployer")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Administrator")));
-        assertTrue(implicitRoles.contains(roleService.getByName("SuperUser")));
+        assertTrue(implicitRoles.contains(maintainer));
+        assertTrue(implicitRoles.contains(deployer));
+        assertTrue(implicitRoles.contains(administrator));
+        assertTrue(implicitRoles.contains(superUser));
     }
 
     @Test
     public void implicitPermittedRolesForMaintainer() {
-        Set<Role> implicitRoles = roleService.getImplicitPermittedRoles("Maintainer");
+        Set<Role> implicitRoles = roleService.getImplicitPermittedRoles(maintainer);
         assertEquals("Maintainer means that 3 other roles have also access to the operation.", 3, implicitRoles.size());
-        assertTrue(implicitRoles.contains(roleService.getByName("Deployer")));
-        assertTrue(implicitRoles.contains(roleService.getByName("Administrator")));
-        assertTrue(implicitRoles.contains(roleService.getByName("SuperUser")));
+        assertTrue(implicitRoles.contains(deployer));
+        assertTrue(implicitRoles.contains(administrator));
+        assertTrue(implicitRoles.contains(superUser));
     }
 
     @Test
     public void implicitPermittedRolesForDeployer() {
-        Set<Role> implicitRoles = roleService.getImplicitPermittedRoles("Deployer");
+        Set<Role> implicitRoles = roleService.getImplicitPermittedRoles(deployer);
         assertEquals("Deployer means that 1 other roles have also access to the operation.", 1, implicitRoles.size());
-        assertTrue(implicitRoles.contains(roleService.getByName("SuperUser")));
+        assertTrue(implicitRoles.contains(superUser));
     }
 
     @Test
     public void implicitPermittedRolesForAdministrator() {
-        Set<Role> implicitRoles = roleService.getImplicitPermittedRoles("Administrator");
+        Set<Role> implicitRoles = roleService.getImplicitPermittedRoles(administrator);
         assertEquals("Administrator means that 1 other roles have also access to the operation.", 1, implicitRoles
                 .size());
-        assertTrue(implicitRoles.contains(roleService.getByName("SuperUser")));
+        assertTrue(implicitRoles.contains(superUser));
     }
 
     @Test
     public void implicitPermittedRolesForAuditor() {
-        Set<Role> implicitRoles = roleService.getImplicitPermittedRoles("Auditor");
+        Set<Role> implicitRoles = roleService.getImplicitPermittedRoles(auditor);
         assertEquals("Auditor means that 1 other roles have also access to the operation.", 1, implicitRoles.size());
-        assertTrue(implicitRoles.contains(roleService.getByName("SuperUser")));
+        assertTrue(implicitRoles.contains(superUser));
     }
 
 }

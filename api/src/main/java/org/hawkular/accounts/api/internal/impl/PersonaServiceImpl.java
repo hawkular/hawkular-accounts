@@ -16,6 +16,7 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,6 +35,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.hawkular.accounts.api.OrganizationMembershipService;
 import org.hawkular.accounts.api.OrganizationService;
 import org.hawkular.accounts.api.PersonaService;
+import org.hawkular.accounts.api.ResourceService;
+import org.hawkular.accounts.api.RoleService;
 import org.hawkular.accounts.api.UserService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.HawkularUser;
@@ -68,6 +71,12 @@ public class PersonaServiceImpl implements PersonaService {
 
     @Inject
     UserService userService;
+
+    @Inject
+    ResourceService resourceService;
+
+    @Inject
+    RoleService roleService;
 
     @Inject
     private HttpServletRequest httpRequest;
@@ -118,11 +127,12 @@ public class PersonaServiceImpl implements PersonaService {
         List<PersonaResourceRole> results = em.createQuery(query).getResultList();
         if (results.size() == 0) {
             // this means: this persona has no direct roles on the resource, let's check the organizations it belongs to
-            List<OrganizationMembership> memberships = membershipService.getMembershipsForPersona(persona);
-            List<Organization> organizations = organizationService.getOrganizationsFromMemberships(memberships);
+            List<Organization> organizations = organizationService.getOrganizationsForPersona(persona);
 
             Set<Role> roles = new HashSet<>();
             for (Organization organization : organizations) {
+                List<OrganizationMembership> memberships =
+                        membershipService.getPersonaMembershipsForOrganization(persona, organization);
                 // here, we basically filter what are the minimum set of roles a persona has on a resource
                 // example:
                 // persona "jdoe" is "Auditor" "acme"
@@ -132,14 +142,19 @@ public class PersonaServiceImpl implements PersonaService {
                 Set<Role> organizationRolesForResource = getEffectiveRolesForResource(organization, resource);
                 Set<Role> effectiveRoles = memberships
                         .stream()
-                        // accept only memberships for the current organization
-                        .filter(m -> m.getOrganization().equals(organization))
-                        // get what are the persona's roles on the organization
-                        .map(OrganizationMembership::getRole)
-                        // accept only roles that the organization has on the resource
+                        // get what are the persona's roles (direct or implicit) on the organization
+                        .map(membership -> {
+                                    Set<Role> implicitRoles = roleService.getImplicitUserRoles(membership.getRole());
+                                    implicitRoles.add(membership.getRole());
+                                    return implicitRoles;
+                                }
+                        )
+                        // flattens the stream, so that we have a stream of roles (instead of stream of Set<Role>)
+                        .flatMap(Collection::stream)
+                                // accept only roles that the organization has on the resource
                         .filter(organizationRolesForResource::contains)
                         // the result is: roles that the persona has on the organization, restricted to only the
-                        // roles that the organization has on the resource
+                                // roles that the organization has on the resource
                         .collect(Collectors.toSet());
 
                 roles.addAll(effectiveRoles);
@@ -148,7 +163,18 @@ public class PersonaServiceImpl implements PersonaService {
         }
 
         Set<Role> roles = new HashSet<>(results.size());
+
+        // first, we add all direct roles
         roles.addAll(results.stream().map(PersonaResourceRole::getRole).collect(Collectors.toSet()));
+
+        // then, we add the implicit roles
+        roles.addAll(
+                results
+                        .stream()
+                        .map(r -> roleService.getImplicitUserRoles(r.getRole()))
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toSet())
+        );
 
         return roles;
     }
@@ -173,7 +199,17 @@ public class PersonaServiceImpl implements PersonaService {
 
     @Override
     public boolean isAllowedToImpersonate(HawkularUser actual, Persona toImpersonate) {
-        // TODO: check the permissions, to see if the user indeed has the permissions to impersonate...
-        return true;
+        if (actual.equals(toImpersonate)) {
+            return true; // user is the persona
+        }
+
+        if (toImpersonate instanceof HawkularUser) {
+            return false; // user cannot impersonate another user
+        }
+
+        // an organization is a resource
+        Resource resource = resourceService.get(toImpersonate.getId());
+        Set<Role> roles = getEffectiveRolesForResource(actual, resource);
+        return roles != null && roles.size() > 0; // at least one role is enough
     }
 }

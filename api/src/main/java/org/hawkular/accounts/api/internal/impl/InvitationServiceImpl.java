@@ -27,12 +27,14 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import org.hawkular.accounts.api.InvitationService;
+import org.hawkular.accounts.api.OrganizationMembershipService;
 import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Invitation;
 import org.hawkular.accounts.api.model.Invitation_;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
+import org.hawkular.accounts.api.model.Role;
 
 /**
  * @author Juraci Paixão Kröhling
@@ -43,6 +45,9 @@ public class InvitationServiceImpl implements InvitationService {
     @Inject
     @HawkularAccounts
     EntityManager em;
+
+    @Inject
+    OrganizationMembershipService membershipService;
 
     @Override
     public Invitation getByToken(String token) {
@@ -111,17 +116,19 @@ public class InvitationServiceImpl implements InvitationService {
     }
 
     @Override
-    public Invitation create(Invitation invitation) {
+    public Invitation create(String email, HawkularUser invitedBy, Organization organization, Role role) {
+        Invitation invitation = new Invitation(email, invitedBy, organization, role);
         em.persist(invitation);
         return invitation;
     }
 
     @Override
     public Invitation accept(Invitation invitation, HawkularUser user) {
-        OrganizationMembership membership = new OrganizationMembership(
+        OrganizationMembership membership = membershipService.create(
                 invitation.getOrganization(),
                 user,
-                invitation.getRole());
+                invitation.getRole()
+        );
 
         invitation.setAccepted();
         invitation.setAcceptedBy(user);
