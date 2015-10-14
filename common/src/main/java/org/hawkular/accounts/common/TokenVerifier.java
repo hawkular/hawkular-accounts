@@ -19,7 +19,6 @@ package org.hawkular.accounts.common;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -39,8 +38,8 @@ public class TokenVerifier {
     @Inject @RealmName
     private String realm;
 
-    @Inject @HostSynonyms
-    private Set<String> hostSynonyms;
+    @Inject
+    private AuthServerHostSynonymService hostSynonymService;
 
     @Inject
     AuthServerRequestExecutor executor;
@@ -63,7 +62,7 @@ public class TokenVerifier {
         URL backendUrl = new URL(accessToken.getIssuer());
         URL baseUrlToCall = new URL(baseUrl);
         if (!backendUrl.getHost().equalsIgnoreCase(baseUrlToCall.getHost())) {
-            if (hostSynonyms.contains(backendUrl.getHost())) {
+            if (hostSynonymService.isHostSynonym(backendUrl.getHost())) {
                 baseUrlToCall = new URL(
                         backendUrl.getProtocol(),
                         backendUrl.getHost(),
