@@ -51,6 +51,13 @@ public interface InvitationService {
     List<Invitation> getPendingInvitationsForOrganization(Organization organization);
 
     /**
+     * Retrieves all invitations for the given organization.
+     * @param organization    the organization of the invitations are queried from.
+     * @return  a List of all Invitations
+     */
+    List<Invitation> getInvitationsForOrganization(Organization organization);
+
+    /**
      * Stores an invitation with the given parameters.
      * @param email           the user that has been invited
      * @param invitedBy       the user who sent the invitation
@@ -68,4 +75,10 @@ public interface InvitationService {
      * @return              the updated invitation
      */
     Invitation accept(Invitation invitation, HawkularUser user);
+
+    /**
+     * Remove the invitation from the storage.
+     * @param invitation    the invitation to be removed
+     */
+    void remove(Invitation invitation);
 }

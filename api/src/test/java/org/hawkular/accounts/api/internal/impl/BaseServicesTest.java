@@ -87,6 +87,7 @@ public class BaseServicesTest extends BaseEntityManagerEnabledTest {
         organizationService.membershipService = membershipService;
         organizationService.resourceService = resourceService;
         organizationService.superUser = superUser;
+        organizationService.invitationService = invitationService;
 
         invitationService.em = entityManager;
         invitationService.membershipService = membershipService;

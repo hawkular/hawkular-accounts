@@ -27,6 +27,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import org.hawkular.accounts.api.InvitationService;
 import org.hawkular.accounts.api.NamedRole;
 import org.hawkular.accounts.api.OrganizationMembershipService;
 import org.hawkular.accounts.api.OrganizationService;
@@ -54,6 +55,9 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Inject
     ResourceService resourceService;
+
+    @Inject
+    InvitationService invitationService;
 
     @Inject
     @NamedRole("SuperUser")
@@ -92,6 +96,13 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     public void deleteOrganization(Organization organization) {
         Resource resource = resourceService.get(organization.getId());
+
+        invitationService.getInvitationsForOrganization(organization).stream().forEach(invitation -> {
+            if (null != invitation.getAcceptedBy()) {
+                resourceService.revokeAllForPersona(resource, invitation.getAcceptedBy());
+            }
+            em.remove(invitation);
+        });
         membershipService.getMembershipsForOrganization(organization).stream().forEach(em::remove);
         resourceService.revokeAllForPersona(resource, organization.getOwner());
         resourceService.delete(organization.getId());

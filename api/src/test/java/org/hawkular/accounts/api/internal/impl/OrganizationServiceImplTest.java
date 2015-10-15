@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.hawkular.accounts.api.model.HawkularUser;
+import org.hawkular.accounts.api.model.Invitation;
 import org.hawkular.accounts.api.model.Organization;
 import org.junit.Test;
 
@@ -88,4 +89,35 @@ public class OrganizationServiceImplTest extends BaseServicesTest {
         assertNull("Organization should have been removed", organizationService.get(organization.getId()));
     }
 
+    @Test
+    public void removeOrganizationWithPendingInvitations() {
+        entityManager.getTransaction().begin();
+        HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
+        Organization organization = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
+        invitationService.create("", jdoe, organization, administrator);
+        entityManager.getTransaction().commit();
+
+        entityManager.getTransaction().begin();
+        organizationService.deleteOrganization(organization);
+        entityManager.getTransaction().commit();
+
+        assertNull("Organization should have been removed", organizationService.get(organization.getId()));
+    }
+
+    @Test
+    public void removeOrganizationWithInvitations() {
+        entityManager.getTransaction().begin();
+        HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
+        HawkularUser jsmith = userService.getOrCreateById(UUID.randomUUID().toString());
+        Organization organization = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
+        Invitation invitation = invitationService.create("", jdoe, organization, administrator);
+        invitationService.accept(invitation, jsmith);
+        entityManager.getTransaction().commit();
+
+        entityManager.getTransaction().begin();
+        organizationService.deleteOrganization(organization);
+        entityManager.getTransaction().commit();
+
+        assertNull("Organization should have been removed", organizationService.get(organization.getId()));
+    }
 }

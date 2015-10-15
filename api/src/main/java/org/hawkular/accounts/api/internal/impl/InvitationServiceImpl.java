@@ -116,6 +116,21 @@ public class InvitationServiceImpl implements InvitationService {
     }
 
     @Override
+    public List<Invitation> getInvitationsForOrganization(Organization organization) {
+        if (null == organization) {
+            throw new IllegalArgumentException("The given Organization is invalid (null).");
+        }
+
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<Invitation> query = builder.createQuery(Invitation.class);
+        Root<Invitation> root = query.from(Invitation.class);
+        query.select(root);
+        query.where(builder.equal(root.get(Invitation_.organization), organization));
+
+        return em.createQuery(query).getResultList();
+    }
+
+    @Override
     public Invitation create(String email, HawkularUser invitedBy, Organization organization, Role role) {
         Invitation invitation = new Invitation(email, invitedBy, organization, role);
         em.persist(invitation);
@@ -136,6 +151,13 @@ public class InvitationServiceImpl implements InvitationService {
         em.persist(membership);
 
         return invitation;
+    }
+
+    @Override
+    public void remove(Invitation invitation) {
+        if (null != invitation) {
+            em.remove(invitation);
+        }
     }
 
 
