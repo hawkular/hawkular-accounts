@@ -91,9 +91,22 @@ public class ApplicationResources {
         JsonObject credentials = configurationJson.getJsonObject("credentials");
 
         realmName = configurationJson.getString("realm");
-        serverUrl = configurationJson.getString("auth-server-url-for-backend-requests");
         resourceName = configurationJson.getString("resource");
         secret = credentials.getString("secret");
+
+        if (configurationJson.containsKey("auth-server-url-for-backend-requests")) {
+            serverUrl = configurationJson.getString("auth-server-url-for-backend-requests");
+        } else {
+            String authContextPath = "/auth";
+            if (configurationJson.containsKey("auth-server-url")) {
+                authContextPath = configurationJson.getString("auth-server-url");
+            }
+
+            int portOffset = Integer.parseInt(System.getProperty("jboss.socket.binding.port-offset", "0"));
+            int defaultPort = Integer.parseInt(System.getProperty("jboss.http.port", "8080"));
+            String host = System.getProperty("jboss.bind.address", "127.0.0.1");
+            serverUrl = "http://" + host + ":" + (defaultPort+portOffset) + authContextPath;
+        }
 
         realmConfigurationParsed = true;
     }
