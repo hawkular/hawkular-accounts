@@ -139,7 +139,6 @@ public class OrganizationEndpoint {
                 request.getDescription(),
                 persona
         );
-        resourceService.create(organization.getId(), persona);
         return Response.ok().entity(organization).build();
     }
 
