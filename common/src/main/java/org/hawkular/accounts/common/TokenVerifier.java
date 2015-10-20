@@ -16,16 +16,10 @@
  */
 package org.hawkular.accounts.common;
 
-import java.io.IOException;
-import java.net.URL;
 import java.net.URLEncoder;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import org.keycloak.VerificationException;
-import org.keycloak.jose.jws.JWSInput;
-import org.keycloak.representations.AccessToken;
 
 /**
  * @author Juraci Paixão Kröhling
@@ -39,40 +33,10 @@ public class TokenVerifier {
     private String realm;
 
     @Inject
-    private AuthServerHostSynonymService hostSynonymService;
-
-    @Inject
     AuthServerRequestExecutor executor;
 
     public String verify(String token) throws Exception {
-        JWSInput jwsInput;
-        try {
-            jwsInput = new JWSInput(token);
-        } catch (Exception e) {
-            throw new VerificationException("Couldn't parse token", e);
-        }
-
-        AccessToken accessToken;
-        try {
-            accessToken = jwsInput.readJsonContent(AccessToken.class);
-        } catch (IOException e) {
-            throw new VerificationException("Couldn't parse token signature", e);
-        }
-
-        URL backendUrl = new URL(accessToken.getIssuer());
-        URL baseUrlToCall = new URL(baseUrl);
-        if (!backendUrl.getHost().equalsIgnoreCase(baseUrlToCall.getHost())) {
-            if (hostSynonymService.isHostSynonym(backendUrl.getHost())) {
-                baseUrlToCall = new URL(
-                        backendUrl.getProtocol(),
-                        backendUrl.getHost(),
-                        backendUrl.getPort(),
-                        baseUrlToCall.getPath()
-                );
-            }
-        }
-
-        String tokenUrl = baseUrlToCall.toString()
+        String tokenUrl = baseUrl
                 + "/realms/"
                 + URLEncoder.encode(realm, "UTF-8")
                 + "/protocol/openid-connect/validate";
