@@ -230,6 +230,32 @@
         <version>0.2.2.Final-SRC-revision-f4f9deaa1b7dd4c0c7b61a39bdf12fd62d31a651</version>
         <type>ear</type>
       </dependency>
+
+      <dependency>
+        <groupId>org.cassandraunit</groupId>
+        <artifactId>cassandra-unit</artifactId>
+        <version>2.2.2.0-SRC-revision-fa3000df77b3118cfbca9f2ee9d0ec06b2ceec90</version>
+        <scope>test</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.cassandra</groupId>
+            <artifactId>cassandra-all</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.hectorclient</groupId>
+            <artifactId>hector-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.datastax.cassandra</groupId>
+            <artifactId>cassandra-driver-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.datastax.cassandra</groupId>
+        <artifactId>cassandra-driver-core</artifactId>
+        <version>2.2.0-rc3</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -299,6 +325,24 @@
           <warSourceDirectory>src/main/webapp</warSourceDirectory>
           <webXml>src/main/webapp/WEB-INF/web.xml</webXml>
           <failOnMissingWebXml>${failOnMissingWebXml}</failOnMissingWebXml>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.l2x6.maven.srcdeps</groupId>
+        <artifactId>srcdeps-maven-plugin</artifactId>
+        <version>${version.srcdeps-maven-plugin}</version>
+        <extensions>true</extensions>
+        <configuration>
+          <repositories>
+            <repository>
+              <id>hawkular</id>
+              <selectors>
+                <selector>org.cassandraunit</selector>
+              </selectors>
+              <url>scm:git:https://github.com/jpkrohling/cassandra-unit.git</url>
+            </repository>
+          </repositories>
         </configuration>
       </plugin>
     </plugins>
