@@ -16,12 +16,9 @@
  */
 package org.hawkular.accounts.sample.control;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.transaction.SystemException;
-import javax.transaction.UserTransaction;
 
 import org.hawkular.accounts.api.OperationService;
 
@@ -33,9 +30,6 @@ public class SetupOperations implements ServletContextListener {
 
     @Inject
     OperationService operationService;
-
-    @Resource
-    UserTransaction tx;
 
     public void setup() {
         logger.infoStartedSetupSample();
@@ -60,18 +54,7 @@ public class SetupOperations implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
-        try {
-            tx.begin();
-            setup();
-            tx.commit();
-        } catch (Exception e) {
-            try {
-                tx.rollback();
-            } catch (SystemException e1) {
-                // couldn't rollback... but let's ignore this one, as we've got another more important exception to log
-            }
-            throw new RuntimeException(e);
-        }
+        setup();
     }
 
     @Override

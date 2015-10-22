@@ -17,6 +17,7 @@
 package org.hawkular.accounts.api.internal.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,28 +31,18 @@ import org.junit.Test;
 /**
  * @author Juraci Paixão Kröhling
  */
-public class InvitationServiceImplTest extends BaseServicesTest {
+public class InvitationServiceImplTest extends SessionEnabledTest {
     @Test
     public void inviteUserToOrganization() {
-        entityManager.getTransaction().begin();
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         HawkularUser jsmith = userService.getOrCreateById(UUID.randomUUID().toString());
 
         Organization acme = organizationService.createOrganization("", "", jdoe);
-        entityManager.getTransaction().commit();
-
-        entityManager.clear();
-        entityManager.getTransaction().begin();
         Invitation invitation = invitationService.create("email", jdoe, acme, monitor);
         invitationService.accept(invitation, jsmith);
-        entityManager.getTransaction().commit();
-
-        entityManager.clear();
-        entityManager.getTransaction().begin();
         List<OrganizationMembership> memberships = membershipService.getPersonaMembershipsForOrganization(jsmith, acme);
         assertEquals("Should have one membership", 1, memberships.size());
         assertEquals("Membership should be as Monitor", "Monitor", memberships.get(0).getRole().getName());
-        entityManager.getTransaction().commit();
     }
 
     @Test
@@ -59,10 +50,9 @@ public class InvitationServiceImplTest extends BaseServicesTest {
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         Organization acme = organizationService.createOrganization("", "", jdoe);
         Invitation invitation = invitationService.create("email", jdoe, acme, monitor);
-        String invitationId = invitation.getId();
-        //invitationService.markAsDispatched(invitation);
-        //Invitation persisted = invitationService.get(invitationId);
-        //assertNotNull("Dispatched at should have been filled", persisted.getDispatchedAt());
+        UUID invitationId = invitation.getIdAsUUID();
+        invitationService.markAsDispatched(invitation);
+        Invitation persisted = invitationService.getById(invitationId);
+        assertNotNull("Dispatched at should have been filled", persisted.getDispatchedAt());
     }
-
 }

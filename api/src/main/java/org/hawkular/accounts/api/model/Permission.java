@@ -16,8 +16,8 @@
  */
 package org.hawkular.accounts.api.model;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import java.time.ZonedDateTime;
+import java.util.UUID;
 
 /**
  * Represents the permissions for a given resource. For instance, a resource "node1" might allow the operation
@@ -25,16 +25,9 @@ import javax.persistence.ManyToOne;
  *
  * @author Juraci Paixão Kröhling
  */
-@Entity
 public class Permission extends BaseEntity {
-    @ManyToOne
     private Operation operation;
-
-    @ManyToOne
     private Role role;
-
-    protected Permission() { // JPA happy
-    }
 
     public Permission(Operation operation, Role role) {
         this.operation = operation;
@@ -47,11 +40,46 @@ public class Permission extends BaseEntity {
         this.role = role;
     }
 
+    public Permission(UUID id, ZonedDateTime createdAt, ZonedDateTime updatedAt,
+                      Operation operation, Role role) {
+        super(id, createdAt, updatedAt);
+        this.operation = operation;
+        this.role = role;
+    }
+
     public Operation getOperation() {
         return operation;
     }
 
     public Role getRole() {
         return role;
+    }
+
+    @Override
+    public String toString() {
+        return "Permission{" +
+                "operation=" + operation +
+                ", role=" + role +
+                ", base='" + super.toString() + '\'' +
+                '}';
+    }
+
+    public static class Builder extends BaseEntity.Builder {
+        private Operation operation;
+        private Role role;
+
+        public Builder operation(Operation operation) {
+            this.operation = operation;
+            return this;
+        }
+
+        public Builder role(Role role) {
+            this.role = role;
+            return this;
+        }
+
+        public Permission build() {
+            return new Permission(id, createdAt, updatedAt, operation, role);
+        }
     }
 }

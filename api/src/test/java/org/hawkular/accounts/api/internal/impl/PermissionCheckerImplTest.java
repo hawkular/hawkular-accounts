@@ -33,46 +33,41 @@ import org.junit.Test;
 /**
  * @author Juraci Paixão Kröhling
  */
-public class PermissionCheckerImplTest extends BaseServicesTest {
+public class PermissionCheckerImplTest extends SessionEnabledTest {
     @Before
     public void baseData() {
         // basis system data
-        entityManager.getTransaction().begin();
-        entityManager.persist(metricsCreate);
-        entityManager.persist(metricsRead);
-        entityManager.persist(metricsUpdate);
-        entityManager.persist(metricsDelete);
+        metricsCreate = operationService.getOrCreateByName("metric-create");
+        metricsRead = operationService.getOrCreateByName("metric-read");
+        metricsUpdate = operationService.getOrCreateByName("metric-update");
+        metricsDelete = operationService.getOrCreateByName("metric-delete");
 
-        entityManager.persist(maintainerCreateMetric);
-        entityManager.persist(administratorCreateMetric);
-        entityManager.persist(superUserCreateMetric);
-        entityManager.persist(superUserOnlyOperation);
+        superUserOnlyOperation = operationService.getOrCreateByName("superUserOnlyOperation");
 
-        entityManager.persist(monitorReadMetric);
-        entityManager.persist(operatorReadMetric);
-        entityManager.persist(maintainerReadMetric);
-        entityManager.persist(deployerReadMetric);
-        entityManager.persist(administratorReadMetric);
-        entityManager.persist(auditorReadMetric);
-        entityManager.persist(superUserReadMetric);
-        entityManager.persist(superUserOnlyPermission);
+        maintainerCreateMetric = permissionService.create(metricsCreate, maintainer);
+        administratorCreateMetric = permissionService.create(metricsCreate, administrator);
+        superUserCreateMetric = permissionService.create(metricsCreate, superUser);
+        superUserOnlyPermission = permissionService.create(superUserOnlyOperation, superUser);
 
-        entityManager.getTransaction().commit();
+        monitorReadMetric = permissionService.create(metricsCreate, superUser);
+        operatorReadMetric = permissionService.create(metricsCreate, superUser);
+        maintainerReadMetric = permissionService.create(metricsCreate, superUser);
+        deployerReadMetric = permissionService.create(metricsCreate, superUser);
+        administratorReadMetric = permissionService.create(metricsCreate, superUser);
+        auditorReadMetric = permissionService.create(metricsCreate, superUser);
+        superUserReadMetric = permissionService.create(metricsCreate, superUser);
     }
 
     @Test
     public void userHasDirectPermissionsOnResource() {
-        entityManager.getTransaction().begin();
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         Resource resource = resourceService.create(UUID.randomUUID().toString(), jdoe);
-        entityManager.getTransaction().commit();
 
         permissionChecker.isAllowedTo(metricsCreate, resource, jdoe);
     }
 
     @Test
     public void userBelongsToOrganizationThatHasPermissionsOnResource() {
-        entityManager.getTransaction().begin();
         // persona jdoe registers himself
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
 
@@ -89,45 +84,36 @@ public class PermissionCheckerImplTest extends BaseServicesTest {
         // jdoe creates a resource as acme, acme has all rights on this resource, including SuperUser and Administrator
         Resource resource = resourceService.create(UUID.randomUUID().toString(), acme);
 
-        entityManager.getTransaction().commit();
-
         // persona jsmith should be able to create metrics on the given resource, since he's an administrator on acme
         assertTrue(permissionChecker.isAllowedTo(metricsCreate, resource, jsmith));
     }
 
     @Test
     public void resourceCreatedViaServiceHasOwnerWhoIsAlsoSuperUser() {
-        entityManager.getTransaction().begin();
         // persona jdoe registers himself
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
-        entityManager.getTransaction().commit();
 
         // jdoe creates a resource as acme, acme is has all rights on this resource, including SuperUser and
         // Administrator
-        entityManager.getTransaction().begin();
         String id = UUID.randomUUID().toString();
         Resource resource = resourceService.create(id, jdoe);
-        entityManager.getTransaction().commit();
 
         assertTrue("Owner is super persona.", permissionChecker.isAllowedTo(superUserOnlyOperation, resource, jdoe));
     }
 
     @Test
     public void directlyCreatedResourceHasOwnerWithFullPermission() {
-        entityManager.getTransaction().begin();
         // persona jdoe registers himself
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         Resource resource = resourceService.create(UUID.randomUUID().toString(), jdoe);
-        entityManager.getTransaction().commit();
 
-        Operation operation = new Operation("doesnt-matter");
+        Operation operation = operationService.create("doesnt-matter");
 
         assertTrue("Owner is always allowed.", permissionChecker.isAllowedTo(operation, resource, jdoe));
     }
 
     @Test
     public void userBelongsToOrganizationThatHasPermissionsOnResourceButHasInsufficientRoles() {
-        entityManager.getTransaction().begin();
         // persona jdoe registers himself
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
 
@@ -145,42 +131,36 @@ public class PermissionCheckerImplTest extends BaseServicesTest {
         // Administrator
         Resource resource = resourceService.create(UUID.randomUUID().toString(), acme);
 
-        entityManager.persist(resource);
-        entityManager.getTransaction().commit();
-
         // persona jsmith should not be able to create metrics on the given resource, since he's only a monitor on acme
         assertFalse(permissionChecker.isAllowedTo(metricsCreate, resource, jsmith));
     }
 
     @Test
     public void userIsOwnerOfSubResource() {
-        entityManager.getTransaction().begin();
         // persona jdoe registers himself
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         Resource resourceT = resourceService.create(UUID.randomUUID().toString(), jdoe);
         Resource resourceE = resourceService.create(UUID.randomUUID().toString(), resourceT);
-        entityManager.getTransaction().commit();
 
         assertTrue(permissionChecker.isAllowedTo(metricsCreate, resourceE, jdoe));
     }
 
+    Operation metricsCreate;
+    Operation metricsRead;
+    Operation metricsUpdate;
+    Operation metricsDelete;
+    Operation superUserOnlyOperation;
 
-    Operation metricsCreate = new Operation("metric-create");
-    Operation metricsRead = new Operation("metric-read");
-    Operation metricsUpdate = new Operation("metric-update");
-    Operation metricsDelete = new Operation("metric-delete");
-    Operation superUserOnlyOperation = new Operation("superUserOnlyOperation");
+    Permission maintainerCreateMetric;
+    Permission administratorCreateMetric;
+    Permission superUserCreateMetric;
+    Permission superUserOnlyPermission;
 
-    Permission maintainerCreateMetric = new Permission(metricsCreate, maintainer);
-    Permission administratorCreateMetric = new Permission(metricsCreate, administrator);
-    Permission superUserCreateMetric = new Permission(metricsCreate, superUser);
-    Permission superUserOnlyPermission = new Permission(superUserOnlyOperation, superUser);
-
-    Permission monitorReadMetric = new Permission(metricsCreate, superUser);
-    Permission operatorReadMetric = new Permission(metricsCreate, superUser);
-    Permission maintainerReadMetric = new Permission(metricsCreate, superUser);
-    Permission deployerReadMetric = new Permission(metricsCreate, superUser);
-    Permission administratorReadMetric = new Permission(metricsCreate, superUser);
-    Permission auditorReadMetric = new Permission(metricsCreate, superUser);
-    Permission superUserReadMetric = new Permission(metricsCreate, superUser);
+    Permission monitorReadMetric;
+    Permission operatorReadMetric;
+    Permission maintainerReadMetric;
+    Permission deployerReadMetric;
+    Permission administratorReadMetric;
+    Permission auditorReadMetric;
+    Permission superUserReadMetric;
 }

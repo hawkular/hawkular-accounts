@@ -17,6 +17,7 @@
 package org.hawkular.accounts.api;
 
 import java.util.Set;
+import java.util.UUID;
 
 import javax.enterprise.inject.spi.InjectionPoint;
 
@@ -36,6 +37,21 @@ import org.hawkular.accounts.api.model.Role;
 public interface RoleService {
 
     /**
+     * Creates a new Role based on the given name and description.
+     * @param name           the role's name. Must be unique and non-null
+     * @param description    free text, can be null
+     * @return the new Role
+     */
+    Role create(String name, String description);
+
+    /**
+     * Retrieves the persistent Role based on its ID.
+     * @param id    the role ID
+     * @return the role for the given ID
+     */
+    Role getById(UUID id);
+
+    /**
      * Retrieves the persistent Role based on its fixed name. For instance, requesting the role with name "SuperUser"
      * would return the Role object representing the role with this name. Valid values:
      * <ul>
@@ -49,7 +65,7 @@ public interface RoleService {
      * </ul>
      *
      * @param name    the common name for the role.
-     * @return
+     * @return the role for the given name
      */
     Role getByName(String name);
 
@@ -111,4 +127,13 @@ public interface RoleService {
      * @return the role for the name on the annotation
      */
     Role produceRoleByName(InjectionPoint injectionPoint);
+
+    /**
+     * Retrieves a Role based on the given name. If none exists, creates a new role based on the given name and
+     * description.
+     * @param name           the name to use in the lookup of the Role
+     * @param description    a description to use, in case the role doesn't exist yet
+     * @return a newly created role if there's no role with the given name, or the existing role.
+     */
+    Role getOrCreateByName(String name, String description);
 }

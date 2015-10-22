@@ -16,10 +16,8 @@
  */
 package org.hawkular.accounts.api.model;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
-
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
 
 /**
  * Represents an non-user model that can own resources. It has itself an owner and may contain zero or more members.
@@ -28,18 +26,10 @@ import javax.persistence.ManyToOne;
  *
  * @author Juraci Paixão Kröhling
  */
-@Entity
 public class Organization extends Persona {
-
-    @ManyToOne
     private Persona owner;
-
     private String name;
     private String description;
-
-    protected Organization() { // jpa happy
-        super();
-    }
 
     public Organization(String id, Persona owner) {
         super(id);
@@ -49,6 +39,14 @@ public class Organization extends Persona {
     public Organization(Persona owner) {
         super(UUID.randomUUID().toString());
         this.owner = owner;
+    }
+
+    public Organization(UUID id, ZonedDateTime createdAt, ZonedDateTime updatedAt,
+                        Persona owner, String name, String description) {
+        super(id, createdAt, updatedAt);
+        this.owner = owner;
+        this.name = name;
+        this.description = description;
     }
 
     public Persona getOwner() {
@@ -74,5 +72,30 @@ public class Organization extends Persona {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public static class Builder extends BaseEntity.Builder {
+        private Persona owner;
+        private String name;
+        private String description;
+
+        public Builder owner(Persona owner) {
+            this.owner = owner;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Organization build() {
+            return new Organization(id, createdAt, updatedAt, owner, name, description);
+        }
     }
 }

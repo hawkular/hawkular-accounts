@@ -16,31 +16,32 @@
  */
 package org.hawkular.accounts.api.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import java.util.UUID;
 
 /**
  * Represents a Role in the system. Roles can be, for instance, "SuperUser", "Monitor", "Auditor" and so on.
  *
  * @author Juraci Paixão Kröhling
  */
-@Entity
 public class Role extends BaseEntity {
-
-    @Column(unique = true)
     private String name;
     private String description;
 
-    protected Role() { // JPA happy
-    }
-
     public Role(String name, String description) {
-        this.name = name;
-        this.description = description;
+        this(UUID.randomUUID(), name, description);
     }
 
     public Role(String id, String name, String description) {
+        this(UUID.fromString(id), name, description);
+    }
+
+    public Role(UUID id, String name, String description) {
         super(id);
+
+        if (null == name) {
+            throw new IllegalStateException("A role name is required to build a role.");
+        }
+
         this.name = name;
         this.description = description;
     }
@@ -51,5 +52,36 @@ public class Role extends BaseEntity {
 
     public String getDescription() {
         return description;
+    }
+
+    @Override
+    public String toString() {
+        return "Role{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", base='" + super.toString() + '\'' +
+                '}';
+    }
+
+    public static class Builder extends BaseEntity.Builder {
+        private String name;
+        private String description;
+
+        public Builder() {
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Role build() {
+            return new Role(this.id, this.name, this.description);
+        }
     }
 }

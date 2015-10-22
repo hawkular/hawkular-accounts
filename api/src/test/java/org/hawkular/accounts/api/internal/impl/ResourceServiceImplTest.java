@@ -31,123 +31,83 @@ import org.junit.Test;
 /**
  * @author Juraci Paixão Kröhling
  */
-public class ResourceServiceImplTest extends BaseServicesTest {
+public class ResourceServiceImplTest extends SessionEnabledTest {
     @Test
     public void nonExistingResourceIsCreatedWithOwner() {
-        entityManager.getTransaction().begin();
         HawkularUser user = userService.getOrCreateById(UUID.randomUUID().toString());
         Resource resource = resourceService.create(UUID.randomUUID().toString(), user);
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         assertNotNull(resourceService.get(resource.getId()));
-        entityManager.getTransaction().commit();
     }
 
     @Test
     public void nonExistingResourceIsCreatedWithParentAndOwner() {
-        entityManager.getTransaction().begin();
         HawkularUser user = userService.getOrCreateById(UUID.randomUUID().toString());
         HawkularUser user2 = userService.getOrCreateById(UUID.randomUUID().toString());
         Resource parent = resourceService.create(UUID.randomUUID().toString(), user);
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         Resource resource = resourceService.create(UUID.randomUUID().toString(), parent, user2);
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         Resource fromDatabase = resourceService.get(resource.getId());
         assertNotNull(fromDatabase.getPersona());
         assertNotNull(fromDatabase.getParent());
-        entityManager.getTransaction().commit();
     }
 
     @Test
     public void nonExistingResourceIsCreatedWithParent() {
-        entityManager.getTransaction().begin();
         HawkularUser user = userService.getOrCreateById(UUID.randomUUID().toString());
         Resource parent = resourceService.create(UUID.randomUUID().toString(), user);
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         Resource resource = resourceService.create(UUID.randomUUID().toString(), parent);
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         Resource fromDatabase = resourceService.get(resource.getId());
         assertNull(fromDatabase.getPersona());
         assertNotNull(fromDatabase.getParent());
-        entityManager.getTransaction().commit();
     }
 
     @Test
     public void resourceWithNullAsIdGetsNewId() {
-        entityManager.getTransaction().begin();
         HawkularUser user = userService.getOrCreateById(UUID.randomUUID().toString());
         Resource resource = resourceService.create(null, user);
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         assertNotNull(resourceService.get(resource.getId()));
-        entityManager.getTransaction().commit();
     }
 
     @Test
     public void revokeAll() {
-        entityManager.getTransaction().begin();
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         HawkularUser jsmith = userService.getOrCreateById(UUID.randomUUID().toString());
         Resource resource = resourceService.create(UUID.randomUUID().toString(), jdoe);
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         resourceService.addRoleToPersona(resource, jsmith, superUser);
         resourceService.addRoleToPersona(resource, jsmith, maintainer);
         resourceService.addRoleToPersona(resource, jsmith, administrator);
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         assertEquals("jsmith should have three roles", 3, resourceService.getRolesForPersona(resource, jsmith).size());
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         resourceService.revokeAllForPersona(resource, jsmith);
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         assertEquals("jsmith should have no roles", 0, resourceService.getRolesForPersona(resource, jsmith).size());
-        entityManager.getTransaction().commit();
     }
 
     @Test
     public void transferResource() {
-        entityManager.getTransaction().begin();
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         HawkularUser jsmith = userService.getOrCreateById(UUID.randomUUID().toString());
         Resource resource = resourceService.create(UUID.randomUUID().toString(), jdoe);
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         resourceService.addRoleToPersona(resource, jsmith, superUser);
         resourceService.addRoleToPersona(resource, jsmith, maintainer);
         resourceService.addRoleToPersona(resource, jsmith, administrator);
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         assertEquals("jsmith should have three roles", 3, resourceService.getRolesForPersona(resource, jsmith).size());
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         resourceService.transfer(resource, jsmith);
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         List<PersonaResourceRole> personaResourceRoles = resourceService.getRolesForPersona(resource, jsmith);
         assertEquals("jsmith should be super user", 1, personaResourceRoles.size());
         assertEquals("jsmith should be super user", "SuperUser", personaResourceRoles.get(0).getRole().getName());
         assertEquals("jsmith should be the owner", jsmith, personaResourceRoles.get(0).getPersona());
-        entityManager.getTransaction().commit();
     }
 
 }

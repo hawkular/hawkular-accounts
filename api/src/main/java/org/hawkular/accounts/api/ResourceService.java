@@ -17,6 +17,7 @@
 package org.hawkular.accounts.api;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.PersonaResourceRole;
@@ -38,13 +39,27 @@ import org.hawkular.accounts.api.model.Role;
  */
 public interface ResourceService {
     /**
+     * Retrieves a {@link Resource} based on its ID. If the ID is not "UUID-like", then a new UUID is created based
+     * on the bytes of the given ID. By "UUID-like", we mean a string that matches a regular expression for the
+     * appearance of an UUID such as 'eb66fa08-7cbf-11e5-8cdd-3c970e9648d7'.
+     *
+     * @param id the resource's ID
+     * @return the existing {@link Resource} or null if the resource doesn't exists.
+     * @throws IllegalArgumentException if the given ID is null
+     * @deprecated Use {@link #getById(UUID)}
+     * @see UUID#nameUUIDFromBytes(byte[])
+     */
+    @Deprecated
+    Resource get(String id);
+
+    /**
      * Retrieves a {@link Resource} based on its ID.
      *
      * @param id the resource's ID
      * @return the existing {@link Resource} or null if the resource doesn't exists.
      * @throws IllegalArgumentException if the given ID is null
      */
-    Resource get(String id);
+    Resource getById(UUID id);
 
     /**
      * Creates a {@link Resource} based on its ID, owned by the specified {@link Persona}
@@ -127,6 +142,8 @@ public interface ResourceService {
      * @param resource    the resource to check
      * @param persona     the persona to check
      * @return            a list of {@link PersonaResourceRole}, with one entry per combination.
+     * @deprecated Use {@link PersonaResourceRoleService#getByPersonaAndResource(Persona, Resource)} instead
      */
+    @Deprecated
     List<PersonaResourceRole> getRolesForPersona(Resource resource, Persona persona);
 }

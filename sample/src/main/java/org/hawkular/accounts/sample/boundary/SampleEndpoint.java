@@ -16,15 +16,13 @@
  */
 package org.hawkular.accounts.sample.boundary;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -43,7 +41,11 @@ import org.hawkular.accounts.api.model.Resource;
 import org.hawkular.accounts.sample.control.HawkularAccountsSample;
 import org.hawkular.accounts.sample.entity.Sample;
 import org.hawkular.accounts.sample.entity.SampleRequest;
-import org.hawkular.accounts.sample.entity.Sample_;
+
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
 
 /**
  * REST endpoint that exemplifies how to get instances of Hawkular Accounts services and how to consume them.
@@ -54,9 +56,6 @@ import org.hawkular.accounts.sample.entity.Sample_;
 @PermitAll // we bypass JAAS' protections, as we want to perform the checks inside the methods
 @Stateless
 public class SampleEndpoint {
-
-    @Inject @HawkularAccountsSample
-    EntityManager em;
 
     @Inject
     Persona currentPersona;
@@ -100,27 +99,29 @@ public class SampleEndpoint {
     @Inject
     UserSettingsService userSettingsService;
 
+    @Inject @HawkularAccountsSample
+    Session session;
+
     @GET
     public Response getAllSamples() {
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<Sample> query = builder.createQuery(Sample.class);
-        Root<Sample> root = query.from(Sample.class);
-        query.select(root);
-        query.where(builder.equal(root.get(Sample_.ownerId), currentPersona.getId()));
+        List<Row> rows = session.execute("select * from hawkular_accounts.samples").all();
+        List<Sample> asSamples = rows.stream().map(this::rowToSample).collect(Collectors.toList());
 
         // let's save a preference as well
         userSettingsService.store("hawkular.accounts.sample.getAllSamples", "WithAllParameters");
 
-        return Response.ok().entity(em.createQuery(query).getResultList()).build();
+        return Response.ok().entity(asSamples).build();
     }
 
     @GET
     @Path("{sampleId}")
     public Response getSample(@PathParam("sampleId") String sampleId) {
-        Sample sample = em.find(Sample.class, sampleId);
+        PreparedStatement pstmt = session.prepare("select * from hawkular_accounts.samples where id = :id");
+        Row row = session.execute(pstmt.bind(UUID.fromString(sampleId))).one();
+        Sample sample = rowToSample(row);
 
         // before returning, we check if the current persona has permissions to access this.
-        if (permissionChecker.isAllowedTo(operationRead, sample.getId())) {
+        if (permissionChecker.isAllowedTo(operationRead, sample.getId().toString())) {
             return Response.ok().entity(sample).build();
         }
 
@@ -130,27 +131,42 @@ public class SampleEndpoint {
 
     @POST
     public Response createSample(SampleRequest request) {
+        PreparedStatement pstmt = session.prepare("insert into hawkular_accounts.samples" +
+                "(id, name, ownerId) " +
+                "values" +
+                "(:id, :name, :ownerId)");
+
         // for this example, we allow everybody to create a sample, but there might be situations where an user can
         // only create resources if they are allowed access to some other resource.
-        Sample sample = new Sample(UUID.randomUUID().toString(), currentPersona.getId());
-        resourceService.create(sample.getId(), currentPersona);
+        Sample sample = new Sample(UUID.randomUUID(), currentPersona.getIdAsUUID());
+        resourceService.create(sample.getId().toString(), currentPersona);
         sample.setName(request.getName());
 
-        em.persist(sample);
+        BoundStatement bstmt = new BoundStatement(pstmt);
+        bstmt.setUUID("id", sample.getId());
+        bstmt.setString("name", sample.getName());
+        bstmt.setUUID("ownerId", sample.getOwnerId());
+        session.execute(bstmt);
         return Response.ok().entity(sample).build();
     }
 
     @DELETE
     @Path("{sampleId}")
     public Response removeSample(@PathParam("sampleId") String sampleId) {
-        Sample sample = em.find(Sample.class, sampleId);
         Resource resource = resourceService.get(sampleId);
 
         // check if the current user can perform this operation
         if (permissionChecker.isAllowedTo(operationDelete, resource)) {
-            em.remove(sample);
+            PreparedStatement deleteStmt = session.prepare("remove from hawkular_accounts.samples where id = :id");
+            session.execute(deleteStmt.bind(UUID.fromString(sampleId)));
             return Response.noContent().build();
         }
         return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    public Sample rowToSample(Row row) {
+        Sample sample = new Sample(row.getUUID("id"), row.getUUID("ownerId"));
+        sample.setName(row.getString("name"));
+        return sample;
     }
 }

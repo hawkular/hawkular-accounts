@@ -32,7 +32,7 @@ public interface MsgLogger {
     MsgLogger LOGGER = Logger.getMessageLogger(MsgLogger.class, MsgLogger.class.getPackage().getName());
 
     @LogMessage(level = Logger.Level.FATAL)
-    @Message(id = 160000, value = "Failed to initialize Cassandra's schema. Reason")
+    @Message(id = 160000, value = "Failed to initialize Cassandra's schema for Secret Store. Reason")
     void failedToInitializeSchema(@Cause Throwable t);
 
 }

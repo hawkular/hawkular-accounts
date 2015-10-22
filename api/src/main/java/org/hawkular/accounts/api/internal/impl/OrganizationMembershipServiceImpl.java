@@ -17,124 +17,150 @@
 package org.hawkular.accounts.api.internal.impl;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 import org.hawkular.accounts.api.OrganizationMembershipService;
+import org.hawkular.accounts.api.OrganizationService;
 import org.hawkular.accounts.api.PersonaService;
 import org.hawkular.accounts.api.ResourceService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.RoleService;
+import org.hawkular.accounts.api.internal.BoundStatements;
+import org.hawkular.accounts.api.internal.NamedStatement;
+import org.hawkular.accounts.api.model.Member;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
-import org.hawkular.accounts.api.model.OrganizationMembership_;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
 import org.hawkular.accounts.api.model.Role;
+
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.Row;
 
 /**
  * @author Juraci Paixão Kröhling
  */
 @Stateless
 @PermitAll
-public class OrganizationMembershipServiceImpl implements OrganizationMembershipService {
-    @Inject
-    @HawkularAccounts
-    EntityManager em;
-
+public class OrganizationMembershipServiceImpl
+        extends BaseServiceImpl<OrganizationMembership>
+        implements OrganizationMembershipService {
     @Inject
     ResourceService resourceService;
 
     @Inject
     PersonaService personaService;
 
+    @Inject
+    OrganizationService organizationService;
+
+    @Inject
+    RoleService roleService;
+
+    @Inject @NamedStatement(BoundStatements.MEMBERSHIP_GET_BY_ID)
+    BoundStatement getById;
+
+    @Inject @NamedStatement(BoundStatements.MEMBERSHIP_GET_BY_ORGANIZATION)
+    BoundStatement getByOrganization;
+
+    @Inject @NamedStatement(BoundStatements.MEMBERSHIP_GET_BY_PERSONA)
+    BoundStatement getByPersona;
+
+    @Inject @NamedStatement(BoundStatements.MEMBERSHIP_REMOVE)
+    BoundStatement removeStatement;
+
+    @Inject @NamedStatement(BoundStatements.MEMBERSHIP_CREATE)
+    BoundStatement createStatement;
+
+    @Inject @NamedStatement(BoundStatements.MEMBERSHIP_CHANGE_ROLE)
+    BoundStatement changeRoleStatement;
+
     @Override
     public OrganizationMembership create(Organization organization, Persona persona, Role role) {
         OrganizationMembership membership = new OrganizationMembership(organization, persona, role);
-        em.persist(membership);
+
+        bindBasicParameters(membership, createStatement);
+        createStatement.setUUID("member", membership.getMember().getIdAsUUID());
+        createStatement.setUUID("organization", membership.getOrganization().getIdAsUUID());
+        createStatement.setUUID("role", membership.getRole().getIdAsUUID());
+        session.execute(createStatement);
 
         // for permission checking
-        Resource resource = resourceService.get(organization.getId());
+        Resource resource = resourceService.getById(organization.getIdAsUUID());
         resourceService.addRoleToPersona(resource, persona, role);
         return membership;
     }
 
     @Override
     public List<OrganizationMembership> getMembershipsForPersona(Persona persona) {
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<OrganizationMembership> query = builder.createQuery(OrganizationMembership.class);
-        Root<OrganizationMembership> root = query.from(OrganizationMembership.class);
-        query.select(root);
-        query.where(builder.equal(root.get(OrganizationMembership_.member), persona));
-
-        return em.createQuery(query).getResultList();
+        return getList(getByPersona.setUUID("member", persona.getIdAsUUID()));
     }
 
     @Override
     public List<OrganizationMembership> getMembershipsForOrganization(Organization organization) {
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<OrganizationMembership> query = builder.createQuery(OrganizationMembership.class);
-        Root<OrganizationMembership> root = query.from(OrganizationMembership.class);
-        query.select(root);
-        query.where(builder.equal(root.get(OrganizationMembership_.organization), organization));
-
-        return em.createQuery(query).getResultList();
+        return getList(getByOrganization.setUUID("organization", organization.getIdAsUUID()));
     }
 
-    @Override public List<OrganizationMembership> getPersonaMembershipsForOrganization(Persona persona,
+    @Override
+    public List<OrganizationMembership> getPersonaMembershipsForOrganization(Persona persona,
                                                                                        Organization organization) {
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<OrganizationMembership> query = builder.createQuery(OrganizationMembership.class);
-        Root<OrganizationMembership> root = query.from(OrganizationMembership.class);
-        query.select(root);
-        query.where(
-                builder.equal(root.get(OrganizationMembership_.organization), organization),
-                builder.equal(root.get(OrganizationMembership_.member), persona)
-        );
-
-        return em.createQuery(query).getResultList();
+        return getMembershipsForPersona(persona)
+                .stream()
+                .filter(m -> m.getOrganization().equals(organization))
+                .collect(Collectors.toList());
     }
 
-    @Override public OrganizationMembership getMembershipById(String id) {
+    @Override
+    public OrganizationMembership getMembershipById(String id) {
+        return getById(UUID.fromString(id));
+    }
+
+    @Override
+    public OrganizationMembership getById(UUID id) {
         if (null == id) {
             throw new IllegalArgumentException("The given membership ID is invalid (null).");
         }
 
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<OrganizationMembership> query = builder.createQuery(OrganizationMembership.class);
-        Root<OrganizationMembership> root = query.from(OrganizationMembership.class);
-        query.select(root);
-        query.where(builder.equal(root.get(OrganizationMembership_.id), id));
-
-        List<OrganizationMembership> results = em.createQuery(query).getResultList();
-        if (results.size() == 1) {
-            return results.get(0);
-        }
-
-        if (results.size() > 1) {
-            throw new IllegalStateException("More than one membership found for ID " + id);
-        }
-
-        return null;
+        return getById(id, getById);
     }
 
     @Override
     public OrganizationMembership changeRole(OrganizationMembership membership, Role role) {
         membership.setRole(role);
-        em.persist(membership);
+        changeRoleStatement.setUUID("role", membership.getRole().getIdAsUUID());
+        update(membership, changeRoleStatement);
 
         // the code above was for "organization" data. the code below is for RBAC.
         // for now, we allow only one role for each organization, so, revoke all current roles and add the given role
-        Persona persona = personaService.get(membership.getMember().getId());
-        Resource resource = resourceService.get(membership.getOrganization().getId());
+        Persona persona = personaService.getById(membership.getMember().getIdAsUUID());
+        Resource resource = resourceService.getById(membership.getOrganization().getIdAsUUID());
         resourceService.revokeAllForPersona(resource, persona);
         resourceService.addRoleToPersona(resource, persona, role);
 
         return membership;
+    }
+
+    @Override
+    public void remove(OrganizationMembership organizationMembership) {
+        remove(organizationMembership.getIdAsUUID());
+    }
+
+    @Override
+    public void remove(UUID id) {
+        session.execute(removeStatement.setUUID("id", id));
+    }
+
+    @Override
+    OrganizationMembership getFromRow(Row row) {
+        Organization organization = organizationService.getById(row.getUUID("organization"));
+        Member member = personaService.getById(row.getUUID("member"));
+        Role role = roleService.getById(row.getUUID("role"));
+        OrganizationMembership.Builder builder = new OrganizationMembership.Builder();
+        mapBaseFields(row, builder);
+        return builder.organization(organization).member(member).role(role).build();
     }
 }

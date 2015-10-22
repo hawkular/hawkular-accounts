@@ -17,6 +17,7 @@
 package org.hawkular.accounts.api;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
@@ -71,8 +72,17 @@ public interface OrganizationMembershipService {
      * Retrieves an {@link OrganizationMembership} by its ID.
      * @param id    the ID of the organization membership
      * @return  the membership, or null if it's not found.
+     * @deprecated Use {@link #getById(UUID)} instead
      */
+    @Deprecated
     OrganizationMembership getMembershipById(String id);
+
+    /**
+     * Retrieves an {@link OrganizationMembership} by its ID.
+     * @param id    the ID of the organization membership
+     * @return  the membership, or null if it's not found.
+     */
+    OrganizationMembership getById(UUID id);
 
     /**
      * Changes the membership and all related data so that the member only has the given role.
@@ -82,4 +92,16 @@ public interface OrganizationMembershipService {
      * @return  an updated membership, which might or not be the same as the original membership.
      */
     OrganizationMembership changeRole(OrganizationMembership membership, Role role);
+
+    /**
+     * Removes the membership from the storage.
+     * @param organizationMembership    the membership to remove.
+     */
+    void remove(OrganizationMembership organizationMembership);
+
+    /**
+     * Removes the membership from the storage based on its ID
+     * @param id    the membership's ID
+     */
+    void remove(UUID id);
 }

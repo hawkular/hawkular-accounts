@@ -16,11 +16,39 @@
  */
 package org.hawkular.accounts.secretstore.api.internal;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+import javax.enterprise.inject.spi.InjectionPoint;
+import javax.inject.Inject;
+
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.Session;
 
 /**
  * @author Juraci Paixão Kröhling
  */
 @ApplicationScoped
 public class ApplicationResources {
+    private Map<BoundStatements, BoundStatement> statements = new HashMap<>(BoundStatements.values().length);
+
+    @Inject
+    Session session;
+
+    @PostConstruct
+    public void buildStatements() {
+        for (BoundStatements statement : BoundStatements.values()) {
+            statements.put(statement, new BoundStatement(session.prepare(statement.getValue())));
+        }
+    }
+
+    @Produces @NamedStatement
+    public BoundStatement produceStatementByName(InjectionPoint injectionPoint) {
+        NamedStatement annotation = injectionPoint.getAnnotated().getAnnotation(NamedStatement.class);
+        BoundStatements stmtName = annotation.value();
+        return statements.get(stmtName);
+    }
 }

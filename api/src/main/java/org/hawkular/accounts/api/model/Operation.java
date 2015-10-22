@@ -16,22 +16,16 @@
  */
 package org.hawkular.accounts.api.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import java.time.ZonedDateTime;
+import java.util.UUID;
 
 /**
  * Represents an operation, that can be for instance "metric-create".
  *
  * @author Juraci Paixão Kröhling
  */
-@Entity
 public class Operation extends BaseEntity {
-
-    @Column(unique = true)
     private String name;
-
-    protected Operation() { // JPA happy
-    }
 
     public Operation(String name) {
         this.name = name;
@@ -42,7 +36,34 @@ public class Operation extends BaseEntity {
         this.name = name;
     }
 
+    public Operation(UUID id, ZonedDateTime createdAt, ZonedDateTime updatedAt,
+                     String name) {
+        super(id, createdAt, updatedAt);
+        this.name = name;
+    }
+
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String toString() {
+        return "Operation{" +
+                "name='" + name + '\'' +
+                ", base='" + super.toString() + '\'' +
+                '}';
+    }
+
+    public static class Builder extends BaseEntity.Builder {
+        private String name;
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Operation build() {
+            return new Operation(id, createdAt, updatedAt, name);
+        }
     }
 }

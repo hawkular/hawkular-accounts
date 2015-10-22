@@ -16,9 +16,8 @@
  */
 package org.hawkular.accounts.api.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
+import java.time.ZonedDateTime;
+import java.util.UUID;
 
 /**
  * Represents a persona that is able to login into the main application. Users might impersonate Organizations, so
@@ -26,15 +25,18 @@ import javax.persistence.InheritanceType;
  *
  * @author Juraci Paixão Kröhling
  */
-@Entity
-@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Persona extends Member {
-    protected Persona() { // JPA happy
-    }
-
     public Persona(String id) {
         super(id);
     }
 
+    public Persona(UUID id) {
+        super(id);
+    }
+
     public abstract String getName();
+
+    public Persona(UUID id, ZonedDateTime createdAt, ZonedDateTime updatedAt) {
+        super(id, createdAt, updatedAt);
+    }
 }

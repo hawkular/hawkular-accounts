@@ -16,8 +16,8 @@
  */
 package org.hawkular.accounts.api.model;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import java.time.ZonedDateTime;
+import java.util.UUID;
 
 /**
  * Stores the role for a given user on a specific Resource. For instance, user jdoe is "SuperUser" on resource "node1"
@@ -28,19 +28,10 @@ import javax.persistence.ManyToOne;
  *
  * @author Juraci Paixão Kröhling
  */
-@Entity
 public class PersonaResourceRole extends BaseEntity {
-    @ManyToOne
     private Persona persona;
-
-    @ManyToOne
     private Role role;
-
-    @ManyToOne
     private Resource resource;
-
-    protected PersonaResourceRole() { // JPA happy
-    }
 
     public PersonaResourceRole(Persona persona, Role role, Resource resource) {
         this.persona = persona;
@@ -50,6 +41,14 @@ public class PersonaResourceRole extends BaseEntity {
 
     public PersonaResourceRole(String id, Persona persona, Role role, Resource resource) {
         super(id);
+        this.persona = persona;
+        this.role = role;
+        this.resource = resource;
+    }
+
+    public PersonaResourceRole(UUID id, ZonedDateTime createdAt, ZonedDateTime updatedAt,
+                               Persona persona, Role role, Resource resource) {
+        super(id, createdAt, updatedAt);
         this.persona = persona;
         this.role = role;
         this.resource = resource;
@@ -65,5 +64,30 @@ public class PersonaResourceRole extends BaseEntity {
 
     public Resource getResource() {
         return resource;
+    }
+
+    public static class Builder extends BaseEntity.Builder {
+        private Persona persona;
+        private Role role;
+        private Resource resource;
+
+        public Builder persona(Persona persona) {
+            this.persona = persona;
+            return this;
+        }
+
+        public Builder role(Role role) {
+            this.role = role;
+            return this;
+        }
+
+        public Builder resource(Resource resource) {
+            this.resource = resource;
+            return this;
+        }
+
+        public PersonaResourceRole build() {
+            return new PersonaResourceRole(id, createdAt, updatedAt, persona, role, resource);
+        }
     }
 }

@@ -27,7 +27,7 @@ import org.junit.Test;
 /**
  * @author Juraci Paixão Kröhling
  */
-public class RoleServiceImplTest extends BaseServicesTest {
+public class RoleServiceImplTest extends SessionEnabledTest {
     @Test
     public void implicitUserRolesForSuperUser() {
         Set<Role> implicitRoles = roleService.getImplicitUserRoles(superUser);

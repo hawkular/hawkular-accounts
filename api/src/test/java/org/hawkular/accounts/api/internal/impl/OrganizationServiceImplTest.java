@@ -30,12 +30,10 @@ import org.junit.Test;
 /**
  * @author Juraci Paixão Kröhling
  */
-public class OrganizationServiceImplTest extends BaseServicesTest {
+public class OrganizationServiceImplTest extends SessionEnabledTest {
     @Test
     public void listOrganizationsForUserNotBelongingToAnyOrganization() {
-        entityManager.getTransaction().begin();
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
-        entityManager.getTransaction().commit();
 
         List<Organization> organizations = organizationService.getOrganizationsForPersona(jdoe);
         assertEquals("The persona should not belong to any organizations", 0, organizations.size());
@@ -43,10 +41,8 @@ public class OrganizationServiceImplTest extends BaseServicesTest {
 
     @Test
     public void listOrganizationsForUserBelongingToOrganization() {
-        entityManager.getTransaction().begin();
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         Organization acme = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
-        entityManager.getTransaction().commit();
 
         List<Organization> memberships = organizationService.getOrganizationsForPersona(jdoe);
         assertEquals("There should be one membership for this persona", 1, memberships.size());
@@ -54,10 +50,8 @@ public class OrganizationServiceImplTest extends BaseServicesTest {
 
     @Test
     public void listOrganizationsForSoleOrganization() {
-        entityManager.getTransaction().begin();
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         Organization acme = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
-        entityManager.getTransaction().commit();
 
         List<Organization> memberships = organizationService.getOrganizationsForPersona(acme);
         assertEquals("There should be no memberships for this organization", 0, memberships.size());
@@ -65,11 +59,9 @@ public class OrganizationServiceImplTest extends BaseServicesTest {
 
     @Test
     public void listMembershipsForOrganizationBelongingToOrganization() {
-        entityManager.getTransaction().begin();
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         Organization acme = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
         Organization itDepartment = organizationService.createOrganization("IT Dep", "IT Dep", acme);
-        entityManager.getTransaction().commit();
 
         List<Organization> memberships = organizationService.getOrganizationsForPersona(acme);
         assertEquals("Acme is super persona of IT department", 1, memberships.size());
@@ -77,46 +69,33 @@ public class OrganizationServiceImplTest extends BaseServicesTest {
 
     @Test
     public void removeOrganization() {
-        entityManager.getTransaction().begin();
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         Organization organization = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         organizationService.deleteOrganization(organization);
-        entityManager.getTransaction().commit();
 
         assertNull("Organization should have been removed", organizationService.get(organization.getId()));
     }
 
     @Test
     public void removeOrganizationWithPendingInvitations() {
-        entityManager.getTransaction().begin();
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         Organization organization = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
         invitationService.create("", jdoe, organization, administrator);
-        entityManager.getTransaction().commit();
-
-        entityManager.getTransaction().begin();
         organizationService.deleteOrganization(organization);
-        entityManager.getTransaction().commit();
 
         assertNull("Organization should have been removed", organizationService.get(organization.getId()));
     }
 
     @Test
     public void removeOrganizationWithInvitations() {
-        entityManager.getTransaction().begin();
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         HawkularUser jsmith = userService.getOrCreateById(UUID.randomUUID().toString());
         Organization organization = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
         Invitation invitation = invitationService.create("", jdoe, organization, administrator);
         invitationService.accept(invitation, jsmith);
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         organizationService.deleteOrganization(organization);
-        entityManager.getTransaction().commit();
 
         assertNull("Organization should have been removed", organizationService.get(organization.getId()));
     }

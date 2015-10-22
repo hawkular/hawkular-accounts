@@ -17,39 +17,36 @@
 package org.hawkular.accounts.api.internal.impl;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 import org.hawkular.accounts.api.InvitationService;
 import org.hawkular.accounts.api.NamedRole;
 import org.hawkular.accounts.api.OrganizationMembershipService;
 import org.hawkular.accounts.api.OrganizationService;
+import org.hawkular.accounts.api.PersonaService;
 import org.hawkular.accounts.api.ResourceService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.internal.BoundStatements;
+import org.hawkular.accounts.api.internal.NamedStatement;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
-import org.hawkular.accounts.api.model.Organization_;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
 import org.hawkular.accounts.api.model.Role;
+
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.Row;
 
 /**
  * @author Juraci Paixão Kröhling
  */
 @Stateless
 @PermitAll
-public class OrganizationServiceImpl implements OrganizationService {
-    @Inject
-    @HawkularAccounts
-    EntityManager em;
-
+public class OrganizationServiceImpl extends BaseServiceImpl<Organization> implements OrganizationService {
     @Inject
     OrganizationMembershipService membershipService;
 
@@ -60,8 +57,40 @@ public class OrganizationServiceImpl implements OrganizationService {
     InvitationService invitationService;
 
     @Inject
+    PersonaService personaService;
+
+    @Inject
     @NamedRole("SuperUser")
     Role superUser;
+
+    @Inject @NamedStatement(BoundStatements.ORGANIZATION_GET_BY_ID)
+    BoundStatement getById;
+
+    @Inject @NamedStatement(BoundStatements.ORGANIZATION_GET_BY_OWNER)
+    BoundStatement getByOwner;
+
+    @Inject @NamedStatement(BoundStatements.ORGANIZATION_CREATE)
+    BoundStatement createStatement;
+
+    @Inject @NamedStatement(BoundStatements.ORGANIZATION_REMOVE)
+    BoundStatement removeStatement;
+
+    @Inject @NamedStatement(BoundStatements.ORGANIZATION_TRANSFER)
+    BoundStatement transferStatement;
+
+    @Override
+    public Organization getById(UUID id) {
+        if (null == id) {
+            throw new IllegalArgumentException("The given organization ID is invalid (null).");
+        }
+
+        return getById(id, getById);
+    }
+
+    @Override
+    public Organization get(String id) {
+        return getById(UUID.fromString(id));
+    }
 
     @Override
     public List<Organization> getOrganizationsForPersona(Persona persona) {
@@ -88,8 +117,12 @@ public class OrganizationServiceImpl implements OrganizationService {
         resourceService.addRoleToPersona(resource, owner, superUser);
 
         // this is for our organization management
-        em.persist(organization);
-        em.persist(new OrganizationMembership(organization, owner, superUser));
+        bindBasicParameters(organization, createStatement);
+        createStatement.setString("name", organization.getName());
+        createStatement.setString("description", organization.getDescription());
+        createStatement.setUUID("owner", organization.getOwner().getIdAsUUID());
+        session.execute(createStatement);
+        membershipService.create(organization, owner, superUser);
         return organization;
     }
 
@@ -101,64 +134,48 @@ public class OrganizationServiceImpl implements OrganizationService {
             if (null != invitation.getAcceptedBy()) {
                 resourceService.revokeAllForPersona(resource, invitation.getAcceptedBy());
             }
-            em.remove(invitation);
+            invitationService.remove(invitation);
         });
-        membershipService.getMembershipsForOrganization(organization).stream().forEach(em::remove);
+
+        membershipService.getMembershipsForOrganization(organization).stream().forEach(membershipService::remove);
         resourceService.revokeAllForPersona(resource, organization.getOwner());
         resourceService.delete(organization.getId());
-        em.remove(organization);
+        session.execute(removeStatement.setUUID("id", organization.getIdAsUUID()));
     }
 
     @Override
     public void transfer(Organization organization, Persona newOwner) {
         // first, we remove all the current memberships of the new owner, as it will now be super user
-        membershipService.getPersonaMembershipsForOrganization(newOwner, organization).stream().forEach(em::remove);
+        membershipService.getPersonaMembershipsForOrganization(newOwner, organization)
+                .stream()
+                .forEach(membershipService::remove);
 
         // now, we add as super user
-        em.persist(new OrganizationMembership(organization, newOwner, superUser));
+        membershipService.create(organization, newOwner, superUser);
 
         // we change the Resource's owner
-        Resource resource = resourceService.get(organization.getId());
+        Resource resource = resourceService.getById(organization.getIdAsUUID());
         resourceService.transfer(resource, newOwner);
 
         // and finally, we change the owner on the organization
         organization.setOwner(newOwner);
-        em.persist(organization);
-    }
-
-    @Override
-    public Organization get(String id) {
-        if (null == id) {
-            throw new IllegalArgumentException("The given organization ID is invalid (null).");
-        }
-
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<Organization> query = builder.createQuery(Organization.class);
-        Root<Organization> root = query.from(Organization.class);
-        query.select(root);
-        query.where(builder.equal(root.get(Organization_.id), id));
-
-        List<Organization> results = em.createQuery(query).getResultList();
-        if (results.size() == 1) {
-            return results.get(0);
-        }
-
-        if (results.size() > 1) {
-            throw new IllegalStateException("More than one organization found for ID " + id);
-        }
-
-        return null;
+        transferStatement.setUUID("owner", organization.getOwner().getIdAsUUID());
+        session.execute(transferStatement);
     }
 
     @Override
     public List<Organization> getSubOrganizations(Organization organization) {
-        // check if there are sub-organizations
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<Organization> query = builder.createQuery(Organization.class);
-        Root<Organization> root = query.from(Organization.class);
-        query.select(root);
+        return getList(getByOwner.setUUID("owner", organization.getIdAsUUID()));
+    }
 
-        query.where(builder.equal(root.get(Organization_.owner), organization));
-        return em.createQuery(query).getResultList();
+    @Override
+    Organization getFromRow(Row row) {
+        Persona owner = personaService.getById(row.getUUID("owner"));
+        String name = row.getString("name");
+        String description = row.getString("description");
+
+        Organization.Builder builder = new Organization.Builder();
+        mapBaseFields(row, builder);
+        return builder.owner(owner).name(name).description(description).build();
     }
 }

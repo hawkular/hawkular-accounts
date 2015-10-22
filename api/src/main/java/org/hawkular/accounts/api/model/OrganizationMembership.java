@@ -16,26 +16,17 @@
  */
 package org.hawkular.accounts.api.model;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import java.time.ZonedDateTime;
+import java.util.UUID;
 
 /**
  * @author Juraci Paixão Kröhling
  */
-@Entity
 public class OrganizationMembership extends BaseEntity {
 
-    @ManyToOne
     private Organization organization;
-
-    @ManyToOne
     private Member member;
-
-    @ManyToOne
     private Role role;
-
-    protected OrganizationMembership() { // JPA happy
-    }
 
     public OrganizationMembership(Organization organization, Member member, Role role) {
         this.organization = organization;
@@ -45,6 +36,14 @@ public class OrganizationMembership extends BaseEntity {
 
     public OrganizationMembership(String id, Organization organization, Member member, Role role) {
         super(id);
+        this.organization = organization;
+        this.member = member;
+        this.role = role;
+    }
+
+    public OrganizationMembership(UUID id, ZonedDateTime createdAt, ZonedDateTime updatedAt,
+                                  Organization organization, Member member, Role role) {
+        super(id, createdAt, updatedAt);
         this.organization = organization;
         this.member = member;
         this.role = role;
@@ -64,5 +63,30 @@ public class OrganizationMembership extends BaseEntity {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public static class Builder extends BaseEntity.Builder {
+        private Organization organization;
+        private Member member;
+        private Role role;
+
+        public Builder organization(Organization organization) {
+            this.organization = organization;
+            return this;
+        }
+
+        public Builder member(Member member) {
+            this.member = member;
+            return this;
+        }
+
+        public Builder role(Role role) {
+            this.role = role;
+            return this;
+        }
+
+        public OrganizationMembership build() {
+            return new OrganizationMembership(id, createdAt, updatedAt, organization, member, role);
+        }
     }
 }

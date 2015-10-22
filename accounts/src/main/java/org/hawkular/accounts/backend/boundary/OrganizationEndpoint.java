@@ -21,7 +21,6 @@ import java.util.List;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -37,7 +36,6 @@ import org.hawkular.accounts.api.OrganizationService;
 import org.hawkular.accounts.api.PermissionChecker;
 import org.hawkular.accounts.api.PersonaService;
 import org.hawkular.accounts.api.ResourceService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Organization;
@@ -56,9 +54,6 @@ import org.hawkular.accounts.backend.entity.rest.OrganizationTransferRequest;
 @PermitAll
 @Stateless
 public class OrganizationEndpoint {
-    @Inject @HawkularAccounts
-    EntityManager em;
-
     @Inject
     Persona persona;
 

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.secretstore.control;
+package org.hawkular.accounts.api.internal;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -33,42 +33,60 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
+import org.hawkular.accounts.api.internal.impl.MsgLogger;
 import org.hawkular.accounts.common.internal.CassandraSessionCallable;
 
 import com.datastax.driver.core.Session;
 
 /**
+ * Responsible for producing a ready-to-be-consumed Cassandra session. Initializes the schema if needed.
+ *
  * @author Juraci Paixão Kröhling
  */
 @Startup
 @Singleton
 @ApplicationScoped
 @PermitAll
-public class SecretStoreSchemaInitializer {
-    private Future<Session> sessionFuture;
-
-    @Inject
-    CassandraSessionCallable cassandraSessionCallable;
-
+public class CassandraSessionInitializer {
     MsgLogger logger = MsgLogger.LOGGER;
+
+    private Future<Session> sessionFuture;
 
     @Resource
     private ManagedExecutorService executor;
 
+    @Inject
+    CassandraSessionCallable cassandraSessionCallable;
+
+    /**
+     * Sends the order to build the session as soon as this is constructed. The actual execution happens in
+     * background, as we don't want to delay the boot of the application.
+     */
     @PostConstruct
-    public void init() throws ExecutionException, InterruptedException {
+    public void init() {
         sessionFuture = executor.submit(cassandraSessionCallable);
     }
 
+    /**
+     * Produces the Cassandra session, waiting for the background job to finish if needed.
+     * @return the Cassandra session, ready to be consumed.
+     */
     @Produces @ApplicationScoped
     public Session getSession() {
         try {
+            // on the first boot, this might take some time to return, specially for "during the boot calls"
+            // but for subsequent calls, this should be quite fast.
             Session session = sessionFuture.get();
-            InputStream input = getClass().getResourceAsStream("/secret-store.cql");
+
+            // now that we have a session, let's first initialize the schema...
+            // as of now, our CQL script is idempotent, so, we just execute it.
+            InputStream input = getClass().getResourceAsStream("/hawkular_accounts.cql");
             try (BufferedReader buffer = new BufferedReader(new InputStreamReader(input))) {
                 String content = buffer.lines().collect(Collectors.joining("\n"));
+
+                // we split the statements by "--#", as it's done in other Hawkular projects.
                 for (String cql : content.split("(?m)^-- #.*$")) {
-                    if (!cql.startsWith("--")) {
+                    if (!cql.startsWith("--")) { // if it doesn't look like a comment, execute it
                         session.execute(cql);
                     }
                 }

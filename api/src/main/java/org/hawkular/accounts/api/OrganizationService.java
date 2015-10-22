@@ -17,6 +17,7 @@
 package org.hawkular.accounts.api;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
@@ -91,6 +92,17 @@ public interface OrganizationService {
      * @return the existing {@link Organization} or null if the resource doesn't exists.
      * @throws IllegalArgumentException if the given ID is null
      */
+    Organization getById(UUID id);
+
+    /**
+     * Retrieves an {@link Organization} based on its ID.
+     *
+     * @param id             the organization's ID
+     * @return the existing {@link Organization} or null if the resource doesn't exists.
+     * @throws IllegalArgumentException if the given ID is null
+     * @deprecated use {@link #getById(UUID)} instead.
+     */
+    @Deprecated
     Organization get(String id);
 
     /**

@@ -16,33 +16,24 @@
  */
 package org.hawkular.accounts.api.model;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-
 /**
  * @author Juraci Paixão Kröhling
  */
-@Entity
 public class UserSettings extends BaseEntity {
-    @ManyToOne
     private HawkularUser user;
 
-    @ElementCollection(fetch = FetchType.EAGER)
     private Map<String, String> properties = new HashMap<>();
-
-    protected UserSettings() {
-    }
 
     public UserSettings(HawkularUser user) {
         this.user = user;
@@ -59,6 +50,32 @@ public class UserSettings extends BaseEntity {
 
     public Map<String, String> getProperties() {
         return Collections.unmodifiableMap(this.properties);
+    }
+
+    public UserSettings(UUID id, ZonedDateTime createdAt, ZonedDateTime updatedAt,
+                        HawkularUser user, Map<String, String> properties) {
+        super(id, createdAt, updatedAt);
+        this.user = user;
+        this.properties = properties;
+    }
+
+    public static class Builder extends BaseEntity.Builder {
+        private HawkularUser user;
+        private Map<String, String> properties;
+
+        public Builder user(HawkularUser user) {
+            this.user = user;
+            return this;
+        }
+
+        public Builder properties(Map<String, String> properties) {
+            this.properties = new HashMap<>(properties);
+            return this;
+        }
+
+        public UserSettings build() {
+            return new UserSettings(id, createdAt, updatedAt, user, properties);
+        }
     }
 
     // delegate methods for making it easier to treat this as if it's a map

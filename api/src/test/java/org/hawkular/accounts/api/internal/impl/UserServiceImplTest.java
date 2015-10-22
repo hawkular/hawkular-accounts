@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.io.IOException;
 import java.security.Identity;
 import java.security.Principal;
 import java.util.List;
@@ -45,53 +46,41 @@ import org.keycloak.representations.AccessToken;
 /**
  * @author Juraci Paixão Kröhling
  */
-public class UserServiceImplTest extends BaseServicesTest {
+public class UserServiceImplTest extends SessionEnabledTest {
     @Before
     public void addSessionContextToUserService() {
         userService.sessionContext = sessionContext;
     }
 
     @Test
-    public void createUserOnDemandBasedOnCurrentUser() {
-        List<HawkularUser> existingUsers = entityManager.createQuery("select u from HawkularUser u").getResultList();
-        assertEquals("There should be no existing users at the beginning of the test", 0, existingUsers.size());
-        entityManager.getTransaction().begin();
+    public void createUserOnDemandBasedOnCurrentUser() throws IOException {
+        int numExistingUsers = userService.getAll().size();
         userService.getCurrent();
-        entityManager.getTransaction().commit();
 
-        existingUsers = entityManager.createQuery("select u from HawkularUser u").getResultList();
-        assertEquals("There should 1 persona at the end of the test", 1, existingUsers.size());
+        List<HawkularUser> existingUsers = userService.getAll();
+        assertEquals("There should 1 persona at the end of the test", numExistingUsers+1, existingUsers.size());
     }
 
     @Test
-    public void createUserOnDemandBasedOnUserId() {
-        List<HawkularUser> existingUsers = entityManager.createQuery("select u from HawkularUser u").getResultList();
-        assertEquals("There should be no existing users at the beginning of the test", 0, existingUsers.size());
-        entityManager.getTransaction().begin();
+    public void createUserOnDemandBasedOnUserId() throws IOException {
+        int numExistingUsers = userService.getAll().size();
         userService.getOrCreateById(UUID.randomUUID().toString());
-        entityManager.getTransaction().commit();
 
-        existingUsers = entityManager.createQuery("select u from HawkularUser u").getResultList();
-        assertEquals("There should 1 persona at the end of the test", 1, existingUsers.size());
+        List<HawkularUser> existingUsers = userService.getAll();
+        assertEquals("There should 1 persona at the end of the test", numExistingUsers+1, existingUsers.size());
     }
 
     @Test
-    public void retrieveExistingUserById() {
+    public void retrieveExistingUserById() throws IOException {
         String id = UUID.randomUUID().toString();
-
-        List<HawkularUser> existingUsers = entityManager.createQuery("select u from HawkularUser u").getResultList();
-        assertEquals("There should be no existing users at the beginning of the test", 0, existingUsers.size());
-        entityManager.getTransaction().begin();
         userService.getOrCreateById(id);
-        entityManager.getTransaction().commit();
-
         HawkularUser user = userService.getById(id);
         assertNotNull("User should exist", user);
     }
 
     @Test
     public void nonExistingUserReturnsNull() {
-        HawkularUser user = userService.getById("non-existing-id");
+        HawkularUser user = userService.getById(UUID.randomUUID().toString());
         assertNull("User should not exist", user);
     }
 
@@ -101,7 +90,7 @@ public class UserServiceImplTest extends BaseServicesTest {
     SessionContext sessionContext = new SessionContext() {
         @Override
         public Principal getCallerPrincipal() {
-            return new KeycloakPrincipal<>("foobar", new KeycloakSecurityContext() {
+            return new KeycloakPrincipal<>(UUID.randomUUID().toString(), new KeycloakSecurityContext() {
                 @Override
                 public AccessToken getToken() {
                     return new AccessToken() {

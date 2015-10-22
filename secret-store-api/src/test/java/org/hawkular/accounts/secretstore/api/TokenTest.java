@@ -23,11 +23,13 @@ import java.util.UUID;
 
 import org.cassandraunit.CassandraCQLUnit;
 import org.cassandraunit.dataset.cql.ClassPathCQLDataSet;
-import org.hawkular.accounts.secretstore.api.internal.ZonedDateTimeAdapter;
+import org.hawkular.accounts.common.ZonedDateTimeAdapter;
+import org.hawkular.accounts.secretstore.api.internal.BoundStatements;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Session;
 
 /**
@@ -51,6 +53,8 @@ public class TokenTest {
         tokenService = new TokenService();
         tokenService.session = session;
         tokenService.zonedDateTimeAdapter = adapter;
+        tokenService.getByIdStatement = new BoundStatement(session.prepare(BoundStatements.GET_BY_ID.getValue()));
+        tokenService.createStatement = new BoundStatement(session.prepare(BoundStatements.CREATE.getValue()));
     }
 
     @Test

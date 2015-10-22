@@ -16,55 +16,65 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
+import java.security.InvalidParameterException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 import org.hawkular.accounts.api.NamedRole;
 import org.hawkular.accounts.api.RoleService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.internal.BoundStatements;
+import org.hawkular.accounts.api.internal.NamedStatement;
 import org.hawkular.accounts.api.model.Role;
-import org.hawkular.accounts.api.model.Role_;
+
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.Row;
 
 /**
  * @author Juraci Paixão Kröhling
  */
 @Stateless
 @PermitAll
-public class RoleServiceImpl implements RoleService {
+public class RoleServiceImpl extends BaseServiceImpl<Role> implements RoleService {
+    @Inject @NamedStatement(BoundStatements.ROLES_GET_BY_ID)
+    BoundStatement getByIdStatement;
 
-    @Inject @HawkularAccounts
-    EntityManager em;
+    @Inject @NamedStatement(BoundStatements.ROLES_CREATE)
+    BoundStatement createStatement;
+
+    @Inject @NamedStatement(BoundStatements.ROLES_GET_BY_NAME)
+    BoundStatement getByNameStatement;
+
+    @Override
+    public Role getById(UUID id) {
+        return getById(id, getByIdStatement);
+    }
+
+    @Override
+    public Role create(String name, String description) {
+        if (null != getByName(name)) {
+            // we already have a role with this name...
+            throw new InvalidParameterException("There's already a role with the given name.");
+        }
+
+        Role role = new Role(name, description);
+        bindBasicParameters(role, createStatement);
+        createStatement.setString("name", name);
+        createStatement.setString("description", description);
+        session.execute(createStatement);
+        return role;
+    }
 
     @Override
     public Role getByName(String name) {
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<Role> query = builder.createQuery(Role.class);
-        Root<Role> root = query.from(Role.class);
-        query.select(root);
-        query.where(builder.equal(root.get(Role_.name), name));
-
-        List<Role> results = em.createQuery(query).getResultList();
-        if (results.size() == 1) {
-            Role role = results.get(0);
-            return role;
-        }
-
-        if (results.size() > 1) {
-            throw new IllegalStateException("More than one role found for name " + name);
-        }
-
-        return null;
+        getByNameStatement.setString("name", name);
+        return getSingleRecord(getByNameStatement);
     }
 
     @Override
@@ -135,5 +145,24 @@ public class RoleServiceImpl implements RoleService {
         NamedRole namedRole = injectionPoint.getAnnotated().getAnnotation(NamedRole.class);
         String roleName = namedRole.value();
         return getByName(roleName);
+    }
+
+    @Override
+    public Role getOrCreateByName(String name, String description) {
+        Role role = getByName(name);
+        if (null == role) {
+            role = create(name, description);
+        }
+        return role;
+    }
+
+    @Override
+    Role getFromRow(Row row) {
+        String name = row.getString("name");
+        String description = row.getString("description");
+
+        Role.Builder builder = new Role.Builder();
+        super.mapBaseFields(row, builder);
+        return builder.description(description).name(name).build();
     }
 }

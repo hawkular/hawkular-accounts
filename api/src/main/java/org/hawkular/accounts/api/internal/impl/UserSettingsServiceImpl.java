@@ -16,57 +16,59 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
-import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 import org.hawkular.accounts.api.CurrentUser;
 import org.hawkular.accounts.api.NamedSetting;
+import org.hawkular.accounts.api.UserService;
 import org.hawkular.accounts.api.UserSettingsService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.internal.BoundStatements;
+import org.hawkular.accounts.api.internal.NamedStatement;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.UserSettings;
-import org.hawkular.accounts.api.model.UserSettings_;
+
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.Row;
 
 /**
  * @author Juraci Paixão Kröhling
  */
 @Stateless
 @PermitAll
-public class UserSettingsServiceImpl implements UserSettingsService {
-    @Inject @HawkularAccounts
-    EntityManager em;
-
+public class UserSettingsServiceImpl extends BaseServiceImpl<UserSettings> implements UserSettingsService {
     @Inject @CurrentUser
     HawkularUser user;
 
+    @Inject
+    UserService userService;
+
+    @Inject @NamedStatement(BoundStatements.SETTINGS_GET_BY_ID)
+    BoundStatement getById;
+
+    @Inject @NamedStatement(BoundStatements.SETTINGS_GET_BY_USER)
+    BoundStatement getByUser;
+
+    @Inject @NamedStatement(BoundStatements.SETTINGS_UPDATE)
+    BoundStatement updateStatement;
+
+    @Inject @NamedStatement(BoundStatements.SETTINGS_CREATE)
+    BoundStatement createStatement;
+
     @Override
     public UserSettings get(String id) {
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<UserSettings> query = builder.createQuery(UserSettings.class);
-        Root<UserSettings> root = query.from(UserSettings.class);
-        query.select(root);
-        query.where(builder.equal(root.get(UserSettings_.id), id));
+        return getById(UUID.fromString(id));
+    }
 
-        List<UserSettings> results = em.createQuery(query).getResultList();
-        if (results.size() == 1) {
-            UserSettings settings = results.get(0);
-            return settings;
-        }
-
-        if (results.size() > 1) {
-            throw new IllegalStateException("More than one settings object found for ID " + id);
-        }
-
-        return null;
+    @Override
+    public UserSettings getById(UUID id) {
+        return getById(id, getById);
     }
 
     @Override
@@ -76,23 +78,7 @@ public class UserSettingsServiceImpl implements UserSettingsService {
 
     @Override
     public UserSettings getByUser(HawkularUser user) {
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<UserSettings> query = builder.createQuery(UserSettings.class);
-        Root<UserSettings> root = query.from(UserSettings.class);
-        query.select(root);
-        query.where(builder.equal(root.get(UserSettings_.user), user));
-
-        List<UserSettings> results = em.createQuery(query).getResultList();
-        if (results.size() == 1) {
-            UserSettings settings = results.get(0);
-            return settings;
-        }
-
-        if (results.size() > 1) {
-            throw new IllegalStateException("More than one settings object found for user " + user.getId());
-        }
-
-        return null;
+        return getSingleRecord(getByUser.setUUID("persona", user.getIdAsUUID()));
     }
 
     @Override
@@ -105,7 +91,9 @@ public class UserSettingsServiceImpl implements UserSettingsService {
         UserSettings settings = getByUser(user);
         if (null == settings) {
             settings = new UserSettings(user);
-            em.persist(settings);
+            bindBasicParameters(settings, createStatement);
+            createStatement.setUUID("persona", user.getIdAsUUID());
+            session.execute(createStatement);
         }
         return settings;
     }
@@ -139,7 +127,8 @@ public class UserSettingsServiceImpl implements UserSettingsService {
     public UserSettings store(HawkularUser user, String key, String value) {
         UserSettings settings = getOrCreateByUser(user);
         settings.put(key, value);
-        em.persist(settings);
+        updateStatement.setMap("properties", settings.getProperties());
+        update(settings, updateStatement);
         return settings;
     }
 
@@ -155,7 +144,8 @@ public class UserSettingsServiceImpl implements UserSettingsService {
             return null;
         }
         settings.remove(key);
-        em.persist(settings);
+        updateStatement.setMap("properties", settings.getProperties());
+        update(settings, updateStatement);
         return settings;
     }
 
@@ -170,5 +160,15 @@ public class UserSettingsServiceImpl implements UserSettingsService {
         NamedSetting namedSetting = injectionPoint.getAnnotated().getAnnotation(NamedSetting.class);
         String setting = namedSetting.value();
         return getSettingByKey(setting);
+    }
+
+    @Override
+    UserSettings getFromRow(Row row) {
+        HawkularUser user = userService.getById(row.getUUID("persona"));
+        Map<String, String> properties = row.getMap("properties", String.class, String.class);
+
+        UserSettings.Builder builder = new UserSettings.Builder();
+        mapBaseFields(row, builder);
+        return builder.user(user).properties(properties).build();
     }
 }

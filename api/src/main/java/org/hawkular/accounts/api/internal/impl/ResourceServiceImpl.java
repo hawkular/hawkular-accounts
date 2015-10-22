@@ -17,24 +17,27 @@
 package org.hawkular.accounts.api.internal.impl;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 import org.hawkular.accounts.api.NamedRole;
+import org.hawkular.accounts.api.PersonaResourceRoleService;
+import org.hawkular.accounts.api.PersonaService;
 import org.hawkular.accounts.api.ResourceService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.internal.BoundStatements;
+import org.hawkular.accounts.api.internal.NamedStatement;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.PersonaResourceRole;
-import org.hawkular.accounts.api.model.PersonaResourceRole_;
 import org.hawkular.accounts.api.model.Resource;
-import org.hawkular.accounts.api.model.Resource_;
 import org.hawkular.accounts.api.model.Role;
+
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.Row;
 
 /**
  * Main implementation of the {@link org.hawkular.accounts.api.ResourceService}. Consumers should get an instance of
@@ -44,9 +47,9 @@ import org.hawkular.accounts.api.model.Role;
  */
 @Stateless
 @PermitAll
-public class ResourceServiceImpl implements ResourceService {
-    @Inject @HawkularAccounts
-    EntityManager em;
+public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements ResourceService {
+    private static final Pattern UUID_PATTERN =
+            Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}");
 
     @Inject
     Persona persona;
@@ -55,28 +58,40 @@ public class ResourceServiceImpl implements ResourceService {
     @NamedRole("SuperUser")
     Role superUser;
 
+    @Inject
+    PersonaResourceRoleService personaResourceRoleService;
+
+    @Inject
+    PersonaService personaService;
+
+    @Inject @NamedStatement(BoundStatements.RESOURCE_GET_BY_ID)
+    BoundStatement getById;
+
+    @Inject @NamedStatement(BoundStatements.RESOURCE_GET_BY_PERSONA)
+    BoundStatement getByPersona;
+
+    @Inject @NamedStatement(BoundStatements.RESOURCE_CREATE)
+    BoundStatement createStatement;
+
+    @Inject @NamedStatement(BoundStatements.RESOURCE_TRANSFER)
+    BoundStatement transferStatement;
+
+    @Override
+    public Resource getById(UUID id) {
+        return getById(id, getById);
+    }
+
     @Override
     public Resource get(String id) {
-        if (null == id) {
-            throw new IllegalArgumentException("The given resource ID is invalid (null).");
+        UUID uuid;
+        if (!UUID_PATTERN.matcher(id).matches()) {
+            // not an UUID, can't be a token
+            uuid = UUID.nameUUIDFromBytes(id.getBytes());
+        } else {
+            uuid = UUID.fromString(id);
         }
 
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<Resource> query = builder.createQuery(Resource.class);
-        Root<Resource> root = query.from(Resource.class);
-        query.select(root);
-        query.where(builder.equal(root.get(Resource_.id), id));
-
-        List<Resource> results = em.createQuery(query).getResultList();
-        if (results.size() == 1) {
-            return results.get(0);
-        }
-
-        if (results.size() > 1) {
-            throw new IllegalStateException("More than one resource found for ID " + id);
-        }
-
-        return null;
+        return getById(uuid);
     }
 
     @Override
@@ -102,11 +117,24 @@ public class ResourceServiceImpl implements ResourceService {
         }
 
         Resource resource = new Resource(id, persona, parent);
-        em.persist(resource);
+        bindBasicParameters(resource, createStatement);
+
+        if (null != persona) {
+            createStatement.setUUID("persona", resource.getPersona().getIdAsUUID());
+        } else {
+            createStatement.setToNull("persona");
+        }
+
+        if (null != parent) {
+            createStatement.setUUID("parent", resource.getParent().getIdAsUUID());
+        } else {
+            createStatement.setToNull("parent");
+        }
+
+        session.execute(createStatement);
 
         if (persona != null) {
-            PersonaResourceRole resourceRole = new PersonaResourceRole(persona, superUser, resource);
-            em.persist(resourceRole);
+            personaResourceRoleService.create(persona, resource, superUser);
         }
 
         return resource;
@@ -120,7 +148,7 @@ public class ResourceServiceImpl implements ResourceService {
 
         Resource resource = get(id);
         if (resource != null) {
-            em.remove(resource);
+            personaResourceRoleService.getByResource(resource).stream().forEach(personaResourceRoleService::remove);
         }
     }
 
@@ -130,65 +158,60 @@ public class ResourceServiceImpl implements ResourceService {
             throw new IllegalArgumentException("The given persona is invalid (null).");
         }
 
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<Resource> query = builder.createQuery(Resource.class);
-        Root<Resource> root = query.from(Resource.class);
-        query.select(root);
-        query.where(builder.equal(root.get(Resource_.persona), persona));
-
-        return em.createQuery(query).getResultList();
+        return getList(getByPersona.setUUID("persona", persona.getIdAsUUID()));
     }
 
     @Override
     public void transfer(Resource resource, Persona persona) {
         resource.setPersona(persona);
-        em.persist(resource);
+        update(resource, transferStatement.setUUID("persona", persona.getIdAsUUID()));
         revokeAllForPersona(resource, persona);
         addRoleToPersona(resource, persona, superUser);
     }
 
     @Override
     public void revokeAllForPersona(Resource resource, Persona persona) {
-        List<PersonaResourceRole> results = getRolesForPersona(resource, persona);
-        results.stream().forEach(em::remove);
+        personaResourceRoleService.getByPersonaAndResource(persona, resource)
+                .stream()
+                .forEach(personaResourceRoleService::remove);
     }
 
     @Override
     public PersonaResourceRole addRoleToPersona(Resource resource, Persona persona, Role role) {
-        // do we have already a PersonaResourceRole that matches the given specification?
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<PersonaResourceRole> query = builder.createQuery(PersonaResourceRole.class);
-        Root<PersonaResourceRole> root = query.from(PersonaResourceRole.class);
-        query.select(root);
-        query.where(
-                builder.equal(root.get(PersonaResourceRole_.resource), resource),
-                builder.equal(root.get(PersonaResourceRole_.persona), persona),
-                builder.equal(root.get(PersonaResourceRole_.role), role)
-        );
+        // do we have this combination already?
+        List<PersonaResourceRole> existingList = personaResourceRoleService.getByPersonaAndResource(persona, resource)
+                .stream()
+                .filter(prr -> prr.getRole().equals(role))
+                .collect(Collectors.toList());
 
-        List<PersonaResourceRole> results = em.createQuery(query).getResultList();
-        if (results.size() == 1) {
-            // yes, we have it already, just return it
-            return results.get(0);
+        if (existingList.size() > 0) {
+            return existingList.get(0);
         }
 
         // no, we don't have it, create one
-        PersonaResourceRole resourceRole = new PersonaResourceRole(persona, role, resource);
-        em.persist(resourceRole);
-        return resourceRole;
+        return personaResourceRoleService.create(persona, resource, role);
     }
 
     @Override
     public List<PersonaResourceRole> getRolesForPersona(Resource resource, Persona persona) {
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<PersonaResourceRole> query = builder.createQuery(PersonaResourceRole.class);
-        Root<PersonaResourceRole> root = query.from(PersonaResourceRole.class);
-        query.select(root);
-        query.where(
-                builder.equal(root.get(PersonaResourceRole_.resource), resource),
-                builder.equal(root.get(PersonaResourceRole_.persona), persona)
-        );
+        return personaResourceRoleService.getByPersonaAndResource(persona, resource);
+    }
 
-        return em.createQuery(query).getResultList();
+    @Override
+    Resource getFromRow(Row row) {
+        Resource parent = null;
+        Persona persona = null;
+
+        if (!row.isNull("parent")) {
+            parent = getById(row.getUUID("parent"));
+        }
+
+        if (!row.isNull("persona")) {
+            persona = personaService.getById(row.getUUID("persona"));
+        }
+
+        Resource.Builder builder = new Resource.Builder().parent(parent).persona(persona);
+        mapBaseFields(row, builder);
+        return builder.build();
     }
 }

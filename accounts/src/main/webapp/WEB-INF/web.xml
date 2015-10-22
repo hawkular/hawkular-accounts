@@ -28,25 +28,6 @@
     <param-value>true</param-value>
   </context-param>
 
-  <context-param>
-    <param-name>liquibase.changelog</param-name>
-    <param-value>org/hawkular/accounts/db/db.changelog-master.xml</param-value>
-  </context-param>
-
-  <context-param>
-    <param-name>liquibase.datasource</param-name>
-    <param-value>java:jboss/datasources/HawkularDS</param-value>
-  </context-param>
-
-  <context-param>
-    <param-name>liquibase.onerror.fail</param-name>
-    <param-value>true</param-value>
-  </context-param>
-
-  <listener>
-    <listener-class>liquibase.integration.servlet.LiquibaseServletListener</listener-class>
-  </listener>
-
   <listener>
     <listener-class>org.hawkular.accounts.backend.control.SetupHawkularAccountsImpl</listener-class>
   </listener>

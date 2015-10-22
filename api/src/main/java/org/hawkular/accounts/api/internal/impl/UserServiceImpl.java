@@ -17,6 +17,7 @@
 package org.hawkular.accounts.api.internal.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
@@ -24,17 +25,16 @@ import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 import org.hawkular.accounts.api.CurrentUser;
 import org.hawkular.accounts.api.UserService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.internal.BoundStatements;
+import org.hawkular.accounts.api.internal.NamedStatement;
 import org.hawkular.accounts.api.model.HawkularUser;
-import org.hawkular.accounts.api.model.HawkularUser_;
 import org.keycloak.KeycloakPrincipal;
+
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.Row;
 
 /**
  * Main implementation of the {@link org.hawkular.accounts.api.UserService}. Consumers should get an instance of this
@@ -44,13 +44,21 @@ import org.keycloak.KeycloakPrincipal;
  */
 @Stateless
 @PermitAll
-public class UserServiceImpl implements UserService {
-
-    @Inject @HawkularAccounts
-    EntityManager em;
-
-    @Resource
+public class UserServiceImpl extends BaseServiceImpl<HawkularUser> implements UserService {
+    @SuppressWarnings("EjbEnvironmentInspection") @Resource
     SessionContext sessionContext;
+
+    @Inject @NamedStatement(BoundStatements.USER_GET_BY_ID)
+    BoundStatement getByIdStatement;
+
+    @Inject @NamedStatement(BoundStatements.USER_CREATE)
+    BoundStatement createStatement;
+
+    @Inject @NamedStatement(BoundStatements.USER_UPDATE)
+    BoundStatement updateStatement;
+
+    @Inject @NamedStatement(BoundStatements.USER_ALL)
+    BoundStatement allUsersStatement;
 
     @Produces @CurrentUser
     @Override
@@ -61,37 +69,26 @@ public class UserServiceImpl implements UserService {
         HawkularUser user = getOrCreateByIdAndName(id, name);
         if (!name.equals(user.getName())) {
             user.setName(name);
-            em.persist(user);
+            return update(user);
         }
         return user;
     }
 
     @Override
     public HawkularUser getById(String id) {
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<HawkularUser> query = builder.createQuery(HawkularUser.class);
-        Root<HawkularUser> root = query.from(HawkularUser.class);
-        query.select(root);
-        query.where(builder.equal(root.get(HawkularUser_.id), id));
+        return getById(UUID.fromString(id));
+    }
 
-        List<HawkularUser> results = em.createQuery(query).getResultList();
-        if (results.size() == 1) {
-            return results.get(0);
-        }
-
-        if (results.size() > 1) {
-            throw new IllegalStateException("More than one persona found for ID " + id);
-        }
-
-        return null;
+    @Override
+    public HawkularUser getById(UUID id) {
+        return getById(id, getByIdStatement);
     }
 
     @Override
     public HawkularUser getOrCreateById(String id) {
         HawkularUser user = getById(id);
         if (null == user) {
-            user = new HawkularUser(id);
-            em.persist(user);
+            user = create(id, null);
         }
 
         return user;
@@ -101,11 +98,37 @@ public class UserServiceImpl implements UserService {
     public HawkularUser getOrCreateByIdAndName(String id, String name) {
         HawkularUser user = getById(id);
         if (null == user) {
-            user = new HawkularUser(id);
-            user.setName(name);
-            em.persist(user);
+            user = create(id, name);
         }
 
         return user;
+    }
+
+    private HawkularUser create(UUID id, String name) {
+        HawkularUser user = new HawkularUser(id, name);
+        bindBasicParameters(user, createStatement);
+        createStatement.setString("name", user.getName());
+        session.execute(createStatement);
+        return user;
+    }
+
+    private HawkularUser update(HawkularUser user) {
+        updateStatement.setString("name", user.getName());
+        return update(user, updateStatement);
+    }
+
+    private HawkularUser create(String id, String name) {
+        return create(UUID.fromString(id), name);
+    }
+
+    List<HawkularUser> getAll() {
+        return getList(allUsersStatement);
+    }
+
+    @Override
+    HawkularUser getFromRow(Row row) {
+        HawkularUser.Builder builder = new HawkularUser.Builder();
+        mapBaseFields(row, builder);
+        return builder.name(row.getString("name")).build();
     }
 }

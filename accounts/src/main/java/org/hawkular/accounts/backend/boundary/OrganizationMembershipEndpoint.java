@@ -21,7 +21,6 @@ import java.util.List;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -35,7 +34,6 @@ import org.hawkular.accounts.api.OrganizationMembershipService;
 import org.hawkular.accounts.api.OrganizationService;
 import org.hawkular.accounts.api.PermissionChecker;
 import org.hawkular.accounts.api.RoleService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
@@ -52,10 +50,6 @@ import org.hawkular.accounts.backend.entity.rest.OrganizationMembershipUpdateReq
 @PermitAll
 @Stateless
 public class OrganizationMembershipEndpoint {
-    @Inject
-    @HawkularAccounts
-    EntityManager em;
-
     @Inject
     OrganizationMembershipService membershipService;
 

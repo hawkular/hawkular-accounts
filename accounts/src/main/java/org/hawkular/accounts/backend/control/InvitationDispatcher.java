@@ -24,9 +24,8 @@ import javax.ejb.Singleton;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.mail.internet.InternetAddress;
-import javax.persistence.EntityManager;
 
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.InvitationService;
 import org.hawkular.accounts.api.model.Invitation;
 import org.hawkular.accounts.backend.entity.InvitationCreatedEvent;
 import org.hawkular.commons.email.EmailDispatcher;
@@ -43,11 +42,11 @@ public class InvitationDispatcher {
 
     MsgLogger logger = MsgLogger.LOGGER;
 
-    @Inject @HawkularAccounts
-    EntityManager em;
-
     @Inject
     EmailDispatcher emailDispatcher;
+
+    @Inject
+    InvitationService invitationService;
 
     public void dispatchInvitation(@Observes InvitationCreatedEvent event) {
         Invitation invitation = event.getInvitation();
@@ -55,7 +54,7 @@ public class InvitationDispatcher {
             throw new IllegalArgumentException("Invitation event doesn't contain an invitation.");
         }
 
-        invitation = em.merge(invitation);
+        invitation = invitationService.get(invitation.getId());
 
         Map<String, Object> properties = new HashMap<>(3);
         properties.put("acceptUrl",
@@ -79,8 +78,7 @@ public class InvitationDispatcher {
         }
 
         if (sent) {
-            invitation.setDispatched();
-            em.persist(invitation);
+            invitationService.markAsDispatched(invitation);
             logger.invitationSubmitted(invitation.getId(), invitation.getToken());
         }
     }

@@ -19,17 +19,12 @@ package org.hawkular.accounts.backend.control;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.transaction.SystemException;
-import javax.transaction.UserTransaction;
 
 import org.hawkular.accounts.api.OperationService;
 import org.hawkular.accounts.api.RoleService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.Role;
 
 /**
@@ -45,31 +40,13 @@ public class SetupHawkularAccountsImpl implements ServletContextListener {
     RoleService roleService;
 
     @Inject
-    @HawkularAccounts
-    EntityManager entityManager;
-
-    @Inject
     OperationService operationService;
-
-    @Resource
-    UserTransaction tx;
 
     Set<Role> roles = new HashSet<>(7);
 
     @Override
-    public void contextInitialized(ServletContextEvent servletContextEvent) throws RuntimeException {
-        try {
-            tx.begin();
-            setup();
-            tx.commit();
-        } catch (Exception e) {
-            try {
-                tx.rollback();
-            } catch (SystemException e1) {
-                // couldn't rollback... but let's ignore this one, as we've got another more important exception to log
-            }
-            throw new RuntimeException(e);
-        }
+    public void contextInitialized(ServletContextEvent servletContextEvent) {
+        setup();
     }
 
     @Override
@@ -128,9 +105,8 @@ public class SetupHawkularAccountsImpl implements ServletContextListener {
 
     private void addRoleIfDoesntExists(Role role) {
         if (null == roleService.getByName(role.getName())) {
-            entityManager.persist(role);
+            roleService.create(role.getName(), role.getDescription());
         }
-        entityManager.flush();
     }
 
     Role monitor = new Role("Monitor", "Has the fewest permissions. Only read configuration and current runtime " +

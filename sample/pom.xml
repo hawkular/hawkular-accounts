@@ -68,11 +68,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.hibernate.javax.persistence</groupId>
-      <artifactId>hibernate-jpa-2.1-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.jboss.spec.javax.ejb</groupId>
       <artifactId>jboss-ejb-api_3.2_spec</artifactId>
       <scope>provided</scope>
@@ -93,11 +88,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-jpamodelgen</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-core</artifactId>
       <scope>provided</scope>
@@ -114,6 +104,16 @@
     <dependency>
       <groupId>org.jboss.logging</groupId>
       <artifactId>jboss-logging-processor</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cassandra</groupId>
+      <artifactId>cassandra-all</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.datastax.cassandra</groupId>
+      <artifactId>cassandra-driver-core</artifactId>
       <scope>provided</scope>
     </dependency>
   </dependencies>

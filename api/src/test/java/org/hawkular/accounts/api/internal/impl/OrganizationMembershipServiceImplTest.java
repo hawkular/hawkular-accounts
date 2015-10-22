@@ -30,12 +30,10 @@ import org.junit.Test;
 /**
  * @author Juraci Paixão Kröhling
  */
-public class OrganizationMembershipServiceImplTest extends BaseServicesTest {
+public class OrganizationMembershipServiceImplTest extends SessionEnabledTest {
     @Test
     public void listMembershipsForUserNotBelongingToAnyOrganization() {
-        entityManager.getTransaction().begin();
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
-        entityManager.getTransaction().commit();
 
         List<OrganizationMembership> memberships = membershipService.getMembershipsForPersona(jdoe);
         assertEquals("The persona should not belong to any organizations", 0, memberships.size());
@@ -43,10 +41,8 @@ public class OrganizationMembershipServiceImplTest extends BaseServicesTest {
 
     @Test
     public void listMembershipsForUserBelongingToOrganization() {
-        entityManager.getTransaction().begin();
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         organizationService.createOrganization("", "", jdoe);
-        entityManager.getTransaction().commit();
 
         List<OrganizationMembership> memberships = membershipService.getMembershipsForPersona(jdoe);
         assertEquals("There should be one membership for this persona", 1, memberships.size());
@@ -54,10 +50,8 @@ public class OrganizationMembershipServiceImplTest extends BaseServicesTest {
 
     @Test
     public void listMembershipsForSoleOrganization() {
-        entityManager.getTransaction().begin();
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         Organization acme = organizationService.createOrganization("", "", jdoe);
-        entityManager.getTransaction().commit();
 
         List<OrganizationMembership> memberships = membershipService.getMembershipsForPersona(acme);
         assertEquals("There should be no memberships for this organization", 0, memberships.size());
@@ -65,11 +59,9 @@ public class OrganizationMembershipServiceImplTest extends BaseServicesTest {
 
     @Test
     public void listMembershipsForOrganizationBelongingToOrganization() {
-        entityManager.getTransaction().begin();
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         Organization acme = organizationService.createOrganization("", "", jdoe);
         Organization itDepartment = organizationService.createOrganization("", "", acme);
-        entityManager.getTransaction().commit();
 
         List<OrganizationMembership> memberships = membershipService.getMembershipsForPersona(acme);
         assertEquals("Acme is super persona of IT department", 1, memberships.size());
@@ -77,38 +69,26 @@ public class OrganizationMembershipServiceImplTest extends BaseServicesTest {
 
     @Test
     public void changeRole() {
-        entityManager.getTransaction().begin();
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         HawkularUser jsmith = userService.getOrCreateById(UUID.randomUUID().toString());
         Organization acme = organizationService.createOrganization("", "", jdoe);
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         Invitation invitation = invitationService.create("", jdoe, acme, monitor);
         invitationService.accept(invitation, jsmith);
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         OrganizationMembership jsmithAtAcme = membershipService.getMembershipsForPersona(jsmith).get(0);
         membershipService.changeRole(jsmithAtAcme, superUser);
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         List<OrganizationMembership> memberships = membershipService.getPersonaMembershipsForOrganization(jsmith, acme);
         assertEquals("jsmith should be only super user at acme at this point", 1, memberships.size());
         assertEquals("jsmith should be only super user at acme at this point", "SuperUser",
                 memberships.get(0).getRole().getName());
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         membershipService.changeRole(jsmithAtAcme, monitor);
-        entityManager.getTransaction().commit();
 
-        entityManager.getTransaction().begin();
         memberships = membershipService.getPersonaMembershipsForOrganization(jsmith, acme);
         assertEquals("jsmith should be only monitor at acme at this point", 1, memberships.size());
         assertEquals("jsmith should be only monitor at acme at this point", "Monitor",
                 memberships.get(0).getRole().getName());
-        entityManager.getTransaction().commit();
     }
 }

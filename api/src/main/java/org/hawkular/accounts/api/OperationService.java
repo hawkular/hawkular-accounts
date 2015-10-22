@@ -16,6 +16,8 @@
  */
 package org.hawkular.accounts.api;
 
+import java.util.UUID;
+
 import javax.enterprise.inject.spi.InjectionPoint;
 
 import org.hawkular.accounts.api.model.Operation;
@@ -42,6 +44,13 @@ public interface OperationService {
      * @return the Operation
      */
     Operation getByName(String name);
+
+    /**
+     * Retrieves the operation by its ID
+     * @param id    the operation's ID
+     * @return the operation for the ID
+     */
+    Operation getById(UUID id);
 
     /**
      * Returns a builder-style instance for fluidly assigning permitted roles for a given operation.
