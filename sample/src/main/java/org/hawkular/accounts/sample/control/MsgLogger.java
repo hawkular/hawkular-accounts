@@ -17,6 +17,7 @@
 package org.hawkular.accounts.sample.control;
 
 import org.jboss.logging.Logger;
+import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.LogMessage;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.ValidIdRange;
@@ -40,4 +41,8 @@ public interface MsgLogger {
     @LogMessage(level = Logger.Level.INFO)
     @Message(id = 190002, value = "CDI Event from Accounts received by Sample: %s, %s, %s")
     void cdiEventReceived(String action, String eventId, String personaId);
+
+    @LogMessage(level = Logger.Level.FATAL)
+    @Message(id = 190003, value = "Failed to initialize Cassandra's schema for Accounts Sample. Reason")
+    void failedToInitializeSchema(@Cause Throwable t);
 }

@@ -17,12 +17,16 @@
     limitations under the License.
 
 -->
-<persistence version="2.0"
-             xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:schemaLocation="
-http://java.sun.com/xml/ns/persistence
-http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
-  <persistence-unit name="hawkular-accounts-sample">
-    <jta-data-source>java:jboss/datasources/HawkularDS</jta-data-source>
-  </persistence-unit>
-</persistence>
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+      <layout class="ch.qos.logback.classic.PatternLayout">
+        <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
+      </layout>
+    </appender>
+    <logger name="org.apache" level="WARN"/>
+    <logger name="com.datastax" level="WARN"/>
+    <logger name="com.datastax.driver.core.Cluster" level="ERROR"/>
+    <root level="warn">
+      <appender-ref ref="STDOUT" />
+    </root>
+</configuration>

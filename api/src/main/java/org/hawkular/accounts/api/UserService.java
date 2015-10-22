@@ -16,6 +16,8 @@
  */
 package org.hawkular.accounts.api;
 
+import java.util.UUID;
+
 import org.hawkular.accounts.api.model.HawkularUser;
 
 /**
@@ -45,8 +47,18 @@ public interface UserService {
      *
      * @param id the user ID
      * @return the existing user with the given ID or null if the user is not found.
+     * @deprecated Use {@link #getById(UUID)} instead
      */
+    @Deprecated
     HawkularUser getById(String id);
+
+    /**
+     * Retrieves an {@link HawkularUser} based in its ID.
+     *
+     * @param id the user ID
+     * @return the existing user with the given ID or null if the user is not found.
+     */
+    HawkularUser getById(UUID id);
 
     /**
      * Retrieves an {@link HawkularUser} based on its ID. If no user is found, a new one is created and returned.

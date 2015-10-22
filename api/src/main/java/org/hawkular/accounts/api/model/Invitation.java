@@ -19,37 +19,18 @@ package org.hawkular.accounts.api.model;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-
 /**
  * @author Juraci Paixão Kröhling
  */
-@Entity
 public class Invitation extends BaseEntity {
 
     private String email;
     private ZonedDateTime acceptedAt = null;
     private ZonedDateTime dispatchedAt = null;
-
-    @Column(unique = true)
-    private final String token = UUID.randomUUID().toString();
-
-    @ManyToOne
     private HawkularUser invitedBy;
-
-    @ManyToOne
     private HawkularUser acceptedBy;
-
-    @ManyToOne
     private Organization organization;
-
-    @ManyToOne
     private Role role;
-
-    protected Invitation() {
-    }
 
     public Invitation(String email, HawkularUser invitedBy, Organization organization, Role role) {
         this.email = email;
@@ -66,8 +47,22 @@ public class Invitation extends BaseEntity {
         this.role = role;
     }
 
+    public Invitation(UUID id, ZonedDateTime createdAt, ZonedDateTime updatedAt, String email,
+                      ZonedDateTime acceptedAt, ZonedDateTime dispatchedAt,
+                      HawkularUser invitedBy, HawkularUser acceptedBy,
+                      Organization organization, Role role) {
+        super(id, createdAt, updatedAt);
+        this.email = email;
+        this.acceptedAt = acceptedAt;
+        this.dispatchedAt = dispatchedAt;
+        this.invitedBy = invitedBy;
+        this.acceptedBy = acceptedBy;
+        this.organization = organization;
+        this.role = role;
+    }
+
     public String getToken() {
-        return token;
+        return getId();
     }
 
     public HawkularUser getInvitedBy() {
@@ -122,5 +117,55 @@ public class Invitation extends BaseEntity {
 
     public void setAcceptedBy(HawkularUser acceptedBy) {
         this.acceptedBy = acceptedBy;
+    }
+
+    public static class Builder extends BaseEntity.Builder {
+        private String email;
+        private ZonedDateTime acceptedAt;
+        private ZonedDateTime dispatchedAt;
+        private HawkularUser invitedBy;
+        private HawkularUser acceptedBy;
+        private Organization organization;
+        private Role role;
+
+        public Builder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public Builder acceptedAt(ZonedDateTime acceptedAt) {
+            this.acceptedAt = acceptedAt;
+            return this;
+        }
+
+        public Builder dispatchedAt(ZonedDateTime dispatchedAt) {
+            this.dispatchedAt = dispatchedAt;
+            return this;
+        }
+
+        public Builder invitedBy(HawkularUser invitedBy) {
+            this.invitedBy = invitedBy;
+            return this;
+        }
+
+        public Builder acceptedBy(HawkularUser acceptedBy) {
+            this.acceptedBy = acceptedBy;
+            return this;
+        }
+
+        public Builder organization(Organization organization) {
+            this.organization = organization;
+            return this;
+        }
+
+        public Builder role(Role role) {
+            this.role = role;
+            return this;
+        }
+
+        public Invitation build() {
+            return new Invitation(id, createdAt, updatedAt, email, acceptedAt, dispatchedAt, invitedBy, acceptedBy,
+                    organization, role);
+        }
     }
 }

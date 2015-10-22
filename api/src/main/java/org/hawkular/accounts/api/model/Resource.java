@@ -16,13 +16,8 @@
  */
 package org.hawkular.accounts.api.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import java.time.ZonedDateTime;
+import java.util.UUID;
 
 /**
  * Represents a resource that is meant to be protected. Each module is free to define their own rules for creating
@@ -38,26 +33,13 @@ import javax.persistence.OneToMany;
  *
  * @author Juraci Paixão Kröhling
  */
-@Entity
 public class Resource extends BaseEntity {
-
-    @ManyToOne
     private Persona persona;
 
     /**
      * Represents the parent resource for this resource.
      */
-    @ManyToOne
     private Resource parent = null;
-
-    /**
-     * Transient list of sub resources for this resource.
-     */
-    @OneToMany(mappedBy = "parent")
-    private List<Resource> children = new ArrayList<>();
-
-    protected Resource() { // JPA happy
-    }
 
     /**
      * Creates a new resource with the given owner.
@@ -129,6 +111,13 @@ public class Resource extends BaseEntity {
         this.parent = parent;
     }
 
+    public Resource(UUID id, ZonedDateTime createdAt, ZonedDateTime updatedAt,
+                    Persona persona, Resource parent) {
+        super(id, createdAt, updatedAt);
+        this.persona = persona;
+        this.parent = parent;
+    }
+
     public Persona getPersona() {
         return persona;
     }
@@ -137,28 +126,12 @@ public class Resource extends BaseEntity {
         return parent;
     }
 
-    public List<Resource> getSubResources() {
-        return Collections.unmodifiableList(this.children);
-    }
-
     public void setParent(Resource parent) {
         if (null == parent && null == this.persona) {
             throw new IllegalStateException("A resource should either have a valid parent or an owner.");
         }
 
-        if (this.parent != null) {
-            // we are changing parents
-            if (this.parent.children.contains(this)) {
-                // old parent has a reference to this, let's remove it (the list is transient, so, don't worry about
-                // persistence)
-                this.parent.children.remove(this);
-            }
-        }
         this.parent = parent;
-
-        if (parent != null) {
-            this.parent.children.add(this);
-        }
     }
 
     public void setPersona(Persona persona) {
@@ -166,5 +139,24 @@ public class Resource extends BaseEntity {
             throw new IllegalStateException("A resource should either have a valid parent or an owner.");
         }
         this.persona = persona;
+    }
+
+    public static class Builder extends BaseEntity.Builder {
+        private Persona persona;
+        private Resource parent;
+
+        public Builder persona(Persona persona) {
+            this.persona = persona;
+            return this;
+        }
+
+        public Builder parent(Resource parent) {
+            this.parent = parent;
+            return this;
+        }
+
+        public Resource build() {
+            return new Resource(id, createdAt, updatedAt, persona, parent);
+        }
     }
 }

@@ -22,14 +22,12 @@ import java.util.List;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
 import org.hawkular.accounts.api.CurrentUser;
 import org.hawkular.accounts.api.OrganizationService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Persona;
 
@@ -40,10 +38,6 @@ import org.hawkular.accounts.api.model.Persona;
 @PermitAll
 @Stateless
 public class PersonaEndpoint {
-    @Inject
-    @HawkularAccounts
-    EntityManager em;
-
     @Inject
     Persona persona;
 

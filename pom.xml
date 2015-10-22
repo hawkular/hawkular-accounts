@@ -43,7 +43,6 @@
     <module>keycloak-event-listener-rest</module>
     <module>keycloak-event-listener-jms</module>
     <module>keycloak-theme</module>
-    <module>liquibase</module>
     <module>secret-store-api</module>
     <module>secret-store</module>
     <module>undertow-filter</module>

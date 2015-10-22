@@ -17,16 +17,10 @@
 package org.hawkular.accounts.sample.control;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.persistence.PersistenceContext;
 
 /**
  * @author Juraci Paixão Kröhling
  */
 @ApplicationScoped
 public class ApplicationResources {
-    @Produces
-    @PersistenceContext(unitName = "hawkular-accounts-sample")
-    @HawkularAccountsSample
-    private static javax.persistence.EntityManager em;
 }

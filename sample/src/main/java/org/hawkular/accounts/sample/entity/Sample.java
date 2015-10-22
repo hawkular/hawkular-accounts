@@ -16,31 +16,26 @@
  */
 package org.hawkular.accounts.sample.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import java.util.UUID;
 
 /**
  * @author Juraci Paixão Kröhling
  */
-@Entity
 public class Sample {
 
-    @Id
-    private String id;
-
+    private UUID id;
     private String name;
-
-    private String ownerId;
+    private UUID ownerId;
 
     protected Sample() { // jpa happy
     }
 
-    public Sample(String id, String ownerId) {
+    public Sample(UUID id, UUID ownerId) {
         this.id = id;
         this.ownerId = ownerId;
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -52,7 +47,7 @@ public class Sample {
         this.name = name;
     }
 
-    public String getOwnerId() {
+    public UUID getOwnerId() {
         return ownerId;
     }
 }

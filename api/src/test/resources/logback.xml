@@ -17,13 +17,16 @@
     limitations under the License.
 
 -->
-<databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
-
-  <include file="org/hawkular/accounts/db/db.changelog-1.0.xml"/>
-  <include file="org/hawkular/accounts/db/db.changelog-1.1.xml"/>
-  <include file="org/hawkular/accounts/db/db.changelog-1.2.xml"/>
-</databaseChangeLog>
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+      <layout class="ch.qos.logback.classic.PatternLayout">
+        <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
+      </layout>
+    </appender>
+    <logger name="org.apache" level="WARN"/>
+    <logger name="com.datastax" level="WARN"/>
+    <logger name="com.datastax.driver.core.Cluster" level="ERROR"/>
+    <root level="warn">
+      <appender-ref ref="STDOUT" />
+    </root>
+</configuration>

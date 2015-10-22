@@ -31,13 +31,10 @@ import org.junit.Test;
 /**
  * @author Juraci Paixão Kröhling
  */
-public class OperationServiceImplTest extends BaseServicesTest {
+public class OperationServiceImplTest extends SessionEnabledTest {
     @Test
     public void loadExistingOperationByName() {
-        Operation operation = new Operation("foo-create");
-        entityManager.getTransaction().begin();
-        entityManager.persist(operation);
-        entityManager.getTransaction().commit();
+        Operation operation = operationService.getOrCreateByName("foo-create");
 
         Operation operationFromDatabase = operationService.getByName("foo-create");
         assertEquals("Operation should have been retrieved by name", operation.getId(), operationFromDatabase.getId());
@@ -45,24 +42,19 @@ public class OperationServiceImplTest extends BaseServicesTest {
 
     @Test
     public void nullOnNonExistingOperationByName() {
-        Operation operation = operationService.getByName("foo-create");
+        Operation operation = operationService.getByName("random-name");
         assertNull("Operation should have been retrieved by name", operation);
     }
 
     @Test
     public void testBasicSetupWithImplicitRoles() {
-        Operation operation = new Operation("foo-create");
-        entityManager.getTransaction().begin();
-        entityManager.persist(operation);
-        entityManager.getTransaction().commit();
+        Operation operation = operationService.getOrCreateByName("foo-create");
 
         // on this basic operation, we should have only one role
-        entityManager.getTransaction().begin();
         operationService
                 .setup(operation)
                 .add(monitor)
                 .persist();
-        entityManager.getTransaction().commit();
 
         Set<Role> roles = permissionService.getPermittedRoles(operation);
         assertEquals("Operation should be permitted only for all 7 roles", 7, roles.size());
@@ -73,18 +65,13 @@ public class OperationServiceImplTest extends BaseServicesTest {
 
     @Test
     public void testBasicSetupWithBasicRole() {
-        Operation operation = new Operation("foo-create");
-        entityManager.getTransaction().begin();
-        entityManager.persist(operation);
-        entityManager.getTransaction().commit();
+        Operation operation = operationService.getOrCreateByName("foo-create");
 
         // on this basic operation, we should have only one role
-        entityManager.getTransaction().begin();
         operationService
                 .setup(operation)
                 .add(superUser)
                 .persist();
-        entityManager.getTransaction().commit();
 
         Set<Role> roles = permissionService.getPermittedRoles(operation);
         assertEquals("Operation should be permitted only for super persona", 1, roles.size());
@@ -92,12 +79,10 @@ public class OperationServiceImplTest extends BaseServicesTest {
 
     @Test
     public void testSetupAndRetrieveWithBasicRoles() {
-        entityManager.getTransaction().begin();
         Operation operation = operationService
                 .setup("foo-create")
                 .add("SuperUser")
                 .make();
-        entityManager.getTransaction().commit();
 
         Set<Role> roles = permissionService.getPermittedRoles(operation);
         assertEquals("Operation should be permitted only for super user", 1, roles.size());
@@ -105,13 +90,9 @@ public class OperationServiceImplTest extends BaseServicesTest {
 
     @Test
     public void clearShouldClearPreviousAdds() {
-        Operation operation = new Operation("foo-create");
-        entityManager.getTransaction().begin();
-        entityManager.persist(operation);
-        entityManager.getTransaction().commit();
+        Operation operation = operationService.getOrCreateByName("foo-create");
 
         // on this basic operation, we should have only one role
-        entityManager.getTransaction().begin();
         operationService
                 .setup(operation)
                 .add(superUser)
@@ -120,7 +101,6 @@ public class OperationServiceImplTest extends BaseServicesTest {
                 .clear()
                 .add(superUser)
                 .persist();
-        entityManager.getTransaction().commit();
 
         Set<Role> roles = permissionService.getPermittedRoles(operation);
         assertEquals("Operation should be permitted only for super persona", 1, roles.size());
@@ -128,29 +108,22 @@ public class OperationServiceImplTest extends BaseServicesTest {
 
     @Test
     public void ensureNoopWhenRolesDontChange() {
-        Operation operation = new Operation("foo-create");
-        entityManager.getTransaction().begin();
-        entityManager.persist(operation);
-        entityManager.getTransaction().commit();
+        Operation operation = operationService.getOrCreateByName("ensureNoopWhenRolesDontChange");
 
         // on this basic operation, we should have only one role
-        entityManager.getTransaction().begin();
         operationService
                 .setup(operation)
                 .add(superUser)
                 .persist();
-        entityManager.getTransaction().commit();
 
         Set<Permission> permissions = permissionService.getPermissionsForOperation(operation);
         assertEquals("There should be only one permission", 1, permissions.size());
         Permission permission = permissions.stream().findFirst().get();
 
-        entityManager.getTransaction().begin();
         operationService
                 .setup(operation)
                 .add(superUser)
                 .persist();
-        entityManager.getTransaction().commit();
 
         Set<Permission> permissionsAfter = permissionService.getPermissionsForOperation(operation);
         assertEquals("There should be only one permission after a noop", 1, permissionsAfter.size());
@@ -161,32 +134,23 @@ public class OperationServiceImplTest extends BaseServicesTest {
 
     @Test
     public void ensureClearingResetsStateOfRoles() {
-        Operation operation = new Operation("foo-create");
-        entityManager.getTransaction().begin();
-        entityManager.persist(operation);
-        entityManager.getTransaction().commit();
+        Operation operation = operationService.getOrCreateByName("foo-create");
 
         // on this basic operation, we should have only one role
-        entityManager.getTransaction().begin();
         operationService
                 .setup(operation)
                 .add(superUser)
                 .persist();
-        entityManager.flush();
-        entityManager.getTransaction().commit();
 
         Set<Permission> permissions = permissionService.getPermissionsForOperation(operation);
         assertEquals("There should be only one permission", 1, permissions.size());
         Permission permission = permissions.stream().findFirst().get();
 
-        entityManager.getTransaction().begin();
         operationService
                 .setup(operation)
                 .clear()
                 .add(superUser)
                 .persist();
-        entityManager.flush();
-        entityManager.getTransaction().commit();
 
         Set<Permission> permissionsAfter = permissionService.getPermissionsForOperation(operation);
         assertEquals("There should be only one permission after a noop", 1, permissionsAfter.size());

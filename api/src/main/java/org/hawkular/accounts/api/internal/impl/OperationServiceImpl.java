@@ -16,28 +16,28 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
-import java.util.List;
+import java.security.InvalidParameterException;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 import org.hawkular.accounts.api.NamedOperation;
 import org.hawkular.accounts.api.OperationService;
 import org.hawkular.accounts.api.PermissionService;
 import org.hawkular.accounts.api.RoleService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.internal.BoundStatements;
+import org.hawkular.accounts.api.internal.NamedStatement;
 import org.hawkular.accounts.api.model.Operation;
-import org.hawkular.accounts.api.model.Operation_;
 import org.hawkular.accounts.api.model.Permission;
 import org.hawkular.accounts.api.model.Role;
+
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.Row;
 
 /**
  * Concrete implementation of {@link OperationService}.
@@ -47,36 +47,31 @@ import org.hawkular.accounts.api.model.Role;
  */
 @Stateless
 @PermitAll
-public class OperationServiceImpl implements OperationService {
-    @Inject
-    @HawkularAccounts
-    EntityManager em;
-
+public class OperationServiceImpl extends BaseServiceImpl<Operation> implements OperationService {
     @Inject
     PermissionService permissionService;
 
     @Inject
     RoleService roleService;
 
+    @Inject @NamedStatement(BoundStatements.OPERATION_GET_BY_NAME)
+    BoundStatement getByName;
+
+    @Inject @NamedStatement(BoundStatements.OPERATION_GET_BY_ID)
+    BoundStatement getById;
+
+    @Inject @NamedStatement(BoundStatements.OPERATION_CREATE)
+    BoundStatement createStatement;
+
     @Override
     public Operation getByName(String name) {
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<Operation> query = builder.createQuery(Operation.class);
-        Root<Operation> root = query.from(Operation.class);
-        query.select(root);
-        query.where(builder.equal(root.get(Operation_.name), name));
+        getByName.setString("name", name);
+        return getSingleRecord(getByName);
+    }
 
-        List<Operation> results = em.createQuery(query).getResultList();
-        if (results.size() == 1) {
-            Operation operation = results.get(0);
-            return operation;
-        }
-
-        if (results.size() > 1) {
-            throw new IllegalStateException("More than one operation found for name " + name);
-        }
-
-        return null;
+    @Override
+    public Operation getById(UUID id) {
+        return getById(id, getById);
     }
 
     @Override
@@ -87,7 +82,6 @@ public class OperationServiceImpl implements OperationService {
         return getByName(operationName);
     }
 
-
     @Override
     public Setup setup(Operation operation) {
         return new Setup(operation);
@@ -97,10 +91,51 @@ public class OperationServiceImpl implements OperationService {
     public Setup setup(String operationName) {
         Operation operation = getByName(operationName);
         if (null == operation) {
-            operation = new Operation(operationName);
-            em.persist(operation);
+            operation = create(operationName);
         }
         return setup(operation);
+    }
+
+    @Override
+    Operation getFromRow(Row row) {
+        Operation.Builder builder = new Operation.Builder();
+        mapBaseFields(row, builder);
+        return builder.name(row.getString("name")).build();
+    }
+
+    /**
+     * This is not part of the public API. We want people to create Operations based on the setup(), but we might
+     * want not want to use setup() for unit tests.
+     * @param name    the operation name to create
+     * @return the newly created Operation.
+     * @throws InvalidParameterException if an operation with the given name already exists.
+     */
+    Operation create(String name) {
+        if (null != getByName(name)) {
+            // we already have a role with this name...
+            throw new InvalidParameterException("There's already an operation with the given name.");
+        }
+
+        Operation operation = new Operation(name);
+        bindBasicParameters(operation, createStatement);
+        createStatement.setString("name", name);
+
+        session.execute(createStatement);
+        return operation;
+    }
+
+    /**
+     * Similar to {@link #create(String)}, but returns an existing Operation should one exist.
+     * @param name    the operation name to create
+     * @return the newly created Operation if none exists, or the existing one.
+     * @see #create(String)
+     */
+    Operation getOrCreateByName(String name) {
+        Operation byName = getByName(name);
+        if (null != byName) {
+            return byName;
+        }
+        return create(name);
     }
 
     public class Setup implements OperationService.Setup {
@@ -176,15 +211,10 @@ public class OperationServiceImpl implements OperationService {
 
         private void doPersist() {
             if (rolesHaveChanged) {
-                // here, we have two options: first is to do a bulk delete, based on the operation
-                // something like: DELETE FROM Permission p where p.operation = operation
-                // it would be faster than go one by one, *but*, doing the way we are doing
-                // means that we are leaving the permission on the 1st level cache (which might or might not be
-                // useful at this point).
-                // if this proves to be an issue, then we change it to bulk remove
+                // for now, the simple thing: one by one delete... if it's too problematic, bulk remove them!
                 Set<Permission> permissions = permissionService.getPermissionsForOperation(operation);
-                permissions.forEach(em::remove);
-                roles.forEach(role -> em.persist(new Permission(operation, role)));
+                permissions.forEach(permissionService::remove);
+                roles.forEach(role -> permissionService.create(operation, role));
             }
         }
     }

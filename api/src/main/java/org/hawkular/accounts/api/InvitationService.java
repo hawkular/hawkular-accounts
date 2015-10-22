@@ -17,6 +17,7 @@
 package org.hawkular.accounts.api;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Invitation;
@@ -33,14 +34,25 @@ public interface InvitationService {
      * Retrieves an {@link Invitation} based on the token.
      * @param token the token that was received by the invited user
      * @return the invitation related to the token
+     * @deprecated Use {@link #getById(UUID)} instead.
      */
+    @Deprecated
     Invitation getByToken(String token);
+
+    /**
+     * Retrieves an {@link Invitation} based on the token.
+     * @param token the token that was received by the invited user
+     * @return the invitation related to the token
+     */
+    Invitation getById(UUID token);
 
     /**
      * Retrieves an {@link Invitation} based on the ID.
      * @param id    the invitation's ID
      * @return  the invitation
+     * @deprecated Use {@link #getById(UUID)} instead.
      */
+    @Deprecated
     Invitation get(String id);
 
     /**
@@ -81,4 +93,10 @@ public interface InvitationService {
      * @param invitation    the invitation to be removed
      */
     void remove(Invitation invitation);
+
+    /**
+     * Marks the given invitation as dispatched.
+     * @param invitation    the invitation to mark as dispatched
+     */
+    void markAsDispatched(Invitation invitation);
 }

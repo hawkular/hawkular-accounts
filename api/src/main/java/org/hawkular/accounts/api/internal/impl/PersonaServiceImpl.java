@@ -20,32 +20,27 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
 
 import org.hawkular.accounts.api.OrganizationMembershipService;
 import org.hawkular.accounts.api.OrganizationService;
+import org.hawkular.accounts.api.PersonaResourceRoleService;
 import org.hawkular.accounts.api.PersonaService;
 import org.hawkular.accounts.api.ResourceService;
 import org.hawkular.accounts.api.RoleService;
 import org.hawkular.accounts.api.UserService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.PersonaResourceRole;
-import org.hawkular.accounts.api.model.PersonaResourceRole_;
-import org.hawkular.accounts.api.model.Persona_;
 import org.hawkular.accounts.api.model.Resource;
 import org.hawkular.accounts.api.model.Role;
 
@@ -58,11 +53,6 @@ import org.hawkular.accounts.api.model.Role;
 @Stateless
 @PermitAll
 public class PersonaServiceImpl implements PersonaService {
-
-    @Inject
-    @HawkularAccounts
-    EntityManager em;
-
     @Inject
     OrganizationMembershipService membershipService;
 
@@ -79,29 +69,31 @@ public class PersonaServiceImpl implements PersonaService {
     RoleService roleService;
 
     @Inject
+    PersonaResourceRoleService personaResourceRoleService;
+
+    @Inject
     private HttpServletRequest httpRequest;
+
+    public Persona getById(UUID id) {
+        return get(id.toString());
+    }
 
     public Persona get(String id) {
         if (null == id) {
             throw new IllegalArgumentException("The provided Persona ID is invalid (null).");
         }
 
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<Persona> query = builder.createQuery(Persona.class);
-        Root<Persona> root = query.from(Persona.class);
-        query.select(root);
-        query.where(builder.equal(root.get(Persona_.id), id));
+        // for now, we will be doing two queries: one for user, one for organization, which are the two known
+        // persona types
+        Persona persona;
 
-        List<Persona> results = em.createQuery(query).getResultList();
-        if (results.size() == 1) {
-            return results.get(0);
+        UUID uuid = UUID.fromString(id);
+        persona = userService.getById(uuid);
+        if (null == persona) {
+            persona = organizationService.getById(uuid);
         }
 
-        if (results.size() > 1) {
-            throw new IllegalStateException("More than one owner found for ID " + id);
-        }
-
-        return null;
+        return persona;
     }
 
     @Override
@@ -115,16 +107,7 @@ public class PersonaServiceImpl implements PersonaService {
         // "Department 2" is "Auditor", "Administrator" and "Monitor" of "node1"
         // Therefore, jdoe is only "Auditor" of "node1".
 
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<PersonaResourceRole> query = builder.createQuery(PersonaResourceRole.class);
-        Root<PersonaResourceRole> root = query.from(PersonaResourceRole.class);
-        query.select(root);
-        query.where(
-                builder.equal(root.get(PersonaResourceRole_.persona), persona),
-                builder.equal(root.get(PersonaResourceRole_.resource), resource)
-        );
-
-        List<PersonaResourceRole> results = em.createQuery(query).getResultList();
+        List<PersonaResourceRole> results = personaResourceRoleService.getByPersonaAndResource(persona, resource);
         if (results.size() == 0) {
             // this means: this persona has no direct roles on the resource, let's check the organizations it belongs to
             List<Organization> organizations = organizationService.getOrganizationsForPersona(persona);
@@ -208,7 +191,7 @@ public class PersonaServiceImpl implements PersonaService {
         }
 
         // an organization is a resource
-        Resource resource = resourceService.get(toImpersonate.getId());
+        Resource resource = resourceService.getById(toImpersonate.getIdAsUUID());
         Set<Role> roles = getEffectiveRolesForResource(actual, resource);
         return roles != null && roles.size() > 0; // at least one role is enough
     }

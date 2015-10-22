@@ -16,106 +16,21 @@
  */
 package org.hawkular.accounts.api.model;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import java.util.UUID;
 
-import org.hawkular.accounts.api.BaseEntityManagerEnabledTest;
 import org.junit.Test;
 
 /**
  * @author Juraci Paixão Kröhling
  */
-public class ResourceTest extends BaseEntityManagerEnabledTest {
-
-    @Test
-    public void testResourceWithoutParent() {
-        Persona persona = new HawkularUser();
-        Resource resource = new Resource(persona);
-        entityManager.getTransaction().begin();
-        entityManager.persist(persona);
-        entityManager.persist(resource);
-        entityManager.getTransaction().commit();
-    }
-
-    @Test
-    public void testChangeOfParents() {
-        Persona persona = new HawkularUser();
-        Resource host1 = new Resource(persona);
-        Resource host2 = new Resource(persona);
-        Resource memoryHost1 = new Resource(host1);
-
-        entityManager.getTransaction().begin();
-        entityManager.persist(persona);
-        entityManager.persist(host1);
-        entityManager.persist(host2);
-        entityManager.persist(memoryHost1);
-        entityManager.getTransaction().commit();
-
-        assertEquals("There should be 1 sub resource for host1", 1, host1.getSubResources().size());
-        assertEquals("There should be no sub resources for host2", 0, host2.getSubResources().size());
-
-        memoryHost1.setParent(host2);
-
-        entityManager.getTransaction().begin();
-        entityManager.persist(persona);
-        entityManager.persist(host1);
-        entityManager.persist(host2);
-        entityManager.persist(memoryHost1);
-        entityManager.getTransaction().commit();
-
-        assertEquals("There should be no sub resources for host1", 0, host1.getSubResources().size());
-        assertEquals("There should be 1 sub resource for host2", 1, host2.getSubResources().size());
-    }
-
-    @Test
-    public void testResetOfParents() {
-        Persona persona = new HawkularUser();
-        Resource host1 = new Resource(persona);
-        Resource host2 = new Resource(persona);
-        Resource memoryHost1 = new Resource(host1);
-
-        entityManager.getTransaction().begin();
-        entityManager.persist(persona);
-        entityManager.persist(host1);
-        entityManager.persist(host2);
-        entityManager.persist(memoryHost1);
-        entityManager.getTransaction().commit();
-
-        assertEquals("There should be 1 sub resource for host1", 1, host1.getSubResources().size());
-        assertEquals("There should be no sub resources for host2", 0, host2.getSubResources().size());
-
-        memoryHost1.setPersona(persona);
-        memoryHost1.setParent(null);
-
-        entityManager.getTransaction().begin();
-        entityManager.persist(persona);
-        entityManager.persist(host1);
-        entityManager.persist(host2);
-        entityManager.persist(memoryHost1);
-        entityManager.getTransaction().commit();
-
-        assertEquals("There should be no sub resources for host1", 0, host1.getSubResources().size());
-        assertEquals("There should be no sub resources for host2", 0, host2.getSubResources().size());
-        assertNull("There should be no sub resources for host2", memoryHost1.getParent());
-    }
+public class ResourceTest {
 
     @Test(expected = IllegalStateException.class)
     public void testResetWithNullOwner() {
-        Persona persona = new HawkularUser();
+        Persona persona = new HawkularUser(UUID.randomUUID(), "John Doe");
         Resource host1 = new Resource(persona);
         Resource host2 = new Resource(persona);
         Resource memoryHost1 = new Resource(host1);
-
-        entityManager.getTransaction().begin();
-        entityManager.persist(persona);
-        entityManager.persist(host1);
-        entityManager.persist(host2);
-        entityManager.persist(memoryHost1);
-        entityManager.getTransaction().commit();
-
-        assertEquals("There should be 1 sub resource for host1", 1, host1.getSubResources().size());
-        assertEquals("There should be no sub resources for host2", 0, host2.getSubResources().size());
-
         memoryHost1.setParent(null);
     }
 
@@ -141,13 +56,13 @@ public class ResourceTest extends BaseEntityManagerEnabledTest {
     @Test(expected = IllegalStateException.class)
     public void testResourceWithIdAndNullOwnerOnConstructor() {
         Persona persona = null;
-        new Resource("id", persona);
+        new Resource(UUID.randomUUID().toString(), persona);
     }
 
     @Test(expected = IllegalStateException.class)
     public void testResourceWithIdAndNullOwnerNullParentOnConstructor() {
         Persona persona = null;
         Resource resource = null;
-        new Resource("id", persona, resource);
+        new Resource(UUID.randomUUID().toString(), persona, resource);
     }
 }

@@ -14,10 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.common.internal;
+package org.hawkular.accounts.sample.control;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -29,6 +33,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
+import org.hawkular.accounts.common.internal.CassandraSessionCallable;
+
 import com.datastax.driver.core.Session;
 
 /**
@@ -38,7 +44,9 @@ import com.datastax.driver.core.Session;
 @Singleton
 @ApplicationScoped
 @PermitAll
-public class CassandraSessionInitializer {
+public class CassandraSessionInitializerForSample {
+    MsgLogger logger = MsgLogger.LOGGER;
+
     private Future<Session> sessionFuture;
 
     @Resource
@@ -52,10 +60,22 @@ public class CassandraSessionInitializer {
         sessionFuture = executor.submit(cassandraSessionCallable);
     }
 
-    @Produces @ApplicationScoped
+    @Produces @ApplicationScoped @HawkularAccountsSample
     public Session getSession() {
         try {
-            return sessionFuture.get();
+            Session session = sessionFuture.get();
+            InputStream input = getClass().getResourceAsStream("/hawkular_accounts_sample.cql");
+            try (BufferedReader buffer = new BufferedReader(new InputStreamReader(input))) {
+                String content = buffer.lines().collect(Collectors.joining("\n"));
+                for (String cql : content.split("(?m)^-- #.*$")) {
+                    if (!cql.startsWith("--")) {
+                        session.execute(cql);
+                    }
+                }
+            } catch (Exception e) {
+                logger.failedToInitializeSchema(e);
+            }
+            return session;
         } catch (InterruptedException | ExecutionException e) {
             throw new IllegalStateException("Could not get the initialized session.", e);
         }

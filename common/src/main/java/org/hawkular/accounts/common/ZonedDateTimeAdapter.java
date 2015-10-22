@@ -14,23 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.api.internal.adapter;
+package org.hawkular.accounts.common;
 
 import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Date;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import javax.enterprise.context.ApplicationScoped;
 
 /**
  * JPA adapter for converting {@link ZonedDateTime} into {@link Timestamp}.
  *
  * @author Juraci Paixão Kröhling
  */
-@Converter(autoApply = true)
-public class ZonedDateTimeAdapter implements AttributeConverter<ZonedDateTime, Timestamp> {
-    @Override
+@ApplicationScoped
+public class ZonedDateTimeAdapter {
     public Timestamp convertToDatabaseColumn(ZonedDateTime attribute) {
         if (null == attribute) {
             return null;
@@ -38,11 +37,17 @@ public class ZonedDateTimeAdapter implements AttributeConverter<ZonedDateTime, T
         return Timestamp.valueOf(attribute.toLocalDateTime());
     }
 
-    @Override
     public ZonedDateTime convertToEntityAttribute(Timestamp dbData) {
         if (null == dbData) {
             return null;
         }
         return ZonedDateTime.of(dbData.toLocalDateTime(), ZoneOffset.UTC);
+    }
+
+    public ZonedDateTime convertToEntityAttribute(Date dbData) {
+        if (null == dbData) {
+            return null;
+        }
+        return ZonedDateTime.ofInstant(dbData.toInstant(), ZoneOffset.UTC);
     }
 }

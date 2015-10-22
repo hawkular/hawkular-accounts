@@ -14,23 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.api;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
-import org.junit.Before;
+package org.hawkular.accounts.secretstore.api.internal;
 
 /**
  * @author Juraci Paixão Kröhling
  */
-public class BaseEntityManagerEnabledTest {
-    protected EntityManager entityManager;
+public enum BoundStatements {
+    GET_BY_ID("get-token-by-id", "SELECT * FROM secretstore.tokens WHERE id = ?"),
+    CREATE("create-token",
+            "INSERT INTO secretstore.tokens " +
+                    "(id, refreshToken, secret, attributes, createdAt, updatedAt) " +
+                    "VALUES " +
+                    "(?, ?, ?, ?, ?, ?)");
 
-    @Before
-    public void initializeEntityManager() {
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("backend-unittest-pu");
-        this.entityManager = entityManagerFactory.createEntityManager();
+    private String name;
+    private String value;
+
+    BoundStatements(String name, String value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getValue() {
+        return value;
     }
 }

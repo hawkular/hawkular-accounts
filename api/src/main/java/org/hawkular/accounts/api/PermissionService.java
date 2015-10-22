@@ -17,6 +17,7 @@
 package org.hawkular.accounts.api;
 
 import java.util.Set;
+import java.util.UUID;
 
 import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Permission;
@@ -49,4 +50,25 @@ public interface PermissionService {
      * @return a list of permissions
      */
     Set<Permission> getPermissionsForOperation(Operation operation);
+
+    /**
+     * Retrieves an existing Permission based on its ID
+     * @param id    the ID of the permission
+     * @return the permission or null
+     */
+    Permission getById(UUID id);
+
+    /**
+     * Creates a permission composed of the given operation and role
+     * @param operation    the operation
+     * @param role         the allowed role for the permission
+     * @return  the newly created permission
+     */
+    Permission create(Operation operation, Role role);
+
+    /**
+     * Removes the given permission from the data store.
+     * @param permission the permission to be removed.
+     */
+    void remove(Permission permission);
 }

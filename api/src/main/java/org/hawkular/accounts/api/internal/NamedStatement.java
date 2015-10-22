@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.api.internal.adapter;
+package org.hawkular.accounts.api.internal;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
@@ -25,15 +25,17 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;
 
 /**
- * CDI qualifier, to mark a bean as being specific to Hawkular Accounts when beans could be ambiguous.
+ * Qualifier, allowing consumers to specify which statement is meant to be retrieved.
  *
  * @author Juraci Paixão Kröhling
  */
 @Qualifier
 @Retention(RUNTIME)
 @Target({METHOD, FIELD, PARAMETER, TYPE})
-public @interface HawkularAccounts {
+public @interface NamedStatement {
+    @Nonbinding BoundStatements value() default BoundStatements.DEFAULT;
 }

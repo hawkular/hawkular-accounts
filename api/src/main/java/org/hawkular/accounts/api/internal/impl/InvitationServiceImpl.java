@@ -16,103 +16,87 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 import org.hawkular.accounts.api.InvitationService;
 import org.hawkular.accounts.api.OrganizationMembershipService;
-import org.hawkular.accounts.api.internal.adapter.HawkularAccounts;
+import org.hawkular.accounts.api.OrganizationService;
+import org.hawkular.accounts.api.RoleService;
+import org.hawkular.accounts.api.UserService;
+import org.hawkular.accounts.api.internal.BoundStatements;
+import org.hawkular.accounts.api.internal.NamedStatement;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Invitation;
-import org.hawkular.accounts.api.model.Invitation_;
 import org.hawkular.accounts.api.model.Organization;
-import org.hawkular.accounts.api.model.OrganizationMembership;
 import org.hawkular.accounts.api.model.Role;
+
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.Row;
 
 /**
  * @author Juraci Paixão Kröhling
  */
 @Stateless
 @PermitAll
-public class InvitationServiceImpl implements InvitationService {
+public class InvitationServiceImpl extends BaseServiceImpl<Invitation> implements InvitationService {
     @Inject
-    @HawkularAccounts
-    EntityManager em;
+    RoleService roleService;
+
+    @Inject
+    OrganizationService organizationService;
+
+    @Inject
+    UserService userService;
 
     @Inject
     OrganizationMembershipService membershipService;
 
+    @Inject @NamedStatement(BoundStatements.INVITATION_GET_BY_TOKEN)
+    BoundStatement getByTokenStatement;
+
+    @Inject @NamedStatement(BoundStatements.INVITATIONS_GET_BY_ORGANIZATION)
+    BoundStatement getByOrganizationStatement;
+
+    @Inject @NamedStatement(BoundStatements.INVITATIONS_CREATE)
+    BoundStatement createStatement;
+
+    @Inject @NamedStatement(BoundStatements.INVITATIONS_ACCEPT)
+    BoundStatement acceptStatement;
+
+    @Inject @NamedStatement(BoundStatements.INVITATIONS_DISPATCH)
+    BoundStatement dispatchedStatement;
+
+    @Inject @NamedStatement(BoundStatements.INVITATIONS_DELETE)
+    BoundStatement deleteStatement;
+
     @Override
-    public Invitation getByToken(String token) {
-        if (null == token) {
-            throw new IllegalArgumentException("The given Invitation Token is invalid (null).");
-        }
-
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<Invitation> query = builder.createQuery(Invitation.class);
-        Root<Invitation> root = query.from(Invitation.class);
-        query.select(root);
-        query.where(builder.equal(root.get(Invitation_.token), token));
-
-        List<Invitation> results = em.createQuery(query).getResultList();
-        if (results.size() == 1) {
-            return results.get(0);
-        }
-
-        if (results.size() > 1) {
-            throw new IllegalStateException("More than one invitation found for token " + token);
-        }
-
-        return null;
+    public Invitation getById(UUID token) {
+        return getById(token, getByTokenStatement);
     }
 
     @Override
     public Invitation get(String id) {
-        if (null == id) {
-            throw new IllegalArgumentException("The given Invitation ID is invalid (null).");
-        }
+        return getById(UUID.fromString(id));
+    }
 
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<Invitation> query = builder.createQuery(Invitation.class);
-        Root<Invitation> root = query.from(Invitation.class);
-        query.select(root);
-        query.where(builder.equal(root.get(Invitation_.id), id));
-
-        List<Invitation> results = em.createQuery(query).getResultList();
-        if (results.size() == 1) {
-            return results.get(0);
-        }
-
-        if (results.size() > 1) {
-            throw new IllegalStateException("More than one invitation found for ID " + id);
-        }
-
-        return null;
+    @Override
+    public Invitation getByToken(String token) {
+        return get(token);
     }
 
     @Override
     public List<Invitation> getPendingInvitationsForOrganization(Organization organization) {
-        if (null == organization) {
-            throw new IllegalArgumentException("The given Organization is invalid (null).");
-        }
-
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<Invitation> query = builder.createQuery(Invitation.class);
-        Root<Invitation> root = query.from(Invitation.class);
-        query.select(root);
-        query.where(
-                builder.equal(root.get(Invitation_.organization), organization),
-                builder.isNull(root.get(Invitation_.acceptedAt))
-        );
-
-        return em.createQuery(query).getResultList();
+        return getInvitationsForOrganization(organization)
+                .stream()
+                .filter(i -> i.getAcceptedAt() == null)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -120,26 +104,24 @@ public class InvitationServiceImpl implements InvitationService {
         if (null == organization) {
             throw new IllegalArgumentException("The given Organization is invalid (null).");
         }
-
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<Invitation> query = builder.createQuery(Invitation.class);
-        Root<Invitation> root = query.from(Invitation.class);
-        query.select(root);
-        query.where(builder.equal(root.get(Invitation_.organization), organization));
-
-        return em.createQuery(query).getResultList();
+        return getList(getByOrganizationStatement.setUUID("organization", organization.getIdAsUUID()));
     }
 
     @Override
     public Invitation create(String email, HawkularUser invitedBy, Organization organization, Role role) {
         Invitation invitation = new Invitation(email, invitedBy, organization, role);
-        em.persist(invitation);
+        bindBasicParameters(invitation, createStatement);
+        createStatement.setString("email", invitation.getEmail());
+        createStatement.setUUID("invitedBy", invitation.getInvitedBy().getIdAsUUID());
+        createStatement.setUUID("organization", invitation.getOrganization().getIdAsUUID());
+        createStatement.setUUID("role", invitation.getRole().getIdAsUUID());
+        session.execute(createStatement);
         return invitation;
     }
 
     @Override
     public Invitation accept(Invitation invitation, HawkularUser user) {
-        OrganizationMembership membership = membershipService.create(
+        membershipService.create(
                 invitation.getOrganization(),
                 user,
                 invitation.getRole()
@@ -147,8 +129,12 @@ public class InvitationServiceImpl implements InvitationService {
 
         invitation.setAccepted();
         invitation.setAcceptedBy(user);
-        em.persist(invitation);
-        em.persist(membership);
+
+        acceptStatement.setUUID("id", invitation.getIdAsUUID());
+        acceptStatement.setTimestamp("acceptedAt",
+                zonedDateTimeAdapter.convertToDatabaseColumn(invitation.getAcceptedAt())
+        );
+        update(invitation, createStatement);
 
         return invitation;
     }
@@ -156,8 +142,54 @@ public class InvitationServiceImpl implements InvitationService {
     @Override
     public void remove(Invitation invitation) {
         if (null != invitation) {
-            em.remove(invitation);
+            deleteStatement.setUUID("id", invitation.getIdAsUUID());
+            session.execute(deleteStatement);
         }
     }
 
+    @Override
+    public void markAsDispatched(Invitation invitation) {
+        invitation.setDispatched();
+        dispatchedStatement.setUUID("id", invitation.getIdAsUUID());
+        dispatchedStatement.setTimestamp("dispatchedAt",
+                zonedDateTimeAdapter.convertToDatabaseColumn(invitation.getDispatchedAt())
+        );
+        update(invitation, dispatchedStatement);
+    }
+
+    @Override
+    Invitation getFromRow(Row row) {
+        Role role = roleService.getById(row.getUUID("role"));
+        Organization organization = organizationService.getById(row.getUUID("organization"));
+        HawkularUser invitedBy = userService.getById(row.getUUID("invitedBy"));
+        String email = row.getString("email");
+
+        HawkularUser acceptedBy = null;
+        if (!row.isNull("acceptedBy")) {
+            acceptedBy = userService.getById(row.getUUID("acceptedBy"));
+        }
+
+        ZonedDateTime acceptedAt = null;
+        if (!row.isNull("acceptedAt")) {
+            acceptedAt = zonedDateTimeAdapter.convertToEntityAttribute(row.getTimestamp("acceptedAt"));
+        }
+
+        ZonedDateTime dispatchedAt = null;
+        if (!row.isNull("dispatchedAt")) {
+            dispatchedAt = zonedDateTimeAdapter.convertToEntityAttribute(row.getTimestamp("dispatchedAt"));
+        }
+
+        Invitation.Builder builder = new Invitation.Builder();
+        mapBaseFields(row, builder);
+
+        return builder
+                .role(role)
+                .acceptedAt(acceptedAt)
+                .dispatchedAt(dispatchedAt)
+                .organization(organization)
+                .acceptedBy(acceptedBy)
+                .invitedBy(invitedBy)
+                .email(email)
+                .build();
+    }
 }

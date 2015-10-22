@@ -16,6 +16,8 @@
  */
 package org.hawkular.accounts.api;
 
+import java.util.UUID;
+
 import javax.enterprise.inject.spi.InjectionPoint;
 
 import org.hawkular.accounts.api.model.HawkularUser;
@@ -32,8 +34,17 @@ public interface UserSettingsService {
      * Retrieves a UserSettings object based on its ID.
      * @param id    the UserSettings ID
      * @return the UserSettings for the given ID or null if none exists.
+     * @deprecated Use {@link #getById(UUID)} instead
      */
+    @Deprecated
     UserSettings get(String id);
+
+    /**
+     * Retrieves a UserSettings object based on its ID.
+     * @param id    the UserSettings ID
+     * @return the UserSettings for the given ID or null if none exists.
+     */
+    UserSettings getById(UUID id);
 
     /**
      * Retrieves a UserSettings object for the currently logged in user or null if none exist.

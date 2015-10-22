@@ -26,10 +26,11 @@ import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import org.hawkular.accounts.secretstore.api.internal.ZonedDateTimeAdapter;
+import org.hawkular.accounts.common.ZonedDateTimeAdapter;
+import org.hawkular.accounts.secretstore.api.internal.BoundStatements;
+import org.hawkular.accounts.secretstore.api.internal.NamedStatement;
 
 import com.datastax.driver.core.BoundStatement;
-import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
@@ -40,35 +41,30 @@ import com.datastax.driver.core.Session;
 @Stateless
 @PermitAll
 public class TokenService {
-    private static final String GET_BY_ID_STMT = "SELECT * FROM secretstore.tokens WHERE id = ?";
-    private static final String CREATE_STMT =
-            "INSERT INTO secretstore.tokens " +
-                    "(id, refreshToken, secret, attributes, createdAt, updatedAt) " +
-                    "VALUES " +
-                    "(?, ?, ?, ?, ?, ?)";
-
     @Inject
     Session session;
 
     @Inject
     ZonedDateTimeAdapter zonedDateTimeAdapter;
 
+    @Inject @NamedStatement(BoundStatements.CREATE)
+    BoundStatement createStatement;
+
+    @Inject @NamedStatement(BoundStatements.GET_BY_ID)
+    BoundStatement getByIdStatement;
+
     public void create(Token token) {
-        PreparedStatement pstmt = session.prepare(CREATE_STMT);
-        BoundStatement boundStatement = new BoundStatement(pstmt);
         UUID id = token.getId();
         String refreshToken = token.getRefreshToken();
         String secret = token.getSecret();
         Date createdAt = zonedDateTimeAdapter.convertToDatabaseColumn(token.getCreatedAt());
         Date updatedAt = zonedDateTimeAdapter.convertToDatabaseColumn(token.getUpdatedAt());
         Map<String, String> attributes = token.getAttributes();
-        session.execute(boundStatement.bind(id, refreshToken, secret, attributes, createdAt, updatedAt));
+        session.execute(createStatement.bind(id, refreshToken, secret, attributes, createdAt, updatedAt));
     }
 
     public Token getById(UUID id) {
-        PreparedStatement pstmt = this.session.prepare(GET_BY_ID_STMT);
-        BoundStatement boundStatement = new BoundStatement(pstmt);
-        ResultSet resultSet = session.execute(boundStatement.bind(id));
+        ResultSet resultSet = session.execute(getByIdStatement.bind(id));
         List<Row> rows = resultSet.all();
 
         if (rows.size() > 1) {

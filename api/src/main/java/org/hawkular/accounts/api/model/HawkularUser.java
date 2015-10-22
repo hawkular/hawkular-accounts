@@ -16,7 +16,8 @@
  */
 package org.hawkular.accounts.api.model;
 
-import javax.persistence.Entity;
+import java.time.ZonedDateTime;
+import java.util.UUID;
 
 /**
  * Represents a real person. The actual data for this user resides on Keycloak. For us, suffice to know the
@@ -24,15 +25,22 @@ import javax.persistence.Entity;
  *
  * @author Juraci Paixão Kröhling
  */
-@Entity
 public class HawkularUser extends Persona {
     private String name;
 
-    protected HawkularUser() { // JPA happy
-    }
-
     public HawkularUser(String id) {
         super(id);
+    }
+
+    public HawkularUser(UUID id, String name) {
+        super(id);
+        this.name = name;
+    }
+
+    public HawkularUser(UUID id, ZonedDateTime createdAt, ZonedDateTime updatedAt,
+                        String name) {
+        super(id, createdAt, updatedAt);
+        this.name = name;
     }
 
     @Override
@@ -42,5 +50,17 @@ public class HawkularUser extends Persona {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public static class Builder extends BaseEntity.Builder {
+        private String name;
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public HawkularUser build() {
+            return new HawkularUser(id, createdAt, updatedAt, name);
+        }
     }
 }

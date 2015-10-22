@@ -17,6 +17,7 @@
 package org.hawkular.accounts.api;
 
 import java.util.Set;
+import java.util.UUID;
 
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Persona;
@@ -44,6 +45,14 @@ public interface PersonaService {
      * @throws IllegalArgumentException if the ID is null
      */
     Persona get(String id);
+
+    /**
+     * Retrieves an {@link Persona} based on a given ID.
+     * @param id    the persona's ID
+     * @return the persona or null if there are no persona under this ID.
+     * @throws IllegalArgumentException if the ID is null
+     */
+    Persona getById(UUID id);
 
     /**
      * Retrieves the effective role of a Persona on a given Resource. If the Persona has no direct roles on the given

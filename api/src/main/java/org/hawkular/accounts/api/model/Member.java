@@ -16,22 +16,24 @@
  */
 package org.hawkular.accounts.api.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
+import java.time.ZonedDateTime;
+import java.util.UUID;
 
 /**
  * Represents an object that might be a member of an organization.
  *
  * @author Juraci Paixão Kröhling
  */
-@Entity
-@Inheritance(strategy = InheritanceType.JOINED)
 public class Member extends BaseEntity {
-    protected Member() { // JPA happy
-    }
-
     public Member(String id) {
         super(id);
+    }
+
+    public Member(UUID id) {
+        super(id);
+    }
+
+    public Member(UUID id, ZonedDateTime createdAt, ZonedDateTime updatedAt) {
+        super(id, createdAt, updatedAt);
     }
 }
