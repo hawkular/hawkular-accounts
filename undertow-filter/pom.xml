@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.hawkular.accounts</groupId>
     <artifactId>hawkular-accounts-parent</artifactId>
-    <version>1.0.17.Final</version>
+    <version>1.0.18.Final-SNAPSHOT</version>
   </parent>
 
   <name>Hawkular - Accounts - Undertow Filter</name>
@@ -38,12 +38,12 @@
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-common</artifactId>
-      <version>1.0.17.Final</version>
+      <version>1.0.18.Final-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-secret-store-api</artifactId>
-      <version>1.0.17.Final</version>
+      <version>1.0.18.Final-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>io.undertow</groupId>
