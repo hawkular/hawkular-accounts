@@ -54,4 +54,15 @@ public class InvitationServiceImplTest extends BaseServicesTest {
         entityManager.getTransaction().commit();
     }
 
+    @Test
+    public void invitationMarkAsDispatched() {
+        HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
+        Organization acme = organizationService.createOrganization("", "", jdoe);
+        Invitation invitation = invitationService.create("email", jdoe, acme, monitor);
+        String invitationId = invitation.getId();
+        //invitationService.markAsDispatched(invitation);
+        //Invitation persisted = invitationService.get(invitationId);
+        //assertNotNull("Dispatched at should have been filled", persisted.getDispatchedAt());
+    }
+
 }
