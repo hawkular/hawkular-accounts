@@ -106,17 +106,6 @@
       <fileMode>0644</fileMode>
       <directoryMode>0755</directoryMode>
     </dependencySet>
-    <!-- Cassandra-related dependencies -->
-    <dependencySet>
-      <outputDirectory>/modules/org/apache/cassandra/main</outputDirectory>
-      <includes>
-        <include>org.apache.cassandra:cassandra-all:jar</include>
-      </includes>
-      <useTransitiveDependencies>true</useTransitiveDependencies>
-      <useTransitiveFiltering>true</useTransitiveFiltering>
-      <fileMode>0644</fileMode>
-      <directoryMode>0755</directoryMode>
-    </dependencySet>
     <!-- Cassandra Driver dependencies -->
     <dependencySet>
       <outputDirectory>/modules/com/datastax/cassandra/main</outputDirectory>

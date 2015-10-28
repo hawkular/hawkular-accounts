@@ -112,7 +112,7 @@
         <configuration>
           <archive>
             <manifestEntries>
-              <Dependencies>org.apache.cassandra,com.datastax.cassandra</Dependencies>
+              <Dependencies>com.datastax.cassandra</Dependencies>
             </manifestEntries>
           </archive>
         </configuration>
