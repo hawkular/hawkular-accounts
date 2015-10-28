@@ -19,7 +19,6 @@
 -->
 <module xmlns="urn:jboss:module:1.1" name="com.datastax.cassandra">
   <dependencies>
-    <module name="org.apache.cassandra"/>
     <module name="com.google.guava"/>
     <module name="org.slf4j"/>
     <module name="io.netty"/>
