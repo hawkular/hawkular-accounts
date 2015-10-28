@@ -10,7 +10,7 @@ notifications:
 install:
 - mvn -version -B
 script:
-- mvn -s .travis.maven.settings.xml verify -Psample,distribution | grep -vF "[INFO] Downloading:" | grep
+- mvn -s .travis.maven.settings.xml verify -Psample,itest | grep -vF "[INFO] Downloading:" | grep
   -vF "[INFO] Downloaded:"; test ${PIPESTATUS[0]} -eq 0
 env:
   global:
