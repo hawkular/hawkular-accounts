@@ -81,6 +81,11 @@
       <artifactId>jboss-json-api_1.0_spec</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.datastax.cassandra</groupId>
+      <artifactId>cassandra-driver-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.jboss.logging</groupId>
@@ -99,5 +104,20 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <finalName>${project.artifactId}</finalName>
+    <plugins>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Dependencies>org.apache.cassandra,com.datastax.cassandra</Dependencies>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
 

@@ -57,7 +57,7 @@ public class CassandraSessionInitializer {
         try {
             return sessionFuture.get();
         } catch (InterruptedException | ExecutionException e) {
-            throw new IllegalStateException("Could not get the initialized session.");
+            throw new IllegalStateException("Could not get the initialized session.", e);
         }
     }
 }
