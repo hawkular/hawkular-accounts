@@ -126,7 +126,7 @@
         <configuration>
           <archive>
             <manifestEntries>
-              <Dependencies>org.infinispan export</Dependencies>
+              <Dependencies>org.infinispan export,org.apache.cassandra,com.datastax.cassandra</Dependencies>
             </manifestEntries>
           </archive>
         </configuration>

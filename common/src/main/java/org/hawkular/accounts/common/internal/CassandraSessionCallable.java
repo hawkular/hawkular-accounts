@@ -54,6 +54,7 @@ public class CassandraSessionCallable implements Callable<Session> {
                     .addContactPoints(nodes.split(","))
                     .withPort(new Integer(cqlPort))
                     .withProtocolVersion(ProtocolVersion.V3)
+                    .withoutJMXReporting()
                     .build().connect();
         } catch (Exception e) {
             if (attempts != 0) {
