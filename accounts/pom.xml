@@ -49,6 +49,12 @@
     <dependency>
       <groupId>org.hawkular.commons</groupId>
       <artifactId>hawkular-commons-email</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.freemarker</groupId>
+          <artifactId>freemarker</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!--
@@ -174,7 +180,7 @@
         <configuration>
           <archive>
             <manifestEntries>
-              <Dependencies>org.infinispan export,com.datastax.cassandra</Dependencies>
+              <Dependencies>org.infinispan export,com.datastax.cassandra,org.freemarker</Dependencies>
             </manifestEntries>
           </archive>
         </configuration>
