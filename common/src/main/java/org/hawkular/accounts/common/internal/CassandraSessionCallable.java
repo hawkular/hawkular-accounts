@@ -38,7 +38,7 @@ public class CassandraSessionCallable implements Callable<Session> {
     private static final String CASSANDRA_RETRY_ATTEMPTS = "hawkular-accounts.cassandra-retry-attempts";
     private static final String CASSANDRA_RETRY_INTERVAL = "hawkular-accounts.cassandra-retry-interval";
 
-    private static int attempts = Integer.parseInt(System.getProperty(CASSANDRA_RETRY_ATTEMPTS, "5"));
+    private static int attempts = Integer.parseInt(System.getProperty(CASSANDRA_RETRY_ATTEMPTS, "15"));
     private static int interval = Integer.parseInt(System.getProperty(CASSANDRA_RETRY_INTERVAL, "2000"));
 
     @Inject @CassandraPort
