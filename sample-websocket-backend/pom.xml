@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.hawkular.accounts</groupId>
     <artifactId>hawkular-accounts-parent</artifactId>
-    <version>1.0.18.Final-SNAPSHOT</version>
+    <version>1.0.18.Final</version>
   </parent>
 
   <name>Hawkular - Accounts - Web Sockets Sample - Backend</name>
@@ -38,13 +38,13 @@
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-websocket-api</artifactId>
-      <version>1.0.18.Final-SNAPSHOT</version>
+      <version>1.0.18.Final</version>
     </dependency>
 
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-common</artifactId>
-      <version>1.0.18.Final-SNAPSHOT</version>
+      <version>1.0.18.Final</version>
     </dependency>
 
     <dependency>
