@@ -35,7 +35,7 @@ import com.datastax.driver.core.Session;
 public class ApplicationResources {
     private Map<BoundStatements, BoundStatement> statements = new HashMap<>(BoundStatements.values().length);
 
-    @Inject
+    @Inject @SecretStore
     Session session;
 
     @PostConstruct

@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import org.hawkular.accounts.common.ZonedDateTimeAdapter;
 import org.hawkular.accounts.secretstore.api.internal.BoundStatements;
 import org.hawkular.accounts.secretstore.api.internal.NamedStatement;
+import org.hawkular.accounts.secretstore.api.internal.SecretStore;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.ResultSet;
@@ -41,7 +42,7 @@ import com.datastax.driver.core.Session;
 @Stateless
 @PermitAll
 public class TokenService {
-    @Inject
+    @Inject @SecretStore
     Session session;
 
     @Inject

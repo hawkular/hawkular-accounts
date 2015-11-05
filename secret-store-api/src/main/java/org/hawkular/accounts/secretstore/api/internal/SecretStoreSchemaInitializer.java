@@ -60,7 +60,7 @@ public class SecretStoreSchemaInitializer {
         sessionFuture = executor.submit(cassandraSessionCallable);
     }
 
-    @Produces @ApplicationScoped
+    @Produces @ApplicationScoped @SecretStore
     public Session getSession() {
         try {
             Session session = sessionFuture.get();
