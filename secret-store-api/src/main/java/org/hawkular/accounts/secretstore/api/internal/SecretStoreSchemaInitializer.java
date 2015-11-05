@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.secretstore.control;
+package org.hawkular.accounts.secretstore.api.internal;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -56,7 +56,7 @@ public class SecretStoreSchemaInitializer {
     private ManagedExecutorService executor;
 
     @PostConstruct
-    public void init() throws ExecutionException, InterruptedException {
+    public void init() {
         sessionFuture = executor.submit(cassandraSessionCallable);
     }
 

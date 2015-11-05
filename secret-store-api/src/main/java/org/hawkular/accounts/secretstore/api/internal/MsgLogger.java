@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.accounts.secretstore.control;
+package org.hawkular.accounts.secretstore.api.internal;
 
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Cause;
