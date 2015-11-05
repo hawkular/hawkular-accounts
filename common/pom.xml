@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.hawkular.accounts</groupId>
     <artifactId>hawkular-accounts-parent</artifactId>
-    <version>1.1.1.Final</version>
+    <version>1.1.2.Final-SNAPSHOT</version>
   </parent>
 
   <name>Hawkular - Accounts - Commons</name>
