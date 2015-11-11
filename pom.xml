@@ -29,7 +29,7 @@
   <parent>
     <groupId>org.hawkular</groupId>
     <artifactId>hawkular-parent</artifactId>
-    <version>25</version>
+    <version>26</version>
   </parent>
 
   <modules>
@@ -124,7 +124,7 @@
     <dependencies>
       <dependency>
         <groupId>org.wildfly.bom</groupId>
-        <artifactId>jboss-javaee-7.0-wildfly</artifactId>
+        <artifactId>wildfly-javaee7</artifactId>
         <version>${version.org.wildfly}</version>
         <type>pom</type>
         <scope>import</scope>
