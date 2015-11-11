@@ -110,7 +110,6 @@
   </distributionManagement>
 
   <properties>
-    <version.org.keycloak>1.6.0.Final</version.org.keycloak>
     <version.org.hawkular.commons>0.2.4.Final-SRC-revision-fe3cf17f7907ed9a4d7a24944cbac0962fbc8395</version.org.hawkular.commons>
 
     <failOnMissingWebXml>false</failOnMissingWebXml>
