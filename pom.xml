@@ -337,23 +337,6 @@
         </configuration>
       </plugin>
 
-      <plugin>
-        <groupId>org.l2x6.maven.srcdeps</groupId>
-        <artifactId>srcdeps-maven-plugin</artifactId>
-        <version>${version.srcdeps-maven-plugin}</version>
-        <extensions>true</extensions>
-        <configuration>
-          <repositories>
-            <repository>
-              <id>hawkular</id>
-              <selectors>
-                <selector>org.cassandraunit</selector>
-              </selectors>
-              <url>scm:git:https://github.com/jpkrohling/cassandra-unit.git</url>
-            </repository>
-          </repositories>
-        </configuration>
-      </plugin>
     </plugins>
   </build>
 </project>
