@@ -49,7 +49,7 @@
 
     <dependency>
       <groupId>org.wildfly</groupId>
-      <artifactId>wildfly-arquillian-container-embedded</artifactId>
+      <artifactId>wildfly-arquillian-container-managed</artifactId>
       <scope>test</scope>
     </dependency>
 

@@ -49,7 +49,7 @@
   <xsl:template match="node()[name(.)='extensions']">
     <xsl:copy>
       <xsl:apply-templates select="node()|@*"/>
-      <extension module="org.jboss.as.messaging"/>
+      <extension module="org.wildfly.extension.messaging-activemq"/>
       <extension module="org.keycloak.keycloak-adapter-subsystem"/>
       <extension module="org.keycloak.keycloak-server-subsystem"/>
     </xsl:copy>
@@ -105,7 +105,7 @@
       <xsl:copy-of select="node()|@*"/>
     </xsl:copy>
     <mdb>
-      <resource-adapter-ref resource-adapter-name="hornetq-ra.rar"/>
+      <resource-adapter-ref resource-adapter-name="activemq-ra.rar"/>
       <bean-instance-pool-ref pool-name="mdb-strict-max-pool"/>
     </mdb>
   </xsl:template>
@@ -168,42 +168,30 @@
           <credential name="secret"><xsl:value-of select="$uuid.hawkular.accounts.backend" /></credential>
         </secure-deployment>
       </subsystem>
-      <subsystem xmlns="urn:jboss:domain:messaging:3.0">
-        <hornetq-server>
-          <connectors>
-            <in-vm-connector name="in-vm" server-id="0"/>
-          </connectors>
-          <acceptors>
-            <in-vm-acceptor name="in-vm" server-id="0"/>
-          </acceptors>
-          <jms-connection-factories>
-            <connection-factory name="InVmConnectionFactory">
-              <connectors>
-                <connector-ref connector-name="in-vm"/>
-              </connectors>
-              <entries>
-                <entry name="java:/ConnectionFactory"/>
-              </entries>
-            </connection-factory>
-            <pooled-connection-factory name="hornetq-ra">
-              <transaction mode="xa"/>
-              <connectors>
-                <connector-ref connector-name="in-vm"/>
-              </connectors>
-              <entries>
-                <entry name="java:/JmsXA"/>
-                <!-- Global JNDI entry used to provide a default JMS Connection factory to EE application -->
-                <entry name="java:jboss/DefaultJMSConnectionFactory"/>
-                <entry name="java:/HawkularBusConnectionFactory"/>
-              </entries>
-            </pooled-connection-factory>
-          </jms-connection-factories>
-          <jms-destinations>
-            <jms-topic name="HawkularAccountsEvents">
-              <entry name="java:/topic/HawkularAccountsEvents"/>
-            </jms-topic>
-          </jms-destinations>
-        </hornetq-server>
+      <subsystem xmlns="urn:jboss:domain:messaging-activemq:1.0">
+        <server name="default">
+          <security-setting name="#">
+            <role name="guest" send="true" consume="true" create-non-durable-queue="true" delete-non-durable-queue="true"/>
+          </security-setting>
+          <address-setting name="#" dead-letter-address="jms.queue.DLQ" expiry-address="jms.queue.ExpiryQueue" max-size-bytes="10485760" page-size-bytes="2097152" message-counter-history-day-limit="10"/>
+          <http-connector name="http-connector" socket-binding="http" endpoint="http-acceptor"/>
+          <http-connector name="http-connector-throughput" socket-binding="http" endpoint="http-acceptor-throughput">
+            <param name="batch-delay" value="50"/>
+          </http-connector>
+          <in-vm-connector name="in-vm" server-id="0"/>
+          <http-acceptor name="http-acceptor" http-listener="default"/>
+          <http-acceptor name="http-acceptor-throughput" http-listener="default">
+            <param name="batch-delay" value="50"/>
+            <param name="direct-deliver" value="false"/>
+          </http-acceptor>
+          <in-vm-acceptor name="in-vm" server-id="0"/>
+          <jms-queue name="ExpiryQueue" entries="java:/jms/queue/ExpiryQueue"/>
+          <jms-queue name="DLQ" entries="java:/jms/queue/DLQ"/>
+          <jms-topic name="HawkularAccountsEvents" entries="java:/topic/HawkularAccountsEvents"/>
+          <connection-factory name="InVmConnectionFactory" connectors="in-vm" entries="java:/ConnectionFactory"/>
+          <connection-factory name="RemoteConnectionFactory" connectors="http-connector" entries="java:jboss/exported/jms/RemoteConnectionFactory"/>
+          <pooled-connection-factory name="activemq-ra" transaction="xa" connectors="in-vm" entries="java:/JmsXA java:/HawkularBusConnectionFactory java:jboss/DefaultJMSConnectionFactory"/>
+        </server>
       </subsystem>
     </xsl:copy>
   </xsl:template>
