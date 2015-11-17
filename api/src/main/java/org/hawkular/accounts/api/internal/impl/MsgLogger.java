@@ -40,4 +40,8 @@ public interface MsgLogger {
     @LogMessage(level = Logger.Level.FATAL)
     @Message(id = 100001, value = "Failed to initialize Cassandra's schema for Accounts. Reason")
     void failedToInitializeSchema(@Cause Throwable t);
+
+    @LogMessage(level = Logger.Level.DEBUG)
+    @Message(id = 100002, value = "Shutting down Cassandra driver for Accounts")
+    void shuttingDownCassandraDriver();
 }

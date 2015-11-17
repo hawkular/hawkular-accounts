@@ -24,6 +24,7 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Singleton;
@@ -67,12 +68,19 @@ public class CassandraSessionInitializer {
         sessionFuture = executor.submit(cassandraSessionCallable);
     }
 
+    @PreDestroy
+    public void destroy() throws Exception {
+        logger.shuttingDownCassandraDriver();
+        sessionFuture.get().getCluster().closeAsync();
+    }
+
     /**
      * Produces the Cassandra session, waiting for the background job to finish if needed.
      * @return the Cassandra session, ready to be consumed.
      */
     @Produces @ApplicationScoped
     public Session getSession() {
+        //noinspection Duplicates
         try {
             // on the first boot, this might take some time to return, specially for "during the boot calls"
             // but for subsequent calls, this should be quite fast.
