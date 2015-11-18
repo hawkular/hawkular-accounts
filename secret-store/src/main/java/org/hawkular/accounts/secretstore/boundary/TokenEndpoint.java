@@ -60,7 +60,6 @@ public class TokenEndpoint {
 
     @Inject
     UsernamePasswordConverter usernamePasswordConverter;
-
     /**
      * This endpoint is called when Keycloak redirects the logged in user to our application.
      * @return  a response with a TokenCreateResponse as entity.
@@ -111,6 +110,10 @@ public class TokenEndpoint {
 
     private Response create(String refreshToken) {
         Token token = new Token(null, refreshToken);
+        String personaId = request.getHeader("Hawkular-Persona");
+        if (null != personaId && !personaId.isEmpty()) {
+            token.addAttribute("persona_id", personaId);
+        }
         tokenService.create(token);
         return Response.ok(new TokenCreateResponse(token)).build();
     }
