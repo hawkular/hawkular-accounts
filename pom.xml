@@ -110,7 +110,7 @@
   </distributionManagement>
 
   <properties>
-    <version.org.hawkular.commons>0.2.4.Final-SRC-revision-fe3cf17f7907ed9a4d7a24944cbac0962fbc8395</version.org.hawkular.commons>
+    <version.org.hawkular.commons>0.2.4.Final-SRC-revision-52bafa238d3f27e9c0403d3db9861cccb963d64c</version.org.hawkular.commons>
 
     <failOnMissingWebXml>false</failOnMissingWebXml>
     <jboss.releases.repo.url>
