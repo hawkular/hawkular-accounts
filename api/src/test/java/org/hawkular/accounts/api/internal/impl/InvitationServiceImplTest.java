@@ -43,6 +43,9 @@ public class InvitationServiceImplTest extends SessionEnabledTest {
         List<OrganizationMembership> memberships = membershipService.getPersonaMembershipsForOrganization(jsmith, acme);
         assertEquals("Should have one membership", 1, memberships.size());
         assertEquals("Membership should be as Monitor", "Monitor", memberships.get(0).getRole().getName());
+
+        invitation = invitationService.getById(invitation.getIdAsUUID());
+        assertNotNull("The invitation should have been accepted", invitation.getAcceptedAt());
     }
 
     @Test

@@ -130,11 +130,10 @@ public class InvitationServiceImpl extends BaseServiceImpl<Invitation> implement
         invitation.setAccepted();
         invitation.setAcceptedBy(user);
 
-        acceptStatement.setUUID("id", invitation.getIdAsUUID());
         acceptStatement.setTimestamp("acceptedAt",
                 zonedDateTimeAdapter.convertToDatabaseColumn(invitation.getAcceptedAt())
         );
-        update(invitation, createStatement);
+        update(invitation, acceptStatement);
 
         return invitation;
     }
