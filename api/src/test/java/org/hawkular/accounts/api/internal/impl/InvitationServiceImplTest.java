@@ -37,7 +37,7 @@ public class InvitationServiceImplTest extends SessionEnabledTest {
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         HawkularUser jsmith = userService.getOrCreateById(UUID.randomUUID().toString());
 
-        Organization acme = organizationService.createOrganization("", "", jdoe);
+        Organization acme = organizationService.createOrganization(UUID.randomUUID().toString(), "", jdoe);
         Invitation invitation = invitationService.create("email", jdoe, acme, monitor);
         invitationService.accept(invitation, jsmith);
         List<OrganizationMembership> memberships = membershipService.getPersonaMembershipsForOrganization(jsmith, acme);
@@ -51,7 +51,7 @@ public class InvitationServiceImplTest extends SessionEnabledTest {
     @Test
     public void invitationMarkAsDispatched() {
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
-        Organization acme = organizationService.createOrganization("", "", jdoe);
+        Organization acme = organizationService.createOrganization(UUID.randomUUID().toString(), "", jdoe);
         Invitation invitation = invitationService.create("email", jdoe, acme, monitor);
         UUID invitationId = invitation.getIdAsUUID();
         invitationService.markAsDispatched(invitation);

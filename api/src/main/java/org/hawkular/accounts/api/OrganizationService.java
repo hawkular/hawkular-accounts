@@ -95,6 +95,15 @@ public interface OrganizationService {
     Organization getById(UUID id);
 
     /**
+     * Retrieves an {@link Organization} based on its name.
+     *
+     * @param name             the organization's name
+     * @return the existing {@link Organization} or null if the resource doesn't exists.
+     * @throws IllegalArgumentException if the given name is null
+     */
+    Organization getByName(String name);
+
+    /**
      * Retrieves an {@link Organization} based on its ID.
      *
      * @param id             the organization's ID

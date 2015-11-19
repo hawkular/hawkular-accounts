@@ -75,7 +75,7 @@ class SecretStoreITest extends BaseSmokeTest {
 
         response = client.post(
                 path: '/hawkular/accounts/organizations',
-                body: [name: 'Acme, Inc']
+                body: [name: UUID.randomUUID().toString()]
         )
         assertEquals(200, response.status)
         def organizationId = response.data.id

@@ -129,6 +129,11 @@ public class OrganizationEndpoint {
             return Response.status(Response.Status.FORBIDDEN).entity(message).build();
         }
 
+        if (null != organizationService.getByName(request.getName())) {
+            ErrorResponse response = new ErrorResponse("There's already an organization with this name");
+            return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
+        }
+
         Organization organization = organizationService.createOrganization(
                 request.getName(),
                 request.getDescription(),

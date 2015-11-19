@@ -98,9 +98,9 @@ public class PersonaServiceImplTest extends SessionEnabledTest {
         // org1B is Administrator on resource
 
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
-        Organization org1 = organizationService.createOrganization("", "", jdoe);
-        Organization org1A = organizationService.createOrganization("", "", org1);
-        Organization org1B = organizationService.createOrganization("", "", org1);
+        Organization org1 = organizationService.createOrganization(UUID.randomUUID().toString(), "", jdoe);
+        Organization org1A = organizationService.createOrganization(UUID.randomUUID().toString(), "", org1);
+        Organization org1B = organizationService.createOrganization(UUID.randomUUID().toString(), "", org1);
         Resource resource = resourceService.create(UUID.randomUUID().toString(), org1);
 
         Set<Role> rolesForResource = personaService.getEffectiveRolesForResource(jdoe, resource);
@@ -130,15 +130,15 @@ public class PersonaServiceImplTest extends SessionEnabledTest {
     @Test
     public void userCanImpersonateOwnOrganization() {
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
-        Organization org1 = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
+        Organization org1 = organizationService.createOrganization(UUID.randomUUID().toString(), "", jdoe);
         assertTrue("User should be allowed to impersonate org", personaService.isAllowedToImpersonate(jdoe, org1));
     }
 
     @Test
     public void userCanImpersonateSubOrganization() {
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
-        Organization org1 = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
-        Organization org2 = organizationService.createOrganization("IT Dep", "IT Dep", org1);
+        Organization org1 = organizationService.createOrganization(UUID.randomUUID().toString(), "Acme, Inc", jdoe);
+        Organization org2 = organizationService.createOrganization(UUID.randomUUID().toString(), "IT Dep", org1);
         assertTrue("User should be allowed to impersonate sub org", personaService.isAllowedToImpersonate(jdoe, org2));
     }
 
@@ -146,7 +146,7 @@ public class PersonaServiceImplTest extends SessionEnabledTest {
     public void userCannotImpersonateRandomOrganization() {
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         HawkularUser jsmith = userService.getOrCreateById(UUID.randomUUID().toString());
-        Organization org1 = organizationService.createOrganization("Another org", "Another org", jsmith);
+        Organization org1 = organizationService.createOrganization(UUID.randomUUID().toString(), "Another org", jsmith);
         assertFalse("User should not be allowed to impersonate another org",
                 personaService.isAllowedToImpersonate(jdoe, org1));
     }

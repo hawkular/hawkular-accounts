@@ -142,6 +142,7 @@ public abstract class SessionEnabledTest {
         organizationService.personaService = personaService;
         organizationService.createStatement = resources.getBoundStatement(BoundStatements.ORGANIZATION_CREATE);
         organizationService.getById = resources.getBoundStatement(BoundStatements.ORGANIZATION_GET_BY_ID);
+        organizationService.getByName = resources.getBoundStatement(BoundStatements.ORGANIZATION_GET_BY_NAME);
         organizationService.getByOwner = resources.getBoundStatement(BoundStatements.ORGANIZATION_GET_BY_OWNER);
         organizationService.transferStatement = resources.getBoundStatement(BoundStatements.ORGANIZATION_TRANSFER);
         organizationService.removeStatement = resources.getBoundStatement(BoundStatements.ORGANIZATION_REMOVE);

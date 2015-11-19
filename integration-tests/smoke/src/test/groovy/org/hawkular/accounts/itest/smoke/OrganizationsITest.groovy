@@ -30,7 +30,7 @@ import static org.junit.Assert.assertNotNull
 class OrganizationsITest extends BaseSmokeTest {
     @Test
     void createOrganization() {
-        def orgName = 'Acme, Inc'
+        def orgName = UUID.randomUUID().toString()
         def response = client.post(
                 path: '/hawkular/accounts/organizations',
                 body: [name: orgName]

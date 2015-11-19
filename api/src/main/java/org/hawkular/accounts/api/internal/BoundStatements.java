@@ -159,6 +159,7 @@ public enum BoundStatements {
 
     // Organization statements
     ORGANIZATION_GET_BY_ID("SELECT * FROM hawkular_accounts.organizations WHERE id = :id"),
+    ORGANIZATION_GET_BY_NAME("SELECT * FROM hawkular_accounts.organizations WHERE name = :name"),
     ORGANIZATION_GET_BY_OWNER("SELECT * FROM hawkular_accounts.organizations WHERE owner = :owner"),
     ORGANIZATION_REMOVE("DELETE FROM hawkular_accounts.organizations WHERE id = :id"),
     ORGANIZATION_CREATE(

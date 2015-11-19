@@ -66,6 +66,9 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
     @Inject @NamedStatement(BoundStatements.ORGANIZATION_GET_BY_ID)
     BoundStatement getById;
 
+    @Inject @NamedStatement(BoundStatements.ORGANIZATION_GET_BY_NAME)
+    BoundStatement getByName;
+
     @Inject @NamedStatement(BoundStatements.ORGANIZATION_GET_BY_OWNER)
     BoundStatement getByOwner;
 
@@ -85,6 +88,16 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
         }
 
         return getById(id, getById);
+    }
+
+    @Override
+    public Organization getByName(String name) {
+        if (null == name) {
+            throw new IllegalArgumentException("The given organization name is invalid (null).");
+        }
+
+        getByName.setString("name", name);
+        return getSingleRecord(getByName);
     }
 
     @Override
@@ -108,6 +121,10 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
 
     @Override
     public Organization createOrganization(String name, String description, Persona owner) {
+        if (null != getByName(name)) {
+            throw new IllegalArgumentException("There's already an organization with this name.");
+        }
+
         Organization organization = new Organization(owner);
         organization.setName(name);
         organization.setDescription(description);

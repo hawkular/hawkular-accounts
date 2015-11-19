@@ -42,7 +42,7 @@ public class OrganizationServiceImplTest extends SessionEnabledTest {
     @Test
     public void listOrganizationsForUserBelongingToOrganization() {
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
-        Organization acme = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
+        Organization acme = organizationService.createOrganization(UUID.randomUUID().toString(), "", jdoe);
 
         List<Organization> memberships = organizationService.getOrganizationsForPersona(jdoe);
         assertEquals("There should be one membership for this persona", 1, memberships.size());
@@ -51,16 +51,23 @@ public class OrganizationServiceImplTest extends SessionEnabledTest {
     @Test
     public void listOrganizationsForSoleOrganization() {
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
-        Organization acme = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
+        Organization acme = organizationService.createOrganization(UUID.randomUUID().toString(), "", jdoe);
 
         List<Organization> memberships = organizationService.getOrganizationsForPersona(acme);
         assertEquals("There should be no memberships for this organization", 0, memberships.size());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void cannotCreateOrganizationWithExistingName() {
+        HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
+        organizationService.createOrganization("cannotCreateOrganizationWithExistingName", "", jdoe);
+        organizationService.createOrganization("cannotCreateOrganizationWithExistingName", "", jdoe);
+    }
+
     @Test
     public void listMembershipsForOrganizationBelongingToOrganization() {
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
-        Organization acme = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
+        Organization acme = organizationService.createOrganization(UUID.randomUUID().toString(), "", jdoe);
         Organization itDepartment = organizationService.createOrganization("IT Dep", "IT Dep", acme);
 
         List<Organization> memberships = organizationService.getOrganizationsForPersona(acme);
@@ -70,7 +77,7 @@ public class OrganizationServiceImplTest extends SessionEnabledTest {
     @Test
     public void removeOrganization() {
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
-        Organization organization = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
+        Organization organization = organizationService.createOrganization(UUID.randomUUID().toString(), "", jdoe);
 
         organizationService.deleteOrganization(organization);
 
@@ -80,7 +87,7 @@ public class OrganizationServiceImplTest extends SessionEnabledTest {
     @Test
     public void removeOrganizationWithPendingInvitations() {
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
-        Organization organization = organizationService.createOrganization("Acme, Inc", "Acme, Inc", jdoe);
+        Organization organization = organizationService.createOrganization(UUID.randomUUID().toString(), "", jdoe);
         invitationService.create("", jdoe, organization, administrator);
         organizationService.deleteOrganization(organization);
 

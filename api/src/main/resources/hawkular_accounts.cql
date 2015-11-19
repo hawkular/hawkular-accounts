@@ -47,6 +47,10 @@ CREATE INDEX IF NOT EXISTS ON hawkular_accounts.organizations (owner);
 
 -- #
 
+CREATE INDEX IF NOT EXISTS ON hawkular_accounts.organizations (name);
+
+-- #
+
 CREATE TABLE IF NOT EXISTS hawkular_accounts.organization_memberships (
     id uuid,
     organization uuid,

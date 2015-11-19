@@ -72,7 +72,7 @@ public class PermissionCheckerImplTest extends SessionEnabledTest {
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
 
         // persona jdoe creates an organization
-        Organization acme = organizationService.createOrganization("Acme", "Acme", jdoe);
+        Organization acme = organizationService.createOrganization(UUID.randomUUID().toString(), "", jdoe);
 
         // persona jsmith registers himself
         HawkularUser jsmith = userService.getOrCreateById(UUID.randomUUID().toString());
@@ -118,7 +118,7 @@ public class PermissionCheckerImplTest extends SessionEnabledTest {
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
 
         // persona jdoe creates an organization
-        Organization acme = organizationService.createOrganization("Acme", "Acme", jdoe);
+        Organization acme = organizationService.createOrganization(UUID.randomUUID().toString(), "", jdoe);
 
         // persona jsmith registers himself
         HawkularUser jsmith = userService.getOrCreateById(UUID.randomUUID().toString());

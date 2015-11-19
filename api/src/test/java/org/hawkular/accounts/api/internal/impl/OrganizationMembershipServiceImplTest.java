@@ -42,7 +42,7 @@ public class OrganizationMembershipServiceImplTest extends SessionEnabledTest {
     @Test
     public void listMembershipsForUserBelongingToOrganization() {
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
-        organizationService.createOrganization("", "", jdoe);
+        organizationService.createOrganization(UUID.randomUUID().toString(), "", jdoe);
 
         List<OrganizationMembership> memberships = membershipService.getMembershipsForPersona(jdoe);
         assertEquals("There should be one membership for this persona", 1, memberships.size());
@@ -51,7 +51,7 @@ public class OrganizationMembershipServiceImplTest extends SessionEnabledTest {
     @Test
     public void listMembershipsForSoleOrganization() {
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
-        Organization acme = organizationService.createOrganization("", "", jdoe);
+        Organization acme = organizationService.createOrganization(UUID.randomUUID().toString(), "", jdoe);
 
         List<OrganizationMembership> memberships = membershipService.getMembershipsForPersona(acme);
         assertEquals("There should be no memberships for this organization", 0, memberships.size());
@@ -60,8 +60,8 @@ public class OrganizationMembershipServiceImplTest extends SessionEnabledTest {
     @Test
     public void listMembershipsForOrganizationBelongingToOrganization() {
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
-        Organization acme = organizationService.createOrganization("", "", jdoe);
-        Organization itDepartment = organizationService.createOrganization("", "", acme);
+        Organization acme = organizationService.createOrganization(UUID.randomUUID().toString(), "", jdoe);
+        Organization itDepartment = organizationService.createOrganization(UUID.randomUUID().toString(), "", acme);
 
         List<OrganizationMembership> memberships = membershipService.getMembershipsForPersona(acme);
         assertEquals("Acme is super persona of IT department", 1, memberships.size());
@@ -71,7 +71,7 @@ public class OrganizationMembershipServiceImplTest extends SessionEnabledTest {
     public void changeRole() {
         HawkularUser jdoe = userService.getOrCreateById(UUID.randomUUID().toString());
         HawkularUser jsmith = userService.getOrCreateById(UUID.randomUUID().toString());
-        Organization acme = organizationService.createOrganization("", "", jdoe);
+        Organization acme = organizationService.createOrganization(UUID.randomUUID().toString(), "", jdoe);
 
         Invitation invitation = invitationService.create("", jdoe, acme, monitor);
         invitationService.accept(invitation, jsmith);
