@@ -204,7 +204,7 @@ permissions to the GitHub repository and execute the following:
 
 [source,bash]
 ----
-mvn release:prepare release:perform -Psample,distribution
+mvn release:prepare release:perform -Pitest,sample
 ----
 
 And accept all the default values (for versions and tags).
