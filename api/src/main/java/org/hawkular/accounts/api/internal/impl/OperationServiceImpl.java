@@ -22,6 +22,7 @@ import java.util.UUID;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
@@ -55,23 +56,24 @@ public class OperationServiceImpl extends BaseServiceImpl<Operation> implements 
     RoleService roleService;
 
     @Inject @NamedStatement(BoundStatements.OPERATION_GET_BY_NAME)
-    BoundStatement getByName;
+    Instance<BoundStatement> stmtGetByNameInstance;
 
     @Inject @NamedStatement(BoundStatements.OPERATION_GET_BY_ID)
-    BoundStatement getById;
+    Instance<BoundStatement> stmtGetByIdInstance;
 
     @Inject @NamedStatement(BoundStatements.OPERATION_CREATE)
-    BoundStatement createStatement;
+    Instance<BoundStatement> stmtCreateInstance;
 
     @Override
     public Operation getByName(String name) {
-        getByName.setString("name", name);
-        return getSingleRecord(getByName);
+        BoundStatement stmtGetByName = this.stmtGetByNameInstance.get();
+        stmtGetByName.setString("name", name);
+        return getSingleRecord(stmtGetByName);
     }
 
     @Override
     public Operation getById(UUID id) {
-        return getById(id, getById);
+        return getById(id, stmtGetByIdInstance.get());
     }
 
     @Override
@@ -111,16 +113,17 @@ public class OperationServiceImpl extends BaseServiceImpl<Operation> implements 
      * @throws InvalidParameterException if an operation with the given name already exists.
      */
     Operation create(String name) {
+        BoundStatement stmtCreate = stmtCreateInstance.get();
         if (null != getByName(name)) {
             // we already have a role with this name...
             throw new InvalidParameterException("There's already an operation with the given name.");
         }
 
         Operation operation = new Operation(name);
-        bindBasicParameters(operation, createStatement);
-        createStatement.setString("name", name);
+        bindBasicParameters(operation, stmtCreate);
+        stmtCreate.setString("name", name);
 
-        session.execute(createStatement);
+        session.execute(stmtCreate);
         return operation;
     }
 

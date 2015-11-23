@@ -19,6 +19,7 @@ package org.hawkular.accounts.backend.boundary;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
@@ -65,7 +66,7 @@ public class InvitationEndpoint {
     InvitationService invitationService;
 
     @Inject @CurrentUser
-    HawkularUser user;
+    Instance<HawkularUser> userInstance;
 
     @Inject
     Event<InvitationCreatedEvent> event;
@@ -100,6 +101,7 @@ public class InvitationEndpoint {
 
     @POST
     public Response inviteUserToOrganization(@NotNull InvitationRequest request) {
+        HawkularUser user = userInstance.get();
         Organization organization = organizationService.get(request.getOrganizationId());
 
         if (null == organization) {
@@ -128,6 +130,7 @@ public class InvitationEndpoint {
 
     @PUT
     public Response acceptInvitation(@NotNull InvitationAcceptRequest request) {
+        HawkularUser user = userInstance.get();
         Invitation invitation = invitationService.getByToken(request.getToken());
 
         if (null == invitation) {

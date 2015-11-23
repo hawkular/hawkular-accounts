@@ -20,6 +20,7 @@ import java.util.Set;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -41,7 +42,7 @@ import org.hawkular.accounts.api.model.Role;
 public class RoleEndpoint {
 
     @Inject
-    Persona persona;
+    Instance<Persona> personaInstance;
 
     @Inject
     PersonaService personaService;
@@ -57,7 +58,7 @@ public class RoleEndpoint {
         }
 
         Resource resource = resourceService.get(resourceId);
-        Set<Role> roles = personaService.getEffectiveRolesForResource(persona, resource);
+        Set<Role> roles = personaService.getEffectiveRolesForResource(personaInstance.get(), resource);
 
         return Response.ok(roles).build();
     }

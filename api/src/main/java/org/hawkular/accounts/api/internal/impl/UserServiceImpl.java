@@ -23,6 +23,7 @@ import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
@@ -49,16 +50,16 @@ public class UserServiceImpl extends BaseServiceImpl<HawkularUser> implements Us
     SessionContext sessionContext;
 
     @Inject @NamedStatement(BoundStatements.USER_GET_BY_ID)
-    BoundStatement getByIdStatement;
+    Instance<BoundStatement> stmtGetByIdInstance;
 
     @Inject @NamedStatement(BoundStatements.USER_CREATE)
-    BoundStatement createStatement;
+    Instance<BoundStatement> stmtCreateInstance;
 
     @Inject @NamedStatement(BoundStatements.USER_UPDATE)
-    BoundStatement updateStatement;
+    Instance<BoundStatement> stmtUpdateInstance;
 
     @Inject @NamedStatement(BoundStatements.USER_ALL)
-    BoundStatement allUsersStatement;
+    Instance<BoundStatement> stmtAllUsersInstance;
 
     @Produces @CurrentUser
     @Override
@@ -81,7 +82,7 @@ public class UserServiceImpl extends BaseServiceImpl<HawkularUser> implements Us
 
     @Override
     public HawkularUser getById(UUID id) {
-        return getById(id, getByIdStatement);
+        return getById(id, stmtGetByIdInstance.get());
     }
 
     @Override
@@ -105,16 +106,16 @@ public class UserServiceImpl extends BaseServiceImpl<HawkularUser> implements Us
     }
 
     private HawkularUser create(UUID id, String name) {
+        BoundStatement stmtCreate = stmtCreateInstance.get();
         HawkularUser user = new HawkularUser(id, name);
-        bindBasicParameters(user, createStatement);
-        createStatement.setString("name", user.getName());
-        session.execute(createStatement);
+        bindBasicParameters(user, stmtCreate);
+        stmtCreate.setString("name", user.getName());
+        session.execute(stmtCreate);
         return user;
     }
 
     private HawkularUser update(HawkularUser user) {
-        updateStatement.setString("name", user.getName());
-        return update(user, updateStatement);
+        return update(user, stmtUpdateInstance.get().setString("name", user.getName()));
     }
 
     private HawkularUser create(String id, String name) {
@@ -122,7 +123,7 @@ public class UserServiceImpl extends BaseServiceImpl<HawkularUser> implements Us
     }
 
     List<HawkularUser> getAll() {
-        return getList(allUsersStatement);
+        return getList(stmtAllUsersInstance.get());
     }
 
     @Override

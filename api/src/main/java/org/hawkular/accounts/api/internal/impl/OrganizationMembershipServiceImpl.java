@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.hawkular.accounts.api.OrganizationMembershipService;
@@ -62,32 +63,33 @@ public class OrganizationMembershipServiceImpl
     RoleService roleService;
 
     @Inject @NamedStatement(BoundStatements.MEMBERSHIP_GET_BY_ID)
-    BoundStatement getById;
+    Instance<BoundStatement> stmtGetByIdInstance;
 
     @Inject @NamedStatement(BoundStatements.MEMBERSHIP_GET_BY_ORGANIZATION)
-    BoundStatement getByOrganization;
+    Instance<BoundStatement> stmtGetByOrganizationInstance;
 
     @Inject @NamedStatement(BoundStatements.MEMBERSHIP_GET_BY_PERSONA)
-    BoundStatement getByPersona;
+    Instance<BoundStatement> stmtGetByPersonaInstance;
 
     @Inject @NamedStatement(BoundStatements.MEMBERSHIP_REMOVE)
-    BoundStatement removeStatement;
+    Instance<BoundStatement> stmtRemoveInstance;
 
     @Inject @NamedStatement(BoundStatements.MEMBERSHIP_CREATE)
-    BoundStatement createStatement;
+    Instance<BoundStatement> stmtCreateInstance;
 
     @Inject @NamedStatement(BoundStatements.MEMBERSHIP_CHANGE_ROLE)
-    BoundStatement changeRoleStatement;
+    Instance<BoundStatement> stmtChangeRoleInstance;
 
     @Override
     public OrganizationMembership create(Organization organization, Persona persona, Role role) {
+        BoundStatement stmtCreate = stmtCreateInstance.get();
         OrganizationMembership membership = new OrganizationMembership(organization, persona, role);
 
-        bindBasicParameters(membership, createStatement);
-        createStatement.setUUID("member", membership.getMember().getIdAsUUID());
-        createStatement.setUUID("organization", membership.getOrganization().getIdAsUUID());
-        createStatement.setUUID("role", membership.getRole().getIdAsUUID());
-        session.execute(createStatement);
+        bindBasicParameters(membership, stmtCreate);
+        stmtCreate.setUUID("member", membership.getMember().getIdAsUUID());
+        stmtCreate.setUUID("organization", membership.getOrganization().getIdAsUUID());
+        stmtCreate.setUUID("role", membership.getRole().getIdAsUUID());
+        session.execute(stmtCreate);
 
         // for permission checking
         Resource resource = resourceService.getById(organization.getIdAsUUID());
@@ -97,12 +99,12 @@ public class OrganizationMembershipServiceImpl
 
     @Override
     public List<OrganizationMembership> getMembershipsForPersona(Persona persona) {
-        return getList(getByPersona.setUUID("member", persona.getIdAsUUID()));
+        return getList(stmtGetByPersonaInstance.get().setUUID("member", persona.getIdAsUUID()));
     }
 
     @Override
     public List<OrganizationMembership> getMembershipsForOrganization(Organization organization) {
-        return getList(getByOrganization.setUUID("organization", organization.getIdAsUUID()));
+        return getList(stmtGetByOrganizationInstance.get().setUUID("organization", organization.getIdAsUUID()));
     }
 
     @Override
@@ -125,14 +127,15 @@ public class OrganizationMembershipServiceImpl
             throw new IllegalArgumentException("The given membership ID is invalid (null).");
         }
 
-        return getById(id, getById);
+        return getById(id, stmtGetByIdInstance.get());
     }
 
     @Override
     public OrganizationMembership changeRole(OrganizationMembership membership, Role role) {
+        BoundStatement stmtChangeRole = stmtChangeRoleInstance.get();
         membership.setRole(role);
-        changeRoleStatement.setUUID("role", membership.getRole().getIdAsUUID());
-        update(membership, changeRoleStatement);
+        stmtChangeRole.setUUID("role", membership.getRole().getIdAsUUID());
+        update(membership, stmtChangeRole);
 
         // the code above was for "organization" data. the code below is for RBAC.
         // for now, we allow only one role for each organization, so, revoke all current roles and add the given role
@@ -151,7 +154,7 @@ public class OrganizationMembershipServiceImpl
 
     @Override
     public void remove(UUID id) {
-        session.execute(removeStatement.setUUID("id", id));
+        session.execute(stmtRemoveInstance.get().setUUID("id", id));
     }
 
     @Override

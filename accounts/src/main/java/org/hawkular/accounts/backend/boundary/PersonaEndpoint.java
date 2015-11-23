@@ -21,6 +21,7 @@ import java.util.List;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -39,10 +40,10 @@ import org.hawkular.accounts.api.model.Persona;
 @Stateless
 public class PersonaEndpoint {
     @Inject
-    Persona persona;
+    Instance<Persona> personaInstance;
 
     @Inject @CurrentUser
-    HawkularUser user;
+    Instance<HawkularUser> userInstance;
 
     @Inject
     OrganizationService organizationService;
@@ -56,6 +57,7 @@ public class PersonaEndpoint {
     @GET
     @Path("/")
     public Response getPersonas() {
+        HawkularUser user = userInstance.get();
         List<Persona> personas = new ArrayList<>();
         // here, we purposely get the personas for the *user*, not for the current persona
         personas.addAll(organizationService.getOrganizationsForPersona(user));
@@ -73,7 +75,7 @@ public class PersonaEndpoint {
     @GET
     @Path("/current")
     public Response getCurrentPersona() {
-        return Response.ok().entity(persona).build();
+        return Response.ok().entity(personaInstance.get()).build();
     }
 
 }

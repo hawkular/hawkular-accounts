@@ -16,11 +16,16 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
+
+import javax.enterprise.inject.Instance;
 
 import org.apache.thrift.transport.TTransportException;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
@@ -30,6 +35,7 @@ import org.hawkular.accounts.api.model.Role;
 import org.hawkular.accounts.common.ZonedDateTimeAdapter;
 import org.junit.Before;
 
+import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ProtocolVersion;
 import com.datastax.driver.core.Session;
@@ -72,31 +78,31 @@ public abstract class SessionEnabledTest {
 
         roleService.session = session;
         roleService.zonedDateTimeAdapter = zonedDateTimeAdapter;
-        roleService.createStatement = resources.getBoundStatement(BoundStatements.ROLES_CREATE);
-        roleService.getByIdStatement = resources.getBoundStatement(BoundStatements.ROLES_GET_BY_ID);
-        roleService.getByNameStatement = resources.getBoundStatement(BoundStatements.ROLES_GET_BY_NAME);
+        roleService.stmtCreateInstance = getMocked(BoundStatements.ROLES_CREATE);
+        roleService.stmtGetByIdInstance = getMocked(BoundStatements.ROLES_GET_BY_ID);
+        roleService.stmtGetByNameInstance = getMocked(BoundStatements.ROLES_GET_BY_NAME);
 
         userService.session = session;
         userService.zonedDateTimeAdapter = zonedDateTimeAdapter;
-        userService.createStatement = resources.getBoundStatement(BoundStatements.USER_CREATE);
-        userService.allUsersStatement = resources.getBoundStatement(BoundStatements.USER_ALL);
-        userService.getByIdStatement = resources.getBoundStatement(BoundStatements.USER_GET_BY_ID);
-        userService.updateStatement = resources.getBoundStatement(BoundStatements.USER_UPDATE);
+        userService.stmtCreateInstance = getMocked(BoundStatements.USER_CREATE);
+        userService.stmtAllUsersInstance = getMocked(BoundStatements.USER_ALL);
+        userService.stmtGetByIdInstance = getMocked(BoundStatements.USER_GET_BY_ID);
+        userService.stmtUpdateInstance = getMocked(BoundStatements.USER_UPDATE);
 
         permissionService.session = session;
         permissionService.zonedDateTimeAdapter = zonedDateTimeAdapter;
         permissionService.operationService = operationService;
         permissionService.roleService = roleService;
-        permissionService.getById = resources.getBoundStatement(BoundStatements.PERMISSION_GET_BY_ID);
-        permissionService.getByOperation = resources.getBoundStatement(BoundStatements.PERMISSIONS_GET_BY_OPERATION);
-        permissionService.createStatement = resources.getBoundStatement(BoundStatements.PERMISSION_CREATE);
-        permissionService.deleteStatement = resources.getBoundStatement(BoundStatements.PERMISSION_DELETE);
+        permissionService.stmtGetByIdInstance = getMocked(BoundStatements.PERMISSION_GET_BY_ID);
+        permissionService.stmtGetByOperationInstance = getMocked(BoundStatements.PERMISSIONS_GET_BY_OPERATION);
+        permissionService.stmtCreateInstance = getMocked(BoundStatements.PERMISSION_CREATE);
+        permissionService.stmtDeleteInstance = getMocked(BoundStatements.PERMISSION_DELETE);
 
         operationService.session = session;
         operationService.zonedDateTimeAdapter = zonedDateTimeAdapter;
-        operationService.getByName = resources.getBoundStatement(BoundStatements.OPERATION_GET_BY_NAME);
-        operationService.getById = resources.getBoundStatement(BoundStatements.OPERATION_GET_BY_ID);
-        operationService.createStatement = resources.getBoundStatement(BoundStatements.OPERATION_CREATE);
+        operationService.stmtGetByNameInstance = getMocked(BoundStatements.OPERATION_GET_BY_NAME);
+        operationService.stmtGetByIdInstance = getMocked(BoundStatements.OPERATION_GET_BY_ID);
+        operationService.stmtCreateInstance = getMocked(BoundStatements.OPERATION_CREATE);
         operationService.roleService = roleService;
         operationService.permissionService = permissionService;
 
@@ -104,21 +110,21 @@ public abstract class SessionEnabledTest {
         resourceService.zonedDateTimeAdapter = zonedDateTimeAdapter;
         resourceService.personaResourceRoleService = personaResourceRoleService;
         resourceService.personaService = personaService;
-        resourceService.getById = resources.getBoundStatement(BoundStatements.RESOURCE_GET_BY_ID);
-        resourceService.getByPersona = resources.getBoundStatement(BoundStatements.RESOURCE_GET_BY_PERSONA);
-        resourceService.createStatement = resources.getBoundStatement(BoundStatements.RESOURCE_CREATE);
-        resourceService.transferStatement = resources.getBoundStatement(BoundStatements.RESOURCE_TRANSFER);
+        resourceService.stmtGetByIdInstance = getMocked(BoundStatements.RESOURCE_GET_BY_ID);
+        resourceService.stmtGetByPersonaInstance = getMocked(BoundStatements.RESOURCE_GET_BY_PERSONA);
+        resourceService.stmtCreateInstance = getMocked(BoundStatements.RESOURCE_CREATE);
+        resourceService.stmtTransferInstance = getMocked(BoundStatements.RESOURCE_TRANSFER);
 
         personaResourceRoleService.session = session;
         personaResourceRoleService.zonedDateTimeAdapter = zonedDateTimeAdapter;
         personaResourceRoleService.resourceService= resourceService;
         personaResourceRoleService.personaService = personaService;
         personaResourceRoleService.roleService = roleService;
-        personaResourceRoleService.createStatement = resources.getBoundStatement(BoundStatements.PRR_CREATE);
-        personaResourceRoleService.getById = resources.getBoundStatement(BoundStatements.PRR_GET_BY_ID);
-        personaResourceRoleService.getByPersona = resources.getBoundStatement(BoundStatements.PRR_GET_BY_PERSONA);
-        personaResourceRoleService.getByResource = resources.getBoundStatement(BoundStatements.PRR_GET_BY_RESOURCE);
-        personaResourceRoleService.removeStatement = resources.getBoundStatement(BoundStatements.PRR_REMOVE);
+        personaResourceRoleService.stmtCreateInstance = getMocked(BoundStatements.PRR_CREATE);
+        personaResourceRoleService.stmtGetByIdInstance = getMocked(BoundStatements.PRR_GET_BY_ID);
+        personaResourceRoleService.stmtGetByPersonaInstance = getMocked(BoundStatements.PRR_GET_BY_PERSONA);
+        personaResourceRoleService.stmtGetByResourceInstance = getMocked(BoundStatements.PRR_GET_BY_RESOURCE);
+        personaResourceRoleService.stmtRemoveInstance = getMocked(BoundStatements.PRR_REMOVE);
 
         membershipService.session = session;
         membershipService.zonedDateTimeAdapter = zonedDateTimeAdapter;
@@ -126,13 +132,12 @@ public abstract class SessionEnabledTest {
         membershipService.personaService = personaService;
         membershipService.organizationService = organizationService;
         membershipService.roleService = roleService;
-        membershipService.getById = resources.getBoundStatement(BoundStatements.MEMBERSHIP_GET_BY_ID);
-        membershipService.getByPersona = resources.getBoundStatement(BoundStatements.MEMBERSHIP_GET_BY_PERSONA);
-        membershipService.removeStatement = resources.getBoundStatement(BoundStatements.MEMBERSHIP_REMOVE);
-        membershipService.createStatement = resources.getBoundStatement(BoundStatements.MEMBERSHIP_CREATE);
-        membershipService.changeRoleStatement = resources.getBoundStatement(BoundStatements.MEMBERSHIP_CHANGE_ROLE);
-        membershipService.getByOrganization =
-                resources.getBoundStatement(BoundStatements.MEMBERSHIP_GET_BY_ORGANIZATION);
+        membershipService.stmtGetByIdInstance = getMocked(BoundStatements.MEMBERSHIP_GET_BY_ID);
+        membershipService.stmtGetByPersonaInstance = getMocked(BoundStatements.MEMBERSHIP_GET_BY_PERSONA);
+        membershipService.stmtRemoveInstance = getMocked(BoundStatements.MEMBERSHIP_REMOVE);
+        membershipService.stmtCreateInstance = getMocked(BoundStatements.MEMBERSHIP_CREATE);
+        membershipService.stmtChangeRoleInstance = getMocked(BoundStatements.MEMBERSHIP_CHANGE_ROLE);
+        membershipService.stmtGetByOrganizationInstance = getMocked(BoundStatements.MEMBERSHIP_GET_BY_ORGANIZATION);
 
         organizationService.session = session;
         organizationService.zonedDateTimeAdapter = zonedDateTimeAdapter;
@@ -140,12 +145,12 @@ public abstract class SessionEnabledTest {
         organizationService.resourceService = resourceService;
         organizationService.invitationService = invitationService;
         organizationService.personaService = personaService;
-        organizationService.createStatement = resources.getBoundStatement(BoundStatements.ORGANIZATION_CREATE);
-        organizationService.getById = resources.getBoundStatement(BoundStatements.ORGANIZATION_GET_BY_ID);
-        organizationService.getByName = resources.getBoundStatement(BoundStatements.ORGANIZATION_GET_BY_NAME);
-        organizationService.getByOwner = resources.getBoundStatement(BoundStatements.ORGANIZATION_GET_BY_OWNER);
-        organizationService.transferStatement = resources.getBoundStatement(BoundStatements.ORGANIZATION_TRANSFER);
-        organizationService.removeStatement = resources.getBoundStatement(BoundStatements.ORGANIZATION_REMOVE);
+        organizationService.stmtCreateInstance = getMocked(BoundStatements.ORGANIZATION_CREATE);
+        organizationService.stmtGetByIdInstance = getMocked(BoundStatements.ORGANIZATION_GET_BY_ID);
+        organizationService.stmtGetByNameInstance = getMocked(BoundStatements.ORGANIZATION_GET_BY_NAME);
+        organizationService.stmtGetByOwnerInstance = getMocked(BoundStatements.ORGANIZATION_GET_BY_OWNER);
+        organizationService.stmtTransferInstance = getMocked(BoundStatements.ORGANIZATION_TRANSFER);
+        organizationService.stmtRemoveInstance = getMocked(BoundStatements.ORGANIZATION_REMOVE);
 
         invitationService.session = session;
         invitationService.zonedDateTimeAdapter = zonedDateTimeAdapter;
@@ -153,22 +158,20 @@ public abstract class SessionEnabledTest {
         invitationService.organizationService = organizationService;
         invitationService.userService = userService;
         invitationService.membershipService = membershipService;
-        invitationService.getByTokenStatement = resources.getBoundStatement(BoundStatements.INVITATION_GET_BY_TOKEN);
-        invitationService.createStatement = resources.getBoundStatement(BoundStatements.INVITATIONS_CREATE);
-        invitationService.acceptStatement = resources.getBoundStatement(BoundStatements.INVITATIONS_ACCEPT);
-        invitationService.deleteStatement = resources.getBoundStatement(BoundStatements.INVITATIONS_DELETE);
-        invitationService.dispatchedStatement = resources.getBoundStatement(BoundStatements.INVITATIONS_DISPATCH);
-        invitationService.getByOrganizationStatement = resources.getBoundStatement(
-                BoundStatements.INVITATIONS_GET_BY_ORGANIZATION
-        );
+        invitationService.stmtGetByTokenInstance = getMocked(BoundStatements.INVITATION_GET_BY_TOKEN);
+        invitationService.stmtCreateInstance = getMocked(BoundStatements.INVITATIONS_CREATE);
+        invitationService.stmtAcceptInstance = getMocked(BoundStatements.INVITATIONS_ACCEPT);
+        invitationService.stmtDeleteInstance = getMocked(BoundStatements.INVITATIONS_DELETE);
+        invitationService.stmtDispatchedInstance = getMocked(BoundStatements.INVITATIONS_DISPATCH);
+        invitationService.stmtGetByOrganizationInstance = getMocked(BoundStatements.INVITATIONS_GET_BY_ORGANIZATION);
 
         settingsService.session = session;
         settingsService.zonedDateTimeAdapter = zonedDateTimeAdapter;
         settingsService.userService = userService;
-        settingsService.getById = resources.getBoundStatement(BoundStatements.SETTINGS_GET_BY_ID);
-        settingsService.getByUser = resources.getBoundStatement(BoundStatements.SETTINGS_GET_BY_USER);
-        settingsService.createStatement = resources.getBoundStatement(BoundStatements.SETTINGS_CREATE);
-        settingsService.updateStatement = resources.getBoundStatement(BoundStatements.SETTINGS_UPDATE);
+        settingsService.stmtGetByIdInstance = getMocked(BoundStatements.SETTINGS_GET_BY_ID);
+        settingsService.stmtGetByUserInstance = getMocked(BoundStatements.SETTINGS_GET_BY_USER);
+        settingsService.stmtCreateInstance = getMocked(BoundStatements.SETTINGS_CREATE);
+        settingsService.stmtUpdateInstance = getMocked(BoundStatements.SETTINGS_UPDATE);
 
         personaService.membershipService = membershipService;
         personaService.organizationService = organizationService;
@@ -236,6 +239,13 @@ public abstract class SessionEnabledTest {
                 }
             }
         }
+    }
+
+    private Instance<BoundStatement> getMocked(BoundStatements stmtName) {
+        Instance<BoundStatement> mocked = mock(Instance.class);
+        when(mocked.get())
+                .thenReturn(new BoundStatement(session.prepare(stmtName.getValue())));
+        return mocked;
     }
 
 }

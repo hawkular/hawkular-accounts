@@ -92,7 +92,7 @@ public class ApplicationResources {
         // possibly) with the same bound statement, so, possibly with dirty objects.
         // - Our stateless beans should get a new instance for each request, but make sure that's the case
         // - How could we make sure, absolutely sure, that injection points *always* get a clean statement?
-        return new BoundStatement(statements.get(statement));
+        return statements.get(statement).bind();
     }
 
     /**

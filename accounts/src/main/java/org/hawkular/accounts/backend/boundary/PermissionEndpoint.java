@@ -28,7 +28,6 @@ import org.hawkular.accounts.api.OperationService;
 import org.hawkular.accounts.api.PermissionChecker;
 import org.hawkular.accounts.api.ResourceService;
 import org.hawkular.accounts.api.model.Operation;
-import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
 import org.hawkular.accounts.backend.entity.rest.ErrorResponse;
 import org.hawkular.accounts.backend.entity.rest.PermissionResponse;
@@ -49,9 +48,6 @@ public class PermissionEndpoint {
 
     @Inject
     ResourceService resourceService;
-
-    @Inject
-    Persona persona;
 
     @GET
     public Response isAllowedTo(@QueryParam("operation") String operationName,

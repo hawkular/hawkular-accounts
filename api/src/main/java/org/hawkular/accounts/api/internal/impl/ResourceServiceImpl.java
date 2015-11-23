@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.hawkular.accounts.api.NamedRole;
@@ -62,20 +63,20 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
     PersonaService personaService;
 
     @Inject @NamedStatement(BoundStatements.RESOURCE_GET_BY_ID)
-    BoundStatement getById;
+    Instance<BoundStatement> stmtGetByIdInstance;
 
     @Inject @NamedStatement(BoundStatements.RESOURCE_GET_BY_PERSONA)
-    BoundStatement getByPersona;
+    Instance<BoundStatement> stmtGetByPersonaInstance;
 
     @Inject @NamedStatement(BoundStatements.RESOURCE_CREATE)
-    BoundStatement createStatement;
+    Instance<BoundStatement> stmtCreateInstance;
 
     @Inject @NamedStatement(BoundStatements.RESOURCE_TRANSFER)
-    BoundStatement transferStatement;
+    Instance<BoundStatement> stmtTransferInstance;
 
     @Override
     public Resource getById(UUID id) {
-        return getById(id, getById);
+        return getById(id, stmtGetByIdInstance.get());
     }
 
     @Override
@@ -109,26 +110,27 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
 
     @Override
     public Resource create(String id, Resource parent, Persona persona) {
+        BoundStatement stmtCreate = stmtCreateInstance.get();
         if (null == parent && null == persona) {
             throw new IllegalArgumentException("Either parent or persona should be provided when creating a resource");
         }
 
         Resource resource = new Resource(id, persona, parent);
-        bindBasicParameters(resource, createStatement);
+        bindBasicParameters(resource, stmtCreate);
 
         if (null != persona) {
-            createStatement.setUUID("persona", resource.getPersona().getIdAsUUID());
+            stmtCreate.setUUID("persona", resource.getPersona().getIdAsUUID());
         } else {
-            createStatement.setToNull("persona");
+            stmtCreate.setToNull("persona");
         }
 
         if (null != parent) {
-            createStatement.setUUID("parent", resource.getParent().getIdAsUUID());
+            stmtCreate.setUUID("parent", resource.getParent().getIdAsUUID());
         } else {
-            createStatement.setToNull("parent");
+            stmtCreate.setToNull("parent");
         }
 
-        session.execute(createStatement);
+        session.execute(stmtCreate);
 
         if (persona != null) {
             personaResourceRoleService.create(persona, resource, superUser);
@@ -155,13 +157,13 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
             throw new IllegalArgumentException("The given persona is invalid (null).");
         }
 
-        return getList(getByPersona.setUUID("persona", persona.getIdAsUUID()));
+        return getList(stmtGetByPersonaInstance.get().setUUID("persona", persona.getIdAsUUID()));
     }
 
     @Override
     public void transfer(Resource resource, Persona persona) {
         resource.setPersona(persona);
-        update(resource, transferStatement.setUUID("persona", persona.getIdAsUUID()));
+        update(resource, stmtTransferInstance.get().setUUID("persona", persona.getIdAsUUID()));
         revokeAllForPersona(resource, persona);
         addRoleToPersona(resource, persona, superUser);
     }

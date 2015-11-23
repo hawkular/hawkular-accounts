@@ -18,8 +18,13 @@ package org.hawkular.accounts.secretstore.api;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.UUID;
+
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
 
 import org.cassandraunit.CassandraCQLUnit;
 import org.cassandraunit.dataset.cql.ClassPathCQLDataSet;
@@ -38,6 +43,8 @@ import com.datastax.driver.core.Session;
 public class TokenTest {
 
     private Session session;
+
+    @Inject
     private TokenService tokenService;
 
     @Rule
@@ -50,11 +57,19 @@ public class TokenTest {
         ZonedDateTimeAdapter adapter = new ZonedDateTimeAdapter();
         session = cassandraCQLUnit.session;
 
+        Instance<BoundStatement> getByIdStatement = mock(Instance.class);
+        when(getByIdStatement.get())
+                .thenReturn(new BoundStatement(session.prepare(BoundStatements.GET_BY_ID.getValue())));
+
+        Instance<BoundStatement> createStatement = mock(Instance.class);
+        when(createStatement.get())
+                .thenReturn(new BoundStatement(session.prepare(BoundStatements.CREATE.getValue())));
+
         tokenService = new TokenService();
         tokenService.session = session;
         tokenService.zonedDateTimeAdapter = adapter;
-        tokenService.getByIdStatement = new BoundStatement(session.prepare(BoundStatements.GET_BY_ID.getValue()));
-        tokenService.createStatement = new BoundStatement(session.prepare(BoundStatements.CREATE.getValue()));
+        tokenService.stmtGetById = getByIdStatement;
+        tokenService.stmtCreate = createStatement;
     }
 
     @Test

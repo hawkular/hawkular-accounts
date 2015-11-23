@@ -20,6 +20,7 @@ import java.util.Set;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.hawkular.accounts.api.PermissionChecker;
@@ -51,7 +52,7 @@ public class PermissionCheckerImpl implements PermissionChecker {
     ResourceService resourceService;
 
     @Inject
-    Persona persona;
+    Instance<Persona> personaInstance;
 
     @Override
     public boolean isAllowedTo(Operation operation, Resource resource, Persona persona) {
@@ -92,7 +93,7 @@ public class PermissionCheckerImpl implements PermissionChecker {
 
     @Override
     public boolean isAllowedTo(Operation operation, Resource resource) {
-        return isAllowedTo(operation, resource, persona);
+        return isAllowedTo(operation, resource, personaInstance.get());
     }
 
     @Override
