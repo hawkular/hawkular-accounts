@@ -26,6 +26,7 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 
 import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Session;
 
 /**
@@ -33,7 +34,7 @@ import com.datastax.driver.core.Session;
  */
 @ApplicationScoped
 public class ApplicationResources {
-    private Map<BoundStatements, BoundStatement> statements = new HashMap<>(BoundStatements.values().length);
+    private Map<BoundStatements, PreparedStatement> statements = new HashMap<>(BoundStatements.values().length);
 
     @Inject @SecretStore
     Session session;
@@ -41,7 +42,7 @@ public class ApplicationResources {
     @PostConstruct
     public void buildStatements() {
         for (BoundStatements statement : BoundStatements.values()) {
-            statements.put(statement, new BoundStatement(session.prepare(statement.getValue())));
+            statements.put(statement, session.prepare(statement.getValue()));
         }
     }
 
@@ -49,6 +50,6 @@ public class ApplicationResources {
     public BoundStatement produceStatementByName(InjectionPoint injectionPoint) {
         NamedStatement annotation = injectionPoint.getAnnotated().getAnnotation(NamedStatement.class);
         BoundStatements stmtName = annotation.value();
-        return statements.get(stmtName);
+        return statements.get(stmtName).bind();
     }
 }

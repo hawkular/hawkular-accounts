@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.hawkular.accounts.api.InvitationService;
@@ -59,26 +60,26 @@ public class InvitationServiceImpl extends BaseServiceImpl<Invitation> implement
     OrganizationMembershipService membershipService;
 
     @Inject @NamedStatement(BoundStatements.INVITATION_GET_BY_TOKEN)
-    BoundStatement getByTokenStatement;
+    Instance<BoundStatement> stmtGetByTokenInstance;
 
     @Inject @NamedStatement(BoundStatements.INVITATIONS_GET_BY_ORGANIZATION)
-    BoundStatement getByOrganizationStatement;
+    Instance<BoundStatement> stmtGetByOrganizationInstance;
 
     @Inject @NamedStatement(BoundStatements.INVITATIONS_CREATE)
-    BoundStatement createStatement;
+    Instance<BoundStatement> stmtCreateInstance;
 
     @Inject @NamedStatement(BoundStatements.INVITATIONS_ACCEPT)
-    BoundStatement acceptStatement;
+    Instance<BoundStatement> stmtAcceptInstance;
 
     @Inject @NamedStatement(BoundStatements.INVITATIONS_DISPATCH)
-    BoundStatement dispatchedStatement;
+    Instance<BoundStatement> stmtDispatchedInstance;
 
     @Inject @NamedStatement(BoundStatements.INVITATIONS_DELETE)
-    BoundStatement deleteStatement;
+    Instance<BoundStatement> stmtDeleteInstance;
 
     @Override
     public Invitation getById(UUID token) {
-        return getById(token, getByTokenStatement);
+        return getById(token, stmtGetByTokenInstance.get());
     }
 
     @Override
@@ -104,23 +105,28 @@ public class InvitationServiceImpl extends BaseServiceImpl<Invitation> implement
         if (null == organization) {
             throw new IllegalArgumentException("The given Organization is invalid (null).");
         }
-        return getList(getByOrganizationStatement.setUUID("organization", organization.getIdAsUUID()));
+        return getList(stmtGetByOrganizationInstance
+                .get()
+                .setUUID("organization", organization.getIdAsUUID())
+        );
     }
 
     @Override
     public Invitation create(String email, HawkularUser invitedBy, Organization organization, Role role) {
+        BoundStatement stmtCreateStatement = stmtCreateInstance.get();
         Invitation invitation = new Invitation(email, invitedBy, organization, role);
-        bindBasicParameters(invitation, createStatement);
-        createStatement.setString("email", invitation.getEmail());
-        createStatement.setUUID("invitedBy", invitation.getInvitedBy().getIdAsUUID());
-        createStatement.setUUID("organization", invitation.getOrganization().getIdAsUUID());
-        createStatement.setUUID("role", invitation.getRole().getIdAsUUID());
-        session.execute(createStatement);
+        bindBasicParameters(invitation, stmtCreateStatement);
+        stmtCreateStatement.setString("email", invitation.getEmail());
+        stmtCreateStatement.setUUID("invitedBy", invitation.getInvitedBy().getIdAsUUID());
+        stmtCreateStatement.setUUID("organization", invitation.getOrganization().getIdAsUUID());
+        stmtCreateStatement.setUUID("role", invitation.getRole().getIdAsUUID());
+        session.execute(stmtCreateStatement);
         return invitation;
     }
 
     @Override
     public Invitation accept(Invitation invitation, HawkularUser user) {
+        BoundStatement stmtAccept = stmtAcceptInstance.get();
         membershipService.create(
                 invitation.getOrganization(),
                 user,
@@ -130,30 +136,32 @@ public class InvitationServiceImpl extends BaseServiceImpl<Invitation> implement
         invitation.setAccepted();
         invitation.setAcceptedBy(user);
 
-        acceptStatement.setTimestamp("acceptedAt",
+        stmtAccept.setTimestamp("acceptedAt",
                 zonedDateTimeAdapter.convertToDatabaseColumn(invitation.getAcceptedAt())
         );
-        update(invitation, acceptStatement);
+        update(invitation, stmtAccept);
 
         return invitation;
     }
 
     @Override
     public void remove(Invitation invitation) {
+        BoundStatement stmtDelete = stmtDeleteInstance.get();
         if (null != invitation) {
-            deleteStatement.setUUID("id", invitation.getIdAsUUID());
-            session.execute(deleteStatement);
+            stmtDelete.setUUID("id", invitation.getIdAsUUID());
+            session.execute(stmtDelete);
         }
     }
 
     @Override
     public void markAsDispatched(Invitation invitation) {
+        BoundStatement stmtDispatched = stmtDispatchedInstance.get();
         invitation.setDispatched();
-        dispatchedStatement.setUUID("id", invitation.getIdAsUUID());
-        dispatchedStatement.setTimestamp("dispatchedAt",
+        stmtDispatched.setUUID("id", invitation.getIdAsUUID());
+        stmtDispatched.setTimestamp("dispatchedAt",
                 zonedDateTimeAdapter.convertToDatabaseColumn(invitation.getDispatchedAt())
         );
-        update(invitation, dispatchedStatement);
+        update(invitation, stmtDispatched);
     }
 
     @Override

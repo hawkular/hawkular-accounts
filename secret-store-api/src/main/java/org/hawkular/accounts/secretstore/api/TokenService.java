@@ -24,6 +24,7 @@ import java.util.UUID;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.hawkular.accounts.common.ZonedDateTimeAdapter;
@@ -49,10 +50,10 @@ public class TokenService {
     ZonedDateTimeAdapter zonedDateTimeAdapter;
 
     @Inject @NamedStatement(BoundStatements.CREATE)
-    BoundStatement createStatement;
+    Instance<BoundStatement> stmtCreate;
 
     @Inject @NamedStatement(BoundStatements.GET_BY_ID)
-    BoundStatement getByIdStatement;
+    Instance<BoundStatement> stmtGetById;
 
     public void create(Token token) {
         UUID id = token.getId();
@@ -61,11 +62,11 @@ public class TokenService {
         Date createdAt = zonedDateTimeAdapter.convertToDatabaseColumn(token.getCreatedAt());
         Date updatedAt = zonedDateTimeAdapter.convertToDatabaseColumn(token.getUpdatedAt());
         Map<String, String> attributes = token.getAttributes();
-        session.execute(createStatement.bind(id, refreshToken, secret, attributes, createdAt, updatedAt));
+        session.execute(stmtCreate.get().bind(id, refreshToken, secret, attributes, createdAt, updatedAt));
     }
 
     public Token getById(UUID id) {
-        ResultSet resultSet = session.execute(getByIdStatement.bind(id));
+        ResultSet resultSet = session.execute(stmtGetById.get().bind(id));
         List<Row> rows = resultSet.all();
 
         if (rows.size() > 1) {

@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -58,7 +59,7 @@ import com.datastax.driver.core.Session;
 public class SampleEndpoint {
 
     @Inject
-    Persona currentPersona;
+    Instance<Persona> currentPersonaInstance;
 
     /**
      * A managed instance of the {@link PermissionChecker}, ready to be used.
@@ -131,6 +132,7 @@ public class SampleEndpoint {
 
     @POST
     public Response createSample(SampleRequest request) {
+        Persona currentPersona = currentPersonaInstance.get();
         PreparedStatement pstmt = session.prepare("insert into hawkular_accounts.samples" +
                 "(id, name, ownerId) " +
                 "values" +

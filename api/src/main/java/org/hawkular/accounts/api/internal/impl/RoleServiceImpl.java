@@ -23,6 +23,7 @@ import java.util.UUID;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
@@ -43,38 +44,38 @@ import com.datastax.driver.core.Row;
 @PermitAll
 public class RoleServiceImpl extends BaseServiceImpl<Role> implements RoleService {
     @Inject @NamedStatement(BoundStatements.ROLES_GET_BY_ID)
-    BoundStatement getByIdStatement;
+    Instance<BoundStatement> stmtGetByIdInstance;
 
     @Inject @NamedStatement(BoundStatements.ROLES_CREATE)
-    BoundStatement createStatement;
+    Instance<BoundStatement> stmtCreateInstance;
 
     @Inject @NamedStatement(BoundStatements.ROLES_GET_BY_NAME)
-    BoundStatement getByNameStatement;
+    Instance<BoundStatement> stmtGetByNameInstance;
 
     @Override
     public Role getById(UUID id) {
-        return getById(id, getByIdStatement);
+        return getById(id, stmtGetByIdInstance.get());
     }
 
     @Override
     public Role create(String name, String description) {
+        BoundStatement stmtCreate = stmtCreateInstance.get();
         if (null != getByName(name)) {
             // we already have a role with this name...
             throw new InvalidParameterException("There's already a role with the given name.");
         }
 
         Role role = new Role(name, description);
-        bindBasicParameters(role, createStatement);
-        createStatement.setString("name", name);
-        createStatement.setString("description", description);
-        session.execute(createStatement);
+        bindBasicParameters(role, stmtCreate);
+        stmtCreate.setString("name", name);
+        stmtCreate.setString("description", description);
+        session.execute(stmtCreate);
         return role;
     }
 
     @Override
     public Role getByName(String name) {
-        getByNameStatement.setString("name", name);
-        return getSingleRecord(getByNameStatement);
+        return getSingleRecord(stmtGetByNameInstance.get().setString("name", name));
     }
 
     @Override

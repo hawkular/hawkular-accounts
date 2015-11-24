@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.DELETE;
@@ -55,10 +56,10 @@ import org.hawkular.accounts.backend.entity.rest.OrganizationTransferRequest;
 @Stateless
 public class OrganizationEndpoint {
     @Inject
-    Persona persona;
+    Instance<Persona> personaInstance;
 
     @Inject @CurrentUser
-    HawkularUser user;
+    Instance<HawkularUser> userInstance;
 
     @Inject
     PermissionChecker permissionChecker;
@@ -101,7 +102,7 @@ public class OrganizationEndpoint {
     @GET
     @Path("/")
     public Response getOrganizationsForPersona() {
-        List<Organization> organizations = organizationService.getOrganizationsForPersona(persona);
+        List<Organization> organizations = organizationService.getOrganizationsForPersona(personaInstance.get());
         return Response.ok().entity(organizations).build();
     }
 
@@ -121,6 +122,8 @@ public class OrganizationEndpoint {
     @POST
     @Path("/")
     public Response createOrganization(@NotNull OrganizationRequest request) {
+        Persona persona = personaInstance.get();
+        HawkularUser user = userInstance.get();
         if (!persona.equals(user)) {
             // HAWKULAR-180 - organizations cannot create other organizations
             // so, we check if the current persona is the same as the current user, as users can only
@@ -172,7 +175,7 @@ public class OrganizationEndpoint {
         }
 
         // check if it's allowed to remove
-        if (permissionChecker.isAllowedTo(operationDelete, id, persona)) {
+        if (permissionChecker.isAllowedTo(operationDelete, id, personaInstance.get())) {
             organizationService.deleteOrganization(organization);
             return Response.ok().build();
         }

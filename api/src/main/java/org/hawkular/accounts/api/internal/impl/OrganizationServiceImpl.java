@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.hawkular.accounts.api.InvitationService;
@@ -64,22 +65,22 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
     Role superUser;
 
     @Inject @NamedStatement(BoundStatements.ORGANIZATION_GET_BY_ID)
-    BoundStatement getById;
+    Instance<BoundStatement> stmtGetByIdInstance;
 
     @Inject @NamedStatement(BoundStatements.ORGANIZATION_GET_BY_NAME)
-    BoundStatement getByName;
+    Instance<BoundStatement> stmtGetByNameInstance;
 
     @Inject @NamedStatement(BoundStatements.ORGANIZATION_GET_BY_OWNER)
-    BoundStatement getByOwner;
+    Instance<BoundStatement> stmtGetByOwnerInstance;
 
     @Inject @NamedStatement(BoundStatements.ORGANIZATION_CREATE)
-    BoundStatement createStatement;
+    Instance<BoundStatement> stmtCreateInstance;
 
     @Inject @NamedStatement(BoundStatements.ORGANIZATION_REMOVE)
-    BoundStatement removeStatement;
+    Instance<BoundStatement> stmtRemoveInstance;
 
     @Inject @NamedStatement(BoundStatements.ORGANIZATION_TRANSFER)
-    BoundStatement transferStatement;
+    Instance<BoundStatement> stmtTransferInstance;
 
     @Override
     public Organization getById(UUID id) {
@@ -87,17 +88,18 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
             throw new IllegalArgumentException("The given organization ID is invalid (null).");
         }
 
-        return getById(id, getById);
+        return getById(id, stmtGetByIdInstance.get());
     }
 
     @Override
     public Organization getByName(String name) {
+        BoundStatement stmtGetByName = stmtGetByNameInstance.get();
         if (null == name) {
             throw new IllegalArgumentException("The given organization name is invalid (null).");
         }
 
-        getByName.setString("name", name);
-        return getSingleRecord(getByName);
+        stmtGetByName.setString("name", name);
+        return getSingleRecord(stmtGetByName);
     }
 
     @Override
@@ -121,6 +123,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
 
     @Override
     public Organization createOrganization(String name, String description, Persona owner) {
+        BoundStatement stmtCreate = stmtCreateInstance.get();
         if (null != getByName(name)) {
             throw new IllegalArgumentException("There's already an organization with this name.");
         }
@@ -134,11 +137,11 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
         resourceService.addRoleToPersona(resource, owner, superUser);
 
         // this is for our organization management
-        bindBasicParameters(organization, createStatement);
-        createStatement.setString("name", organization.getName());
-        createStatement.setString("description", organization.getDescription());
-        createStatement.setUUID("owner", organization.getOwner().getIdAsUUID());
-        session.execute(createStatement);
+        bindBasicParameters(organization, stmtCreate);
+        stmtCreate.setString("name", organization.getName());
+        stmtCreate.setString("description", organization.getDescription());
+        stmtCreate.setUUID("owner", organization.getOwner().getIdAsUUID());
+        session.execute(stmtCreate);
         membershipService.create(organization, owner, superUser);
         return organization;
     }
@@ -157,11 +160,12 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
         membershipService.getMembershipsForOrganization(organization).stream().forEach(membershipService::remove);
         resourceService.revokeAllForPersona(resource, organization.getOwner());
         resourceService.delete(organization.getId());
-        session.execute(removeStatement.setUUID("id", organization.getIdAsUUID()));
+        session.execute(stmtRemoveInstance.get().setUUID("id", organization.getIdAsUUID()));
     }
 
     @Override
     public void transfer(Organization organization, Persona newOwner) {
+        BoundStatement stmtTransfer = stmtTransferInstance.get();
         // first, we remove all the current memberships of the new owner, as it will now be super user
         membershipService.getPersonaMembershipsForOrganization(newOwner, organization)
                 .stream()
@@ -176,13 +180,13 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
 
         // and finally, we change the owner on the organization
         organization.setOwner(newOwner);
-        transferStatement.setUUID("owner", organization.getOwner().getIdAsUUID());
-        session.execute(transferStatement);
+        stmtTransfer.setUUID("owner", organization.getOwner().getIdAsUUID());
+        session.execute(stmtTransfer);
     }
 
     @Override
     public List<Organization> getSubOrganizations(Organization organization) {
-        return getList(getByOwner.setUUID("owner", organization.getIdAsUUID()));
+        return getList(stmtGetByOwnerInstance.get().setUUID("owner", organization.getIdAsUUID()));
     }
 
     @Override

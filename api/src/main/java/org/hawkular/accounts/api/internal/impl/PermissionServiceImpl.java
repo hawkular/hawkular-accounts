@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.hawkular.accounts.api.OperationService;
@@ -49,16 +50,16 @@ public class PermissionServiceImpl extends BaseServiceImpl<Permission> implement
     RoleService roleService;
 
     @Inject @NamedStatement(BoundStatements.PERMISSION_GET_BY_ID)
-    BoundStatement getById;
+    Instance<BoundStatement> stmtGetByIdInstance;
 
     @Inject @NamedStatement(BoundStatements.PERMISSION_DELETE)
-    BoundStatement deleteStatement;
+    Instance<BoundStatement> stmtDeleteInstance;
 
     @Inject @NamedStatement(BoundStatements.PERMISSIONS_GET_BY_OPERATION)
-    BoundStatement getByOperation;
+    Instance<BoundStatement> stmtGetByOperationInstance;
 
     @Inject @NamedStatement(BoundStatements.PERMISSION_CREATE)
-    BoundStatement createStatement;
+    Instance<BoundStatement> stmtCreateInstance;
 
     @Override
     public Set<Role> getPermittedRoles(Operation operation) {
@@ -70,31 +71,32 @@ public class PermissionServiceImpl extends BaseServiceImpl<Permission> implement
 
     @Override
     public Set<Permission> getPermissionsForOperation(Operation operation) {
-        getByOperation.setUUID("operation", operation.getIdAsUUID());
-        return getList(getByOperation).stream().collect(Collectors.toSet());
+        return getList(stmtGetByOperationInstance.get().setUUID("operation", operation.getIdAsUUID()))
+                .stream()
+                .collect(Collectors.toSet());
     }
 
     @Override
     public Permission getById(UUID id) {
-        return getById(id, getById);
+        return getById(id, stmtGetByIdInstance.get());
     }
 
     @Override
     public Permission create(Operation operation, Role role) {
+        BoundStatement stmtCreate = stmtCreateInstance.get();
         Permission permission = new Permission(operation, role);
 
-        bindBasicParameters(permission, createStatement);
-        createStatement.setUUID("operation", permission.getOperation().getIdAsUUID());
-        createStatement.setUUID("role", permission.getRole().getIdAsUUID());
+        bindBasicParameters(permission, stmtCreate);
+        stmtCreate.setUUID("operation", permission.getOperation().getIdAsUUID());
+        stmtCreate.setUUID("role", permission.getRole().getIdAsUUID());
 
-        session.execute(createStatement);
+        session.execute(stmtCreate);
         return permission;
     }
 
     @Override
     public void remove(Permission permission) {
-        deleteStatement.setUUID("id", permission.getIdAsUUID());
-        session.execute(deleteStatement);
+        session.execute(stmtDeleteInstance.get().setUUID("id", permission.getIdAsUUID()));
     }
 
     @Override

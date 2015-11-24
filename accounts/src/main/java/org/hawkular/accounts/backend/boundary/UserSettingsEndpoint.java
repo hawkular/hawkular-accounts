@@ -20,6 +20,7 @@ import java.util.Map;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -42,16 +43,18 @@ public class UserSettingsEndpoint {
     UserSettingsService service;
 
     @Inject @CurrentUser
-    HawkularUser user;
+    Instance<HawkularUser> userInstance;
 
     @GET
     public Response getByUser() {
+        HawkularUser user = userInstance.get();
         UserSettings settings = service.getOrCreateByUser(user);
         return Response.ok(settings.getProperties()).build();
     }
 
     @PUT
     public Response storeKey(Map<String, String> properties) {
+        HawkularUser user = userInstance.get();
         properties.forEach((key, value) -> service.store(user, key, value));
         UserSettings settings = service.getByUser(user);
         return Response.ok(settings.getProperties()).build();

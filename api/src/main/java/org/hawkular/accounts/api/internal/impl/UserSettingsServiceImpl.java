@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
@@ -44,22 +45,22 @@ import com.datastax.driver.core.Row;
 @PermitAll
 public class UserSettingsServiceImpl extends BaseServiceImpl<UserSettings> implements UserSettingsService {
     @Inject @CurrentUser
-    HawkularUser user;
+    Instance<HawkularUser> userInstance;
 
     @Inject
     UserService userService;
 
     @Inject @NamedStatement(BoundStatements.SETTINGS_GET_BY_ID)
-    BoundStatement getById;
+    Instance<BoundStatement> stmtGetByIdInstance;
 
     @Inject @NamedStatement(BoundStatements.SETTINGS_GET_BY_USER)
-    BoundStatement getByUser;
+    Instance<BoundStatement> stmtGetByUserInstance;
 
     @Inject @NamedStatement(BoundStatements.SETTINGS_UPDATE)
-    BoundStatement updateStatement;
+    Instance<BoundStatement> stmtUpdateInstance;
 
     @Inject @NamedStatement(BoundStatements.SETTINGS_CREATE)
-    BoundStatement createStatement;
+    Instance<BoundStatement> stmtCreateInstance;
 
     @Override
     public UserSettings get(String id) {
@@ -68,44 +69,45 @@ public class UserSettingsServiceImpl extends BaseServiceImpl<UserSettings> imple
 
     @Override
     public UserSettings getById(UUID id) {
-        return getById(id, getById);
+        return getById(id, stmtGetByIdInstance.get());
     }
 
     @Override
     public UserSettings getByUser() {
-        return getByUser(user);
+        return getByUser(userInstance.get());
     }
 
     @Override
     public UserSettings getByUser(HawkularUser user) {
-        return getSingleRecord(getByUser.setUUID("persona", user.getIdAsUUID()));
+        return getSingleRecord(stmtGetByUserInstance.get().setUUID("persona", user.getIdAsUUID()));
     }
 
     @Override
     public UserSettings getOrCreateByUser() {
-        return getOrCreateByUser(user);
+        return getOrCreateByUser(userInstance.get());
     }
 
     @Override
     public UserSettings getOrCreateByUser(HawkularUser user) {
+        BoundStatement stmtCreate = stmtCreateInstance.get();
         UserSettings settings = getByUser(user);
         if (null == settings) {
             settings = new UserSettings(user);
-            bindBasicParameters(settings, createStatement);
-            createStatement.setUUID("persona", user.getIdAsUUID());
-            session.execute(createStatement);
+            bindBasicParameters(settings, stmtCreate);
+            stmtCreate.setUUID("persona", user.getIdAsUUID());
+            session.execute(stmtCreate);
         }
         return settings;
     }
 
     @Override
     public String getSettingByKey(String key) {
-        return getSettingByKey(user, key);
+        return getSettingByKey(userInstance.get(), key);
     }
 
     @Override
     public String getSettingByKey(String key, String defaultValue) {
-        return getSettingByKey(user, key, defaultValue);
+        return getSettingByKey(userInstance.get(), key, defaultValue);
     }
 
     @Override
@@ -127,14 +129,13 @@ public class UserSettingsServiceImpl extends BaseServiceImpl<UserSettings> imple
     public UserSettings store(HawkularUser user, String key, String value) {
         UserSettings settings = getOrCreateByUser(user);
         settings.put(key, value);
-        updateStatement.setMap("properties", settings.getProperties());
-        update(settings, updateStatement);
+        update(settings, stmtUpdateInstance.get().setMap("properties", settings.getProperties()));
         return settings;
     }
 
     @Override
     public UserSettings store(String key, String value) {
-        return store(user, key, value);
+        return store(userInstance.get(), key, value);
     }
 
     @Override
@@ -144,14 +145,13 @@ public class UserSettingsServiceImpl extends BaseServiceImpl<UserSettings> imple
             return null;
         }
         settings.remove(key);
-        updateStatement.setMap("properties", settings.getProperties());
-        update(settings, updateStatement);
+        update(settings, stmtUpdateInstance.get().setMap("properties", settings.getProperties()));
         return settings;
     }
 
     @Override
     public UserSettings remove(String key) {
-        return remove(user, key);
+        return remove(userInstance.get(), key);
     }
 
     @Override

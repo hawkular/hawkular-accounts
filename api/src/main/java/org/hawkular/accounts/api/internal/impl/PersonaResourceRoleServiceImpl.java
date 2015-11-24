@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.hawkular.accounts.api.PersonaResourceRoleService;
@@ -57,19 +58,19 @@ public class PersonaResourceRoleServiceImpl
     RoleService roleService;
 
     @Inject @NamedStatement(BoundStatements.PRR_GET_BY_ID)
-    BoundStatement getById;
+    Instance<BoundStatement> stmtGetByIdInstance;
 
     @Inject @NamedStatement(BoundStatements.PRR_GET_BY_PERSONA)
-    BoundStatement getByPersona;
+    Instance<BoundStatement> stmtGetByPersonaInstance;
 
     @Inject @NamedStatement(BoundStatements.PRR_GET_BY_RESOURCE)
-    BoundStatement getByResource;
+    Instance<BoundStatement> stmtGetByResourceInstance;
 
     @Inject @NamedStatement(BoundStatements.PRR_CREATE)
-    BoundStatement createStatement;
+    Instance<BoundStatement> stmtCreateInstance;
 
     @Inject @NamedStatement(BoundStatements.PRR_REMOVE)
-    BoundStatement removeStatement;
+    Instance<BoundStatement> stmtRemoveInstance;
 
     @Override
     PersonaResourceRole getFromRow(Row row) {
@@ -84,23 +85,24 @@ public class PersonaResourceRoleServiceImpl
 
     @Override
     public PersonaResourceRole getById(UUID id) {
-        return getById(id, getById);
+        return getById(id, stmtGetByIdInstance.get());
     }
 
     @Override
     public PersonaResourceRole create(Persona persona, Resource resource, Role role) {
+        BoundStatement stmtCreate = stmtCreateInstance.get();
         PersonaResourceRole prr = new PersonaResourceRole(persona, role, resource);
-        bindBasicParameters(prr, createStatement);
-        createStatement.setUUID("persona", persona.getIdAsUUID());
-        createStatement.setUUID("resource", resource.getIdAsUUID());
-        createStatement.setUUID("role", role.getIdAsUUID());
-        session.execute(createStatement);
+        bindBasicParameters(prr, stmtCreate);
+        stmtCreate.setUUID("persona", persona.getIdAsUUID());
+        stmtCreate.setUUID("resource", resource.getIdAsUUID());
+        stmtCreate.setUUID("role", role.getIdAsUUID());
+        session.execute(stmtCreate);
         return prr;
     }
 
     @Override
     public void remove(UUID id) {
-        session.execute(removeStatement.setUUID("id", id));
+        session.execute(stmtRemoveInstance.get().setUUID("id", id));
     }
 
     @Override
@@ -110,7 +112,7 @@ public class PersonaResourceRoleServiceImpl
 
     @Override
     public List<PersonaResourceRole> getByPersona(Persona persona) {
-        return getList(getByPersona.setUUID("persona", persona.getIdAsUUID()));
+        return getList(stmtGetByPersonaInstance.get().setUUID("persona", persona.getIdAsUUID()));
     }
 
     @Override
@@ -123,6 +125,6 @@ public class PersonaResourceRoleServiceImpl
 
     @Override
     public List<PersonaResourceRole> getByResource(Resource resource) {
-        return getList(getByResource.setUUID("resource", resource.getIdAsUUID()));
+        return getList(stmtGetByResourceInstance.get().setUUID("resource", resource.getIdAsUUID()));
     }
 }
