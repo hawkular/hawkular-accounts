@@ -138,6 +138,7 @@
                 <artifactItem>
                   <groupId>org.keycloak</groupId>
                   <artifactId>keycloak-wf9-modules</artifactId>
+                  <version>${version.org.keycloak}</version>
                   <type>zip</type>
                   <outputDirectory>${project.build.directory}/keycloak/modules/system/layers/base</outputDirectory>
                 </artifactItem>
