@@ -111,6 +111,8 @@
 
   <properties>
     <version.org.keycloak>1.6.0.Final</version.org.keycloak>
+    <version.org.hawkular.commons>0.2.4.Final-SRC-revision-52bafa238d3f27e9c0403d3db9861cccb963d64c</version.org.hawkular.commons>
+
     <failOnMissingWebXml>false</failOnMissingWebXml>
     <jboss.releases.repo.url>
       https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/
@@ -220,13 +222,13 @@
       <dependency>
         <groupId>org.hawkular.commons</groupId>
         <artifactId>hawkular-commons-email</artifactId>
-        <version>0.2.3.Final</version>
+        <version>${version.org.hawkular.commons}</version>
       </dependency>
 
       <dependency>
         <groupId>org.hawkular.commons</groupId>
         <artifactId>hawkular-commons-embedded-cassandra-ear</artifactId>
-        <version>0.2.3.Final</version>
+        <version>${version.org.hawkular.commons}</version>
         <type>ear</type>
       </dependency>
 
@@ -315,6 +317,7 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
