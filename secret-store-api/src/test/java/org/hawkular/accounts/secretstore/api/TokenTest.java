@@ -61,18 +61,18 @@ public class TokenTest extends SessionEnabledTest {
 
     @Test
     public void testCreateToken() {
-        Token token = new Token("my-refresh-token");
+        Token token = new Token("my-refresh-token", UUID.randomUUID().toString());
         tokenService.create(token);
     }
 
     @Test
     public void testRetrieveToken() {
-        Token token = new Token("my-refresh-token");
+        Token token = new Token("my-refresh-token", UUID.randomUUID().toString());
 
         UUID id = token.getId();
         tokenService.create(token);
 
-        Token tokenFromDatabase = tokenService.getById(id);
+        Token tokenFromDatabase = tokenService.getByIdForTrustedConsumers(id);
         assertNotNull("ID should not be null", token.getId());
         assertNotNull("Refresh token should not be null", token.getRefreshToken());
         assertNotNull("Secret should not be null", token.getSecret());
@@ -84,13 +84,13 @@ public class TokenTest extends SessionEnabledTest {
 
     @Test
     public void testPersistAttribute() {
-        Token token = new Token("my-refresh-token");
+        Token token = new Token("my-refresh-token", UUID.randomUUID().toString());
         UUID id = token.getId();
         String persona = UUID.randomUUID().toString();
         token.addAttribute("persona", persona);
         tokenService.create(token);
 
-        Token tokenFromDatabase = tokenService.getById(id);
+        Token tokenFromDatabase = tokenService.getByIdForTrustedConsumers(id);
         assertEquals("Extra attribute from database should have been retrieved",
                 persona,
                 tokenFromDatabase.getAttribute("persona"));

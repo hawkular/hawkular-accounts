@@ -139,7 +139,7 @@ public class AgentHttpHandler implements HttpHandler {
         httpServerExchange.getRequestHeaders().remove("Hawkular-Persona");
         httpServerExchange.getRequestHeaders().put(new HttpString("Authorization"), "Bearer " + bearerToken);
         httpServerExchange.getRequestHeaders().put(
-                new HttpString("Hawkular-Persona"), token.getAttribute("persona_id")
+                new HttpString("Hawkular-Persona"), token.getAttribute("Hawkular-Persona")
         );
 
         finish(httpServerExchange);

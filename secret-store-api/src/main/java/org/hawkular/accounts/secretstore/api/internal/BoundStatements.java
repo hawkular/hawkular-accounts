@@ -20,12 +20,14 @@ package org.hawkular.accounts.secretstore.api.internal;
  * @author Juraci Paixão Kröhling
  */
 public enum BoundStatements {
+    REVOKE_BY_ID("revoke-token-by-id", "DELETE FROM secretstore.tokens WHERE id = ?"),
     GET_BY_ID("get-token-by-id", "SELECT * FROM secretstore.tokens WHERE id = ?"),
+    GET_BY_PRINCIPAL("get-token-by-principal", "SELECT * FROM secretstore.tokens WHERE principal = ?"),
     CREATE("create-token",
             "INSERT INTO secretstore.tokens " +
-                    "(id, refreshToken, secret, attributes, createdAt, updatedAt) " +
+                    "(id, refreshToken, secret, principal, attributes, createdAt, updatedAt) " +
                     "VALUES " +
-                    "(?, ?, ?, ?, ?, ?)");
+                    "(?, ?, ?, ?, ?, ?, ?)");
 
     private String name;
     private String value;

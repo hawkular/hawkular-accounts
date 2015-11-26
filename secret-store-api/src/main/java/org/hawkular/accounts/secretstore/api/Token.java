@@ -29,16 +29,19 @@ import java.util.UUID;
 public class Token extends BaseEntity {
     private String refreshToken;
     private String secret;
+    private String principal;
     private Map<String, String> attributes = new HashMap<>();
 
-    protected Token(String refreshToken) {
+    protected Token(String refreshToken, String principal) {
         super(UUID.randomUUID());
         this.refreshToken = refreshToken;
+        this.principal = principal;
         generateSecret();
     }
 
-    public Token(UUID id, String refreshToken) {
+    public Token(UUID id, String refreshToken, String principal) {
         super(id);
+        this.principal = principal;
         if (null == refreshToken) {
             throw new IllegalStateException("Refresh token should be provided for a new API/Secret pair.");
         }
@@ -47,10 +50,11 @@ public class Token extends BaseEntity {
     }
 
     public Token(UUID id, ZonedDateTime createdAt, ZonedDateTime updatedAt,
-                 String refreshToken, String secret, Map<String, String> attributes) {
+                 String refreshToken, String secret, Map<String, String> attributes, String principal) {
         super(id, createdAt, updatedAt);
         this.refreshToken = refreshToken;
         this.secret = secret;
+        this.principal = principal;
         setAttributes(attributes);
     }
 
@@ -96,5 +100,9 @@ public class Token extends BaseEntity {
 
     public String getAttribute(String key) {
         return this.attributes.get(key);
+    }
+
+    public String getPrincipal() {
+        return principal;
     }
 }
