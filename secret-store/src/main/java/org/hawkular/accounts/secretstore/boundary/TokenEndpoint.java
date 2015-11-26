@@ -16,7 +16,11 @@
  */
 package org.hawkular.accounts.secretstore.boundary;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Base64;
+import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
@@ -25,11 +29,14 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.hawkular.accounts.common.UsernamePasswordConverter;
 import org.hawkular.accounts.secretstore.api.Token;
@@ -46,6 +53,7 @@ import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 @Stateless
 @PermitAll
 public class TokenEndpoint {
+    @SuppressWarnings("EjbEnvironmentInspection")
     @Resource
     SessionContext sessionContext;
 
@@ -58,8 +66,34 @@ public class TokenEndpoint {
     @Inject
     TokenService tokenService;
 
+    @Context
+    UriInfo uriInfo;
+
     @Inject
     UsernamePasswordConverter usernamePasswordConverter;
+
+    @GET
+    @Path("/")
+    public Response listMyTokens() {
+        String principal = sessionContext.getCallerPrincipal().getName();
+        List<Token> tokens = tokenService.getByPrincipalForDistribution(principal);
+        return Response.ok(tokens).build();
+    }
+
+    @DELETE
+    @Path("/{tokenId}")
+    public Response revoke(@PathParam("tokenId") String tokenId) {
+        String principal = sessionContext.getCallerPrincipal().getName();
+        Token token = tokenService.getByIdForTrustedConsumers(UUID.fromString(tokenId));
+        if (token != null && principal.equals(token.getPrincipal())) {
+            tokenService.revoke(UUID.fromString(tokenId));
+            return Response.noContent().build();
+        } else {
+            // either the token really was not found, or doesn't belong to the user
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
+
     /**
      * This endpoint is called when Keycloak redirects the logged in user to our application.
      * @return  a response with a TokenCreateResponse as entity.
@@ -72,7 +106,36 @@ public class TokenEndpoint {
                 principal.getKeycloakSecurityContext();
 
         String refreshToken = kcSecurityContext.getRefreshToken();
-        return create(refreshToken);
+        Token token = create(refreshToken);
+        try {
+            String redirectTo = System.getProperty("secretstore.redirectTo");
+
+            if (null == redirectTo || redirectTo.isEmpty()) {
+                return Response.ok("Redirect URL was not specified but token was created.").build();
+            }
+
+            URI location;
+            if (redirectTo.toLowerCase().startsWith("http")) {
+                location = new URI(redirectTo);
+            } else {
+                URI uri = uriInfo.getAbsolutePath();
+                String newPath = redirectTo.replace("{tokenId}", token.getId().toString());
+                location = new URI(
+                        uri.getScheme(),
+                        uri.getUserInfo(),
+                        uri.getHost(),
+                        uri.getPort(),
+                        newPath,
+                        uri.getQuery(),
+                        uri.getFragment()
+                );
+            }
+
+            return Response.seeOther(location).build();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return Response.ok("Could not redirect back to the original URL, but token was created.").build();
+        }
     }
 
     /**
@@ -105,16 +168,29 @@ public class TokenEndpoint {
         }
 
         String refreshToken = usernamePasswordConverter.getOfflineToken(username, password);
-        return create(refreshToken);
+        Token token = create(refreshToken);
+        return Response.ok(new TokenCreateResponse(token)).build();
     }
 
-    private Response create(String refreshToken) {
-        Token token = new Token(null, refreshToken);
-        String personaId = request.getHeader("Hawkular-Persona");
-        if (null != personaId && !personaId.isEmpty()) {
-            token.addAttribute("persona_id", personaId);
+    private Token create(String refreshToken) {
+        String principal = sessionContext.getCallerPrincipal().getName();
+        Token token = new Token(null, refreshToken, principal);
+
+        String parametersToPersist = System.getProperty("secretstore.parametersToPersist");
+        if (null != parametersToPersist && !parametersToPersist.isEmpty()) {
+            String[] parameters = parametersToPersist.split(",");
+            for (String parameter : parameters) {
+                parameter = parameter.trim();
+                String parameterValue = request.getHeader(parameter);
+                if (null == parameterValue || parameterValue.isEmpty()) {
+                    parameterValue = request.getParameter(parameter);
+                }
+
+                if (null != parameterValue && !parameterValue.isEmpty()) {
+                    token.addAttribute(parameter, parameterValue);
+                }
+            }
         }
-        tokenService.create(token);
-        return Response.ok(new TokenCreateResponse(token)).build();
+        return tokenService.create(token);
     }
 }

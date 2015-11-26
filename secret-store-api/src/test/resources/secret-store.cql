@@ -19,7 +19,14 @@ CREATE TABLE IF NOT EXISTS tokens (
     id uuid PRIMARY KEY,
     refreshToken varchar,
     secret varchar,
+    principal varchar,
     attributes map<varchar, varchar>,
     createdAt timestamp,
     updatedAt timestamp
 );
+
+-- #
+
+CREATE INDEX IF NOT EXISTS ON secretstore.tokens (principal);
+
+-- #

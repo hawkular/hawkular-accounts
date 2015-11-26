@@ -43,6 +43,14 @@
         <xsl:attribute name="name">hawkular.backend</xsl:attribute>
         <xsl:attribute name="value">&#36;{hawkular.backend:embedded_cassandra}</xsl:attribute>
       </property>
+      <property>
+        <xsl:attribute name="name">secretstore.redirectTo</xsl:attribute>
+        <xsl:attribute name="value">&#36;{secretstore.redirectTo:/hawkular-ui/tokens/{tokenId}}</xsl:attribute>
+      </property>
+      <property>
+        <xsl:attribute name="name">secretstore.parametersToPersist</xsl:attribute>
+        <xsl:attribute name="value">&#36;{secretstore.parametersToPersist:Hawkular-Persona}</xsl:attribute>
+      </property>
     </system-properties>
   </xsl:template>
 
