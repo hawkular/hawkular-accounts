@@ -111,6 +111,9 @@
 
   <properties>
     <version.org.hawkular.commons>0.2.4.Final-SRC-revision-52bafa238d3f27e9c0403d3db9861cccb963d64c</version.org.hawkular.commons>
+    <version.junit>4.12</version.junit>
+    <version.org.apache.cassandra>2.2.2</version.org.apache.cassandra>
+    <version.org.mockito>1.10.19</version.org.mockito>
 
     <failOnMissingWebXml>false</failOnMissingWebXml>
     <jboss.releases.repo.url>
@@ -229,27 +232,6 @@
         <artifactId>hawkular-commons-embedded-cassandra-ear</artifactId>
         <version>${version.org.hawkular.commons}</version>
         <type>ear</type>
-      </dependency>
-
-      <dependency>
-        <groupId>org.cassandraunit</groupId>
-        <artifactId>cassandra-unit</artifactId>
-        <version>2.2.2.0-SRC-revision-fa3000df77b3118cfbca9f2ee9d0ec06b2ceec90</version>
-        <scope>test</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.cassandra</groupId>
-            <artifactId>cassandra-all</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.hectorclient</groupId>
-            <artifactId>hector-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.datastax.cassandra</groupId>
-            <artifactId>cassandra-driver-core</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
     </dependencies>
   </dependencyManagement>

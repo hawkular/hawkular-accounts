@@ -15,7 +15,13 @@
 -- limitations under the License.
 --
 
-CREATE TABLE IF NOT EXISTS tokens (
+-- #
+
+CREATE KEYSPACE IF NOT EXISTS secretstore WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1}
+
+-- #
+
+CREATE TABLE IF NOT EXISTS secretstore.tokens (
     id uuid PRIMARY KEY,
     refreshToken varchar,
     secret varchar,

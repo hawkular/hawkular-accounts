@@ -26,36 +26,23 @@ import java.util.UUID;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
-import org.cassandraunit.CassandraCQLUnit;
-import org.cassandraunit.dataset.cql.ClassPathCQLDataSet;
 import org.hawkular.accounts.common.ZonedDateTimeAdapter;
 import org.hawkular.accounts.secretstore.api.internal.BoundStatements;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import com.datastax.driver.core.BoundStatement;
-import com.datastax.driver.core.Session;
 
 /**
  * @author Juraci Paixão Kröhling
  */
-public class TokenTest {
-
-    private Session session;
-
+public class TokenTest extends SessionEnabledTest {
     @Inject
     private TokenService tokenService;
-
-    @Rule
-    public CassandraCQLUnit cassandraCQLUnit = new CassandraCQLUnit(
-            new ClassPathCQLDataSet("secret-store.cql", "secretstore")
-    );
 
     @Before
     public void prepare() {
         ZonedDateTimeAdapter adapter = new ZonedDateTimeAdapter();
-        session = cassandraCQLUnit.session;
 
         Instance<BoundStatement> getByIdStatement = mock(Instance.class);
         when(getByIdStatement.get())
