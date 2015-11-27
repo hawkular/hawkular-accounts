@@ -111,6 +111,7 @@
 
   <properties>
     <version.org.keycloak>1.6.0.Final</version.org.keycloak>
+    <version.org.hawkular.commons>0.2.4.Final</version.org.hawkular.commons>
     <version.junit>4.12</version.junit>
     <version.org.apache.cassandra>2.2.2</version.org.apache.cassandra>
     <version.org.mockito>1.10.19</version.org.mockito>
@@ -224,13 +225,13 @@
       <dependency>
         <groupId>org.hawkular.commons</groupId>
         <artifactId>hawkular-commons-email</artifactId>
-        <version>0.2.3.Final</version>
+        <version>${version.org.hawkular.commons}</version>
       </dependency>
 
       <dependency>
         <groupId>org.hawkular.commons</groupId>
         <artifactId>hawkular-commons-embedded-cassandra-ear</artifactId>
-        <version>0.2.3.Final</version>
+        <version>${version.org.hawkular.commons}</version>
         <type>ear</type>
       </dependency>
     </dependencies>
