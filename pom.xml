@@ -110,7 +110,7 @@
   </distributionManagement>
 
   <properties>
-    <version.org.hawkular.commons>0.2.4.Final-SRC-revision-52bafa238d3f27e9c0403d3db9861cccb963d64c</version.org.hawkular.commons>
+    <version.org.hawkular.commons>0.2.4.Final</version.org.hawkular.commons>
     <version.junit>4.12</version.junit>
     <version.org.apache.cassandra>2.2.2</version.org.apache.cassandra>
     <version.org.mockito>1.10.19</version.org.mockito>
