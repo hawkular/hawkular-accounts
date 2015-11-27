@@ -20,6 +20,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,8 +28,8 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.inject.Instance;
 
+import org.apache.cassandra.service.EmbeddedCassandraService;
 import org.apache.thrift.transport.TTransportException;
-import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.hawkular.accounts.api.internal.ApplicationResources;
 import org.hawkular.accounts.api.internal.BoundStatements;
 import org.hawkular.accounts.api.model.Role;
@@ -213,7 +214,19 @@ public abstract class SessionEnabledTest {
                     .withProtocolVersion(ProtocolVersion.V3)
                     .build().connect();
         } catch (NoHostAvailableException e) {
-            EmbeddedCassandraServerHelper.startEmbeddedCassandra();
+            String cassandraYmlLocation = findPathForCassandraYaml("./cassandra.yml");
+            if (null == cassandraYmlLocation || cassandraYmlLocation.isEmpty()) {
+                cassandraYmlLocation = findPathForCassandraYaml("./api/target/test-classes/cassandra.yml");
+            }
+
+            if (null == cassandraYmlLocation || cassandraYmlLocation.isEmpty()) {
+                throw new IllegalArgumentException("Could not find a cassandra.yml");
+            }
+
+            System.setProperty("cassandra.config", "file://" + cassandraYmlLocation);
+            EmbeddedCassandraService service = new EmbeddedCassandraService();
+            service.start();
+
             session = new Cluster.Builder()
                     .addContactPoints("localhost")
                     .withPort(9142)
@@ -248,4 +261,20 @@ public abstract class SessionEnabledTest {
         return mocked;
     }
 
+    private String findPathForCassandraYaml(String pathToStart) throws IOException {
+        File[] rootDirectories = File.listRoots();
+
+        File file = new File(pathToStart);
+        if (file.exists()) {
+            return file.getAbsolutePath();
+        } else {
+            for (File root : rootDirectories) {
+                String canonicalPathParent = file.getCanonicalFile().getParent();
+                if (root.getPath().equals(canonicalPathParent)) {
+                    return null;
+                }
+            }
+            return findPathForCassandraYaml("../" + file.getParent() + "/" + file.getName());
+        }
+    }
 }
