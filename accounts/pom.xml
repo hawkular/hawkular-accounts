@@ -57,6 +57,11 @@
       </exclusions>
     </dependency>
 
+    <dependency>
+      <groupId>org.hawkular.commons</groupId>
+      <artifactId>hawkular-rest-status</artifactId>
+    </dependency>
+
     <!-- Provided runtime dependencies, present on the Wildfly BOM -->
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
