@@ -10,8 +10,8 @@ storing of metrics, alerting on incoming events and more. Those projects are dev
 in their own GitHub repositories.
 
 ifdef::env-github[]
-[link=https://travis-ci.org/hawkular/hawkular-accounts]
-image:https://travis-ci.org/hawkular/hawkular-accounts.svg["Build Status", link="https://travis-ci.org/hawkular/hawkular-accounts"]
+[link=https://jenkins.kroehling.de/job/hawkular-accounts/]
+image:https://jenkins.kroehling.de/buildStatus/icon?job=hawkular-accounts["Build Status", link="https://jenkins.kroehling.de/job/hawkular-accounts/"]
 endif::[]
 
 == About Accounts
