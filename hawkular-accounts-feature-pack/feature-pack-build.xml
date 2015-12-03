@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2015 Red Hat, Inc. and/or its affiliates
+    and other contributors as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<build xmlns="urn:wildfly:feature-pack-build:1.1">
+  <dependencies>
+    <artifact name="org.keycloak:keycloak-server-feature-pack" />
+    <artifact name="org.keycloak:keycloak-adapter-feature-pack" />
+  </dependencies>
+
+  <config>
+    <standalone template="configuration/standalone/template.xml" subsystems="configuration/standalone/subsystems.xml"
+      output-file="standalone/configuration/standalone.xml" />
+  </config>
+
+  <copy-artifacts>
+    <copy-artifact artifact="org.hawkular.accounts:hawkular-accounts" to-location="standalone/deployments/hawkular-accounts.war" />
+    <copy-artifact artifact="org.hawkular.accounts:hawkular-accounts-events-backend" to-location="standalone/deployments/hawkular-accounts-events-backend.war" />
+    <copy-artifact artifact="org.hawkular.accounts:hawkular-accounts-secret-store" to-location="standalone/deployments/hawkular-accounts-secret-store.war" />
+    <copy-artifact artifact="org.hawkular.commons:hawkular-commons-embedded-cassandra-ear" to-location="standalone/deployments/hawkular-commons-embedded-cassandra-ear.ear" />
+  </copy-artifacts>
+
+</build>
