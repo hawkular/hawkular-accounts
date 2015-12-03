@@ -29,7 +29,7 @@
   <parent>
     <groupId>org.hawkular</groupId>
     <artifactId>hawkular-parent</artifactId>
-    <version>26</version>
+    <version>27</version>
   </parent>
 
   <modules>
