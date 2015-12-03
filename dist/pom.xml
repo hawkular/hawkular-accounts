@@ -19,175 +19,89 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>org.hawkular.accounts</groupId>
     <artifactId>hawkular-accounts-parent</artifactId>
     <version>2.0.7.Final-SNAPSHOT</version>
   </parent>
 
-  <name>Hawkular - Accounts - Distribution</name>
   <artifactId>hawkular-accounts-distribution</artifactId>
-  <packaging>pom</packaging>
-
-  <description>
-    Builds a distribution package on top of Wildfly with a Keycloak server.
-  </description>
+  <name>Hawkular - Accounts - Distribution</name>
 
   <dependencies>
+
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
-      <artifactId>hawkular-accounts</artifactId>
+      <artifactId>hawkular-accounts-feature-pack</artifactId>
       <version>2.0.7.Final-SNAPSHOT</version>
-      <type>war</type>
+      <type>pom</type>
+      <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
-      <artifactId>hawkular-accounts-events-backend</artifactId>
+      <artifactId>hawkular-accounts-feature-pack</artifactId>
       <version>2.0.7.Final-SNAPSHOT</version>
-      <type>war</type>
-    </dependency>
-    <dependency>
-      <groupId>org.hawkular.accounts</groupId>
-      <artifactId>hawkular-accounts-secret-store</artifactId>
-      <version>2.0.7.Final-SNAPSHOT</version>
-      <type>war</type>
-    </dependency>
-    <dependency>
-      <groupId>org.hawkular.accounts</groupId>
-      <artifactId>hawkular-accounts-keycloak-theme</artifactId>
-      <version>2.0.7.Final-SNAPSHOT</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.hawkular.accounts</groupId>
-      <artifactId>hawkular-accounts-keycloak-event-listener-rest</artifactId>
-      <version>2.0.7.Final-SNAPSHOT</version>
-      <classifier>module</classifier>
       <type>zip</type>
-    </dependency>
-    <dependency>
-      <groupId>org.hawkular.accounts</groupId>
-      <artifactId>hawkular-accounts-keycloak-event-listener-jms</artifactId>
-      <version>2.0.7.Final-SNAPSHOT</version>
-      <classifier>module</classifier>
-      <type>zip</type>
-    </dependency>
-    <dependency>
-      <groupId>org.hawkular.commons</groupId>
-      <artifactId>hawkular-commons-embedded-cassandra-ear</artifactId>
-      <type>ear</type>
-    </dependency>
-    <dependency>
-      <groupId>org.keycloak</groupId>
-      <artifactId>keycloak-wf9-modules</artifactId>
-      <version>${version.org.keycloak}</version>
-      <type>zip</type>
-    </dependency>
-    <dependency>
-      <groupId>com.datastax.cassandra</groupId>
-      <artifactId>cassandra-driver-core</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>io.netty</groupId>
-          <artifactId>netty-handler</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>io.netty</groupId>
-          <artifactId>netty-transport-native-epoll</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.google.guava</groupId>
-          <artifactId>guava</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
+
   </dependencies>
+
   <build>
     <plugins>
+
+      <plugin>
+        <groupId>org.wildfly.build</groupId>
+        <artifactId>wildfly-server-provisioning-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>server-provisioning</id>
+            <goals>
+              <goal>build</goal>
+            </goals>
+            <phase>compile</phase>
+            <configuration>
+              <config-file>server-provisioning.xml</config-file>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
+        <artifactId>maven-resources-plugin</artifactId>
         <executions>
           <execution>
-            <id>unpack</id>
-            <phase>prepare-package</phase>
+            <id>distribution-configuration</id>
             <goals>
-              <goal>unpack</goal>
+              <goal>copy-resources</goal>
             </goals>
+            <phase>process-classes</phase>
             <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.wildfly</groupId>
-                  <artifactId>wildfly-dist</artifactId>
-                  <type>zip</type>
-                  <version>${version.org.wildfly}</version>
-                  <outputDirectory>${project.build.directory}/unpacked</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.keycloak</groupId>
-                  <artifactId>keycloak-server-overlay</artifactId>
-                  <type>zip</type>
-                  <version>${version.org.keycloak}</version>
-                  <outputDirectory>${project.build.directory}/keycloak</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.keycloak</groupId>
-                  <artifactId>keycloak-wf9-modules</artifactId>
-                  <version>${version.org.keycloak}</version>
-                  <type>zip</type>
-                  <outputDirectory>${project.build.directory}/keycloak/modules/system/layers/base</outputDirectory>
-                </artifactItem>
-              </artifactItems>
+              <overwrite>true</overwrite>
+              <outputDirectory>${basedir}/target/${project.artifactId}-${project.version}</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/distribution/resources</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
             </configuration>
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>xml-maven-plugin</artifactId>
-        <version>1.0</version>
-        <executions>
-          <execution>
-            <id>generate-resources</id>
-            <phase>package</phase>
-            <goals>
-              <goal>transform</goal>
-            </goals>
-            <configuration>
-              <transformationSets>
-                <transformationSet>
-                  <dir>${project.build.directory}/unpacked/wildfly-${version.org.wildfly}/standalone/configuration</dir>
-                  <stylesheet>src/main/xslt/standalone.xsl</stylesheet>
-                  <includes>
-                    <include>standalone*.xml</include>
-                  </includes>
-                  <outputDir>${project.build.directory}/unpacked/wildfly-${version.org.wildfly}/standalone/configuration</outputDir>
-                  <parameters>
-                    <parameter>
-                      <name>uuid.hawkular.accounts.backend</name>
-                      <value>${uuid.hawkular.accounts.backend}</value>
-                    </parameter>
-                    <parameter>
-                      <name>uuid.hawkular.ui</name>
-                      <value>${uuid.hawkular.ui}</value>
-                    </parameter>
-                  </parameters>
-                </transformationSet>
-              </transformationSets>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
           <execution>
-            <id>distribution</id>
+            <id>assemble</id>
             <phase>package</phase>
             <goals>
               <goal>single</goal>
@@ -197,11 +111,13 @@
                 <descriptor>assembly.xml</descriptor>
               </descriptors>
               <appendAssemblyId>false</appendAssemblyId>
+              <tarLongFileMode>gnu</tarLongFileMode>
             </configuration>
           </execution>
         </executions>
       </plugin>
+
     </plugins>
   </build>
-</project>
 
+</project>

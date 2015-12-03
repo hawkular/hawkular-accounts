@@ -88,10 +88,10 @@
               <artifactItems>
                 <artifactItem>
                   <groupId>org.hawkular.accounts</groupId>
-                  <artifactId>hawkular-accounts-feature-pack-dist</artifactId>
+                  <artifactId>hawkular-accounts-distribution</artifactId>
                   <type>zip</type>
                   <overWrite>false</overWrite>
-                  <outputDirectory>target/hawkular-accounts-feature-pack-dist-${project.version}</outputDirectory>
+                  <outputDirectory>target/hawkular-accounts-distribution-${project.version}</outputDirectory>
                 </artifactItem>
               </artifactItems>
             </configuration>
@@ -112,12 +112,12 @@
             <configuration>
               <transformationSets>
                 <transformationSet>
-                  <dir>${project.basedir}/target/hawkular-accounts-feature-pack-dist-${project.version}/standalone/configuration</dir>
+                  <dir>${project.basedir}/target/hawkular-accounts-distribution-${project.version}/standalone/configuration</dir>
                   <stylesheet>${project.basedir}/src/test/resources/change-smtp-port.xsl</stylesheet>
                   <includes>
                     <include>standalone*.xml</include>
                   </includes>
-                  <outputDir>${project.basedir}/target/hawkular-accounts-feature-pack-dist-${project.version}/standalone/configuration</outputDir>
+                  <outputDir>${project.basedir}/target/hawkular-accounts-distribution-${project.version}/standalone/configuration</outputDir>
                 </transformationSet>
               </transformationSets>
             </configuration>

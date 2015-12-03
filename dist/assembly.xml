@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
     Copyright 2015 Red Hat, Inc. and/or its affiliates
@@ -17,139 +18,17 @@
 
 -->
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
-  <id>bundle</id>
+  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+
+  <id>${project.artifactId}</id>
   <formats>
     <format>zip</format>
-    <format>tar.gz</format>
-    <format>dir</format>
   </formats>
-  <!-- Base dir required for use in wildfly-maven-plugin -->
-  <includeBaseDirectory>true</includeBaseDirectory>
-  <dependencySets>
-    <!-- the main backend -->
-    <dependencySet>
-      <outputDirectory>standalone/deployments</outputDirectory>
-      <includes>
-        <include>org.hawkular.accounts:hawkular-accounts:war</include>
-      </includes>
-      <outputFileNameMapping>hawkular-accounts.war</outputFileNameMapping>
-      <useProjectArtifact>false</useProjectArtifact>
-      <useProjectAttachments>false</useProjectAttachments>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useTransitiveFiltering>false</useTransitiveFiltering>
-      <directoryMode>0755</directoryMode>
-      <fileMode>0755</fileMode>
-    </dependencySet>
-    <!-- the events backend -->
-    <dependencySet>
-      <outputDirectory>standalone/deployments</outputDirectory>
-      <includes>
-        <include>org.hawkular.accounts:hawkular-accounts-events-backend:war</include>
-      </includes>
-      <outputFileNameMapping>hawkular-accounts-events-backend.war</outputFileNameMapping>
-      <useProjectArtifact>false</useProjectArtifact>
-      <useProjectAttachments>false</useProjectAttachments>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useTransitiveFiltering>false</useTransitiveFiltering>
-      <directoryMode>0755</directoryMode>
-      <fileMode>0755</fileMode>
-    </dependencySet>
-    <!-- the secret store backend -->
-    <dependencySet>
-      <outputDirectory>standalone/deployments</outputDirectory>
-      <includes>
-        <include>org.hawkular.accounts:hawkular-accounts-secret-store:war</include>
-      </includes>
-      <outputFileNameMapping>hawkular-accounts-secret-store.war</outputFileNameMapping>
-      <useProjectArtifact>false</useProjectArtifact>
-      <useProjectAttachments>false</useProjectAttachments>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useTransitiveFiltering>false</useTransitiveFiltering>
-      <directoryMode>0755</directoryMode>
-      <fileMode>0755</fileMode>
-    </dependencySet>
-    <!-- the embedded cassandra -->
-    <dependencySet>
-      <outputDirectory>standalone/deployments</outputDirectory>
-      <includes>
-        <include>org.hawkular.commons:hawkular-commons-embedded-cassandra-ear</include>
-      </includes>
-      <outputFileNameMapping>hawkular-commons-embedded-cassandra.ear</outputFileNameMapping>
-      <useProjectArtifact>false</useProjectArtifact>
-      <useProjectAttachments>false</useProjectAttachments>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useTransitiveFiltering>false</useTransitiveFiltering>
-      <directoryMode>0755</directoryMode>
-      <fileMode>0755</fileMode>
-    </dependencySet>
-    <!-- Keycloak theme -->
-    <dependencySet>
-      <outputDirectory>modules/org/hawkular/keycloak/theme/main</outputDirectory>
-      <includes>
-        <include>org.hawkular.accounts:hawkular-accounts-keycloak-theme:jar</include>
-      </includes>
-      <outputFileNameMapping>hawkular-accounts-keycloak-theme.jar</outputFileNameMapping>
-      <useProjectArtifact>false</useProjectArtifact>
-      <useProjectAttachments>false</useProjectAttachments>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useTransitiveFiltering>false</useTransitiveFiltering>
-    </dependencySet>
-    <!-- Keycloak Event Listeners -->
-    <dependencySet>
-      <outputDirectory>/modules</outputDirectory>
-      <includes>
-        <include>org.hawkular.accounts:hawkular-accounts-keycloak-event-listener-rest:zip:module</include>
-        <include>org.hawkular.accounts:hawkular-accounts-keycloak-event-listener-jms:zip:module</include>
-      </includes>
-      <unpack>true</unpack>
-      <fileMode>0644</fileMode>
-      <directoryMode>0755</directoryMode>
-    </dependencySet>
-    <!-- Cassandra Driver dependencies -->
-    <dependencySet>
-      <outputDirectory>/modules/com/datastax/cassandra/main</outputDirectory>
-      <includes>
-        <include>com.datastax.cassandra:cassandra-driver-core:jar</include>
-      </includes>
-      <useTransitiveDependencies>true</useTransitiveDependencies>
-      <useTransitiveFiltering>true</useTransitiveFiltering>
-      <fileMode>0644</fileMode>
-      <directoryMode>0755</directoryMode>
-    </dependencySet>
-  </dependencySets>
+  <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
-      <directory>src/main/resources</directory>
+      <directory>target/${project.artifactId}-${project.version}</directory>
       <outputDirectory/>
-      <excludes>
-        <!-- We handle this file specially (at the end of this file) -->
-        <exclude>**/hawkular-realm*json</exclude>
-      </excludes>
-    </fileSet>
-    <fileSet>
-      <directory>${project.build.directory}/unpacked/wildfly-${version.org.wildfly}/</directory>
-      <outputDirectory/>
-    </fileSet>
-    <fileSet>
-      <directory>${project.build.directory}/keycloak/</directory>
-      <outputDirectory/>
-    </fileSet>
-    <fileSet>
-      <directory>${project.build.directory}/unpacked/wildfly-${version.org.wildfly}/</directory>
-      <outputDirectory/>
-      <directoryMode>0755</directoryMode>
-      <includes>
-        <include>**/*.sh</include>
-      </includes>
-      <fileMode>0755</fileMode>
     </fileSet>
   </fileSets>
-  <files>
-    <file>
-      <source>src/main/resources/standalone/configuration/hawkular-realm.json</source>
-      <outputDirectory>standalone/configuration/</outputDirectory>
-      <filtered>true</filtered>
-    </file>
-  </files>
 </assembly>
