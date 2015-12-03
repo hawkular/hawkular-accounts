@@ -29,7 +29,7 @@
   <parent>
     <groupId>org.hawkular</groupId>
     <artifactId>hawkular-parent</artifactId>
-    <version>26</version>
+    <version>27</version>
   </parent>
 
   <modules>
@@ -46,6 +46,9 @@
     <module>secret-store-api</module>
     <module>secret-store</module>
     <module>undertow-filter</module>
+    <module>hawkular-accounts-feature-pack-resources</module>
+    <module>hawkular-accounts-feature-pack</module>
+    <module>hawkular-accounts-feature-pack-dist</module>
   </modules>
 
   <inceptionYear>2015</inceptionYear>
@@ -114,6 +117,11 @@
     <version.junit>4.12</version.junit>
     <version.org.apache.cassandra>2.2.2</version.org.apache.cassandra>
     <version.org.mockito>1.10.19</version.org.mockito>
+
+    <!-- ${version.org.keycloak} is temporarily overriden here, till we have release of KeyCloak on top of WildFly 10
+      Note that Accounts should not be released with this srcdep and that dependent Hawkular components should
+      consume Accunts only as a srcdep as long as the KeyCloak srcdep is here -->
+    <version.org.keycloak>1.8.0.Final-SRC-revision-277faea1d0a23646e3d5d46c457cf6b3bcc5c4a2</version.org.keycloak>
 
     <failOnMissingWebXml>false</failOnMissingWebXml>
     <jboss.releases.repo.url>
@@ -261,7 +269,6 @@
     <profile>
       <id>itest</id>
       <modules>
-        <module>dist</module>
         <module>integration-tests</module>
       </modules>
     </profile>
@@ -289,11 +296,20 @@
             <configuration>
               <source>
                 import java.util.UUID
-                def uuidBackend = UUID.randomUUID().toString()
-                def uuidUi = UUID.randomUUID().toString()
-                project.properties.setProperty('uuid.hawkular.accounts.backend', uuidBackend.toString())
-                project.properties.setProperty('uuid.hawkular.ui', uuidUi.toString())
-                project.properties.setProperty('uuid.hawkular.secretstore', uuidUi.toString())
+                def uuidBackend = System.getProperty("uuid.hawkular.accounts.backend")
+                if (uuidBackend == null) {
+                    uuidBackend = UUID.randomUUID().toString()
+                    System.setProperty("uuid.hawkular.accounts.backend", uuidBackend)
+                }
+                def uuidUi = System.getProperty("uuid.hawkular.ui")
+                if (uuidUi == null) {
+                    uuidUi = UUID.randomUUID().toString()
+                    System.setProperty("uuid.hawkular.ui", uuidUi)
+                }
+                print "Set uuid.hawkular.accounts.backend = " + uuidBackend
+                project.properties.setProperty('uuid.hawkular.accounts.backend', uuidBackend)
+                project.properties.setProperty('uuid.hawkular.ui', uuidUi)
+                project.properties.setProperty('uuid.hawkular.secretstore', uuidUi)
               </source>
             </configuration>
           </execution>

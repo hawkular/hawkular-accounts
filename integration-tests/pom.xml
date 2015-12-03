@@ -44,7 +44,7 @@
     <dependencies>
       <dependency>
         <groupId>org.hawkular.accounts</groupId>
-        <artifactId>hawkular-accounts-distribution</artifactId>
+        <artifactId>hawkular-accounts-feature-pack-dist</artifactId>
         <version>2.0.7.Final-SNAPSHOT</version>
         <type>zip</type>
       </dependency>
@@ -91,8 +91,8 @@
           <systemPropertyVariables>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
             <!-- the maven dependency plugin will have already downloaded the server on /target -->
-            <jboss.home>${project.basedir}/target/hawkular-accounts-distribution-${project.version}/</jboss.home>
-            <module.path>${project.basedir}/target/hawkular-accounts-distribution-${project.version}/modules</module.path>
+            <jboss.home>${project.basedir}/target/hawkular-accounts-feature-pack-dist-${project.version}/</jboss.home>
+            <!-- <module.path>${project.basedir}/target/hawkular-accounts-distribution-${project.version}/modules</module.path> -->
           </systemPropertyVariables>
           <redirectTestOutputToFile>false</redirectTestOutputToFile>
         </configuration>

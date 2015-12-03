@@ -37,7 +37,7 @@
   <dependencies>
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
-      <artifactId>hawkular-accounts-distribution</artifactId>
+      <artifactId>hawkular-accounts-feature-pack-dist</artifactId>
       <type>zip</type>
     </dependency>
   </dependencies>
