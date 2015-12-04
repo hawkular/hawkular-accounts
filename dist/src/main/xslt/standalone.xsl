@@ -36,6 +36,10 @@
         <xsl:attribute name="value">&#36;{jboss.home.dir}/standalone/configuration/hawkular-realm.json</xsl:attribute>
       </property>
       <property>
+        <xsl:attribute name="name">keycloak.server.url</xsl:attribute>
+        <xsl:attribute name="value">&#36;{keycloak.server.url:http://localhost:8080/auth}</xsl:attribute>
+      </property>
+      <property>
         <xsl:attribute name="name">hawkular.events.listener.rest.endpoint</xsl:attribute>
         <xsl:attribute name="value">http://localhost:8080/hawkular-accounts-events-backend/events</xsl:attribute>
       </property>
