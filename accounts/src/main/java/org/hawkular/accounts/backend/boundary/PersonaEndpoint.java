@@ -18,6 +18,8 @@ package org.hawkular.accounts.backend.boundary;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
@@ -25,6 +27,7 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import org.hawkular.accounts.api.CurrentUser;
@@ -64,6 +67,30 @@ public class PersonaEndpoint {
         personas.add(user);
 
         return Response.ok().entity(personas).build();
+    }
+
+    /**
+     * Retrieves all personas to which this {@link org.hawkular.accounts.api.model.HawkularUser} has access to.
+     *
+     * @return a {@link javax.ws.rs.core.Response} whose entity is a {@link java.util.List} of
+     * {@link org.hawkular.accounts.api.model.Persona}
+     */
+    @GET
+    @Path("/{id:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}}")
+    public Response getPersonas(@PathParam("id") String personaId) {
+        HawkularUser user = userInstance.get();
+        // here, we purposely get the personas for the *user*, not for the current persona
+        Optional<? extends Persona> optionalPersona = organizationService
+                .getOrganizationsForPersona(user)
+                .stream()
+                .filter(p -> p.getIdAsUUID().equals(UUID.fromString(personaId)))
+                .findFirst();
+
+        if (optionalPersona.isPresent()) {
+            return Response.ok().entity(optionalPersona.get()).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
     }
 
     /**

@@ -30,15 +30,6 @@ import static org.junit.Assert.assertTrue
 class SecretStoreITest extends BaseSmokeTest {
 
     @Test
-    void canGetCurrentPersona() {
-        // just a sanity test before we start for real
-        def response = client.get(path: "/hawkular/accounts/personas/current")
-        assertEquals(200, response.status)
-        assertNotNull(response.data.id)
-        assertTrue(true)
-    }
-
-    @Test
     void createTokenBasedOnCurrentPersonaCredentials() {
         def response = client.post(path: "/hawkular/secret-store/v1/tokens/create")
         assertEquals(200, response.status)
