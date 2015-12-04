@@ -97,6 +97,20 @@
           <redirectTestOutputToFile>false</redirectTestOutputToFile>
         </configuration>
       </plugin>
+
+      <!-- We want to clean the environment for the tests all the time we run -->
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>auto-clean</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 </project>
