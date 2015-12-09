@@ -22,6 +22,7 @@
   <container qualifier="jboss" default="true">
     <configuration>
       <property name="startupTimeoutInSeconds">300</property>
+      <property name="javaVmArguments">-Dkeycloak.import=${jboss.home.dir}/standalone/configuration/hawkular-realm-for-dev.json</property>
     </configuration>
   </container>
 </arquillian>

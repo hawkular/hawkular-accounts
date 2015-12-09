@@ -92,7 +92,6 @@
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
             <!-- the maven dependency plugin will have already downloaded the server on /target -->
             <jboss.home>${project.basedir}/target/hawkular-accounts-distribution-${project.version}/</jboss.home>
-            <!-- <module.path>${project.basedir}/target/hawkular-accounts-distribution-${project.version}/modules</module.path> -->
           </systemPropertyVariables>
           <redirectTestOutputToFile>false</redirectTestOutputToFile>
         </configuration>
