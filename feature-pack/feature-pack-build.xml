@@ -19,6 +19,7 @@
 -->
 <build xmlns="urn:wildfly:feature-pack-build:1.1">
   <dependencies>
+    <artifact name="org.hawkular.commons:hawkular-nest-feature-pack" />
     <artifact name="org.keycloak:keycloak-server-feature-pack" />
     <artifact name="org.keycloak:keycloak-adapter-feature-pack" />
   </dependencies>
@@ -29,10 +30,9 @@
   </config>
 
   <copy-artifacts>
-    <copy-artifact artifact="org.hawkular.accounts:hawkular-accounts" to-location="standalone/deployments/hawkular-accounts.war" />
-    <copy-artifact artifact="org.hawkular.accounts:hawkular-accounts-events-backend" to-location="standalone/deployments/hawkular-accounts-events-backend.war" />
-    <copy-artifact artifact="org.hawkular.accounts:hawkular-accounts-secret-store" to-location="standalone/deployments/hawkular-accounts-secret-store.war" />
-    <copy-artifact artifact="org.hawkular.commons:hawkular-commons-embedded-cassandra-ear" to-location="standalone/deployments/hawkular-commons-embedded-cassandra-ear.ear" />
+    <copy-artifact artifact="org.hawkular.accounts:hawkular-accounts" to-location="modules/org/hawkular/nest/main/deployments/hawkular-accounts.war" />
+    <copy-artifact artifact="org.hawkular.accounts:hawkular-accounts-events-backend" to-location="modules/org/hawkular/nest/main/deployments/hawkular-accounts-events-backend.war" />
+    <copy-artifact artifact="org.hawkular.accounts:hawkular-accounts-secret-store" to-location="modules/org/hawkular/nest/main/deployments/hawkular-accounts-secret-store.war" />
   </copy-artifacts>
 
 </build>

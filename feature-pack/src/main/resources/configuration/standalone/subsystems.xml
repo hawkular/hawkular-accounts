@@ -57,5 +57,7 @@
     <!-- required by Hawkular Accounts -->
     <subsystem>hawkular-accounts-messaging-activemq.xml</subsystem>
 
+    <!-- required by Nest -->
+    <subsystem>nest.xml</subsystem>
   </subsystems>
 </config>

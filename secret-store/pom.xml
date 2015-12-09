@@ -112,7 +112,7 @@
         <configuration>
           <archive>
             <manifestEntries>
-              <Dependencies>com.datastax.cassandra</Dependencies>
+              <Dependencies>org.hawkular.commons.cassandra-driver</Dependencies>
             </manifestEntries>
           </archive>
         </configuration>

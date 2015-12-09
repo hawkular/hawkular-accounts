@@ -110,7 +110,7 @@
   </distributionManagement>
 
   <properties>
-    <version.org.hawkular.commons>0.2.4.Final</version.org.hawkular.commons>
+    <version.org.hawkular.commons>0.2.5.Final-SRC-revision-20319242f7f2c6045763758cb4c7ea7bb5e4576f</version.org.hawkular.commons>
     <version.junit>4.12</version.junit>
     <version.org.mockito>1.10.19</version.org.mockito>
 
@@ -237,12 +237,6 @@
         <version>${version.org.hawkular.commons}</version>
       </dependency>
 
-      <dependency>
-        <groupId>org.hawkular.commons</groupId>
-        <artifactId>hawkular-commons-embedded-cassandra-ear</artifactId>
-        <version>${version.org.hawkular.commons}</version>
-        <type>ear</type>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
