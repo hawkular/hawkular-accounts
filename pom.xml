@@ -112,7 +112,6 @@
   <properties>
     <version.org.hawkular.commons>0.2.4.Final</version.org.hawkular.commons>
     <version.junit>4.12</version.junit>
-    <version.org.apache.cassandra>2.2.2</version.org.apache.cassandra>
     <version.org.mockito>1.10.19</version.org.mockito>
 
     <!-- ${version.org.keycloak} is temporarily overriden here, till we have release of KeyCloak on top of WildFly 10
