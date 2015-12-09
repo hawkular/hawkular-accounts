@@ -126,7 +126,7 @@
         <configuration>
           <archive>
             <manifestEntries>
-              <Dependencies>org.infinispan export,com.datastax.cassandra</Dependencies>
+              <Dependencies>org.infinispan export,org.hawkular.commons.cassandra-driver</Dependencies>
             </manifestEntries>
           </archive>
         </configuration>
