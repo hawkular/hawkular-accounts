@@ -23,7 +23,7 @@
   <name>Hawkular - Accounts - Parent</name>
   <groupId>org.hawkular.accounts</groupId>
   <artifactId>hawkular-accounts-parent</artifactId>
-  <version>1.1.3.Final-SNAPSHOT</version>
+  <version>1.1.3.Final</version>
   <packaging>pom</packaging>
 
   <parent>
@@ -66,7 +66,7 @@
     <url>https://github.com/hawkular/hawkular-accounts</url>
     <connection>scm:git:https://github.com/hawkular/hawkular-accounts</connection>
     <developerConnection>scm:git:git@github.com:hawkular/hawkular-accounts.git</developerConnection>
-    <tag>1.1.x</tag>
+    <tag>1.1.3.Final</tag>
   </scm>
 
   <issueManagement>
