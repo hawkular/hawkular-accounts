@@ -66,7 +66,7 @@
     <url>https://github.com/hawkular/hawkular-accounts</url>
     <connection>scm:git:https://github.com/hawkular/hawkular-accounts</connection>
     <developerConnection>scm:git:git@github.com:hawkular/hawkular-accounts.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>1.1.x</tag>
   </scm>
 
   <issueManagement>
