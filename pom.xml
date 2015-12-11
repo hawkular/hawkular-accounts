@@ -111,8 +111,6 @@
 
   <properties>
     <version.org.hawkular.commons>0.2.5.Final-SRC-revision-bc0881c9746ee9ea9416b93c9b6fc9344ac73a07</version.org.hawkular.commons>
-    <version.junit>4.12</version.junit>
-    <version.org.mockito>1.10.19</version.org.mockito>
 
     <!-- ${version.org.keycloak} is temporarily overriden here, till we have release of KeyCloak on top of WildFly 10
       Note that Accounts should not be released with this srcdep and that dependent Hawkular components should
