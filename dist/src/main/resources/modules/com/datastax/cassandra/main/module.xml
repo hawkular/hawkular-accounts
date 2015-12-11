@@ -25,7 +25,7 @@
     <module name="sun.jdk"/>
   </dependencies>
   <resources>
-    <resource-root path="cassandra-driver-core-2.2.0-rc3.jar"/>
+    <resource-root path="cassandra-driver-core-2.2.0-rc2.jar"/>
     <resource-root path="metrics-core-3.0.2.jar"/>
   </resources>
 </module>
