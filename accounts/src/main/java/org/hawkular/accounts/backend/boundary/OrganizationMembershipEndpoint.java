@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
@@ -37,6 +38,7 @@ import org.hawkular.accounts.api.RoleService;
 import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
+import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Role;
 import org.hawkular.accounts.backend.entity.rest.ErrorResponse;
 import org.hawkular.accounts.backend.entity.rest.OrganizationMembershipUpdateRequest;
@@ -66,6 +68,13 @@ public class OrganizationMembershipEndpoint {
     @NamedOperation("organization-change-role-of-members")
     Operation changeMemberRole;
 
+    @Inject
+    @NamedOperation("organization-read")
+    Operation readOrganization;
+
+    @Inject
+    Instance<Persona> personaInstance;
+
     @GET
     @Path("/{membershipId}")
     public Response getMembership(@PathParam("membershipId") String membershipId) {
@@ -80,12 +89,25 @@ public class OrganizationMembershipEndpoint {
             return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
         }
 
+        if (!permissionChecker.isAllowedTo(readOrganization,
+                membership.getOrganization().getId(),
+                personaInstance.get())) {
+            String message = "The specified organization could not be found for this persona.";
+            return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
+        }
+
         return Response.ok().entity(membership).build();
     }
 
     @GET
     public Response getOrganizationMembershipsForOrganization(@QueryParam("organizationId") String organizationId) {
         Organization organization = organizationService.get(organizationId);
+
+        if (!permissionChecker.isAllowedTo(readOrganization, organization.getId(), personaInstance.get())) {
+            String message = "The specified organization could not be found for this persona.";
+            return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
+        }
+
         List<OrganizationMembership> memberships = membershipService.getMembershipsForOrganization(organization);
         return Response.ok().entity(memberships).build();
     }

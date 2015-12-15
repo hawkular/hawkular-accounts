@@ -197,6 +197,11 @@ public class OrganizationEndpoint {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
+        if (!permissionChecker.isAllowedTo(operationRead, organization.getId(), personaInstance.get())) {
+            String message = "The specified organization could not be found for this persona.";
+            return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
+        }
+
         return Response.ok().entity(organization).build();
     }
 
