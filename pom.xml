@@ -29,7 +29,7 @@
   <parent>
     <groupId>org.hawkular</groupId>
     <artifactId>hawkular-parent</artifactId>
-    <version>28</version>
+    <version>30</version>
   </parent>
 
   <modules>
@@ -110,12 +110,10 @@
   </distributionManagement>
 
   <properties>
-    <version.org.hawkular.commons>0.2.5.Final-SRC-revision-bc0881c9746ee9ea9416b93c9b6fc9344ac73a07</version.org.hawkular.commons>
+    <version.org.hawkular.commons>0.3.0.Final</version.org.hawkular.commons>
 
-    <!-- ${version.org.keycloak} is temporarily overriden here, till we have release of KeyCloak on top of WildFly 10
-      Note that Accounts should not be released with this srcdep and that dependent Hawkular components should
-      consume Accunts only as a srcdep as long as the KeyCloak srcdep is here -->
-    <version.org.keycloak>1.8.0.Final-SRC-revision-277faea1d0a23646e3d5d46c457cf6b3bcc5c4a2</version.org.keycloak>
+    <!-- Accounts should be the only place where the KeyCloak version is defined -->
+    <version.org.keycloak>1.8.0.Alpha1</version.org.keycloak>
 
     <failOnMissingWebXml>false</failOnMissingWebXml>
     <jboss.releases.repo.url>
