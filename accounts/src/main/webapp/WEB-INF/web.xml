@@ -24,7 +24,7 @@
   <display-name>Hawkular Accounts</display-name>
 
   <context-param>
-    <param-name>org.hawkular.secretstore.enabled</param-name>
+    <param-name>org.keycloak.secretstore.enabled</param-name>
     <param-value>true</param-value>
   </context-param>
 

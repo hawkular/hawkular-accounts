@@ -40,10 +40,10 @@
       <artifactId>hawkular-accounts-api</artifactId>
       <version>2.0.9.Final-SNAPSHOT</version>
     </dependency>
+
     <dependency>
-      <groupId>org.hawkular.accounts</groupId>
-      <artifactId>hawkular-accounts-undertow-filter</artifactId>
-      <version>2.0.9.Final-SNAPSHOT</version>
+      <groupId>org.keycloak.secretstore</groupId>
+      <artifactId>secret-store-undertow-filter</artifactId>
     </dependency>
 
     <dependency>

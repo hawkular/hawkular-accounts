@@ -31,7 +31,7 @@ class SecretStoreITest extends BaseSmokeTest {
 
     @Test
     void createTokenBasedOnCurrentPersonaCredentials() {
-        def response = client.post(path: "/hawkular/secret-store/v1/tokens/create")
+        def response = client.post(path: "/secret-store/v1/tokens/create")
         assertEquals(200, response.status)
         assertNotNull(response.data.key)
         assertNotNull(response.data.secret)
@@ -43,7 +43,7 @@ class SecretStoreITest extends BaseSmokeTest {
         assertEquals(200, response.status)
         def jdoeId = response.data.id
 
-        response = client.post(path: "/hawkular/secret-store/v1/tokens/create")
+        response = client.post(path: "/secret-store/v1/tokens/create")
         assertEquals(200, response.status)
 
         def token = response.data.key
@@ -72,7 +72,7 @@ class SecretStoreITest extends BaseSmokeTest {
         def organizationId = response.data.id
 
         client.defaultRequestHeaders."Hawkular-Persona" = organizationId
-        response = client.post(path: "/hawkular/secret-store/v1/tokens/create")
+        response = client.post(path: "/secret-store/v1/tokens/create")
         assertEquals(200, response.status)
         client.defaultRequestHeaders.remove("Hawkular-Persona")
 

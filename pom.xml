@@ -43,9 +43,6 @@
     <module>keycloak-event-listener-rest</module>
     <module>keycloak-event-listener-jms</module>
     <module>keycloak-theme</module>
-    <module>secret-store-api</module>
-    <module>secret-store</module>
-    <module>undertow-filter</module>
   </modules>
 
   <inceptionYear>2015</inceptionYear>
@@ -191,22 +188,12 @@
           </exclusion>
         </exclusions>
       </dependency>
-      <dependency>
-        <groupId>org.liquibase</groupId>
-        <artifactId>liquibase-core</artifactId>
-        <version>3.3.3</version>
-      </dependency>
-      <dependency>
-        <groupId>com.mattbertolini</groupId>
-        <artifactId>liquibase-slf4j</artifactId>
-        <version>1.2.1</version>
-      </dependency>
 
       <dependency>
-        <groupId>com.h2database</groupId>
-        <artifactId>h2</artifactId>
-        <scope>test</scope>
-        <version>1.4.185</version>
+        <groupId>org.keycloak.secretstore</groupId>
+        <artifactId>secret-store</artifactId>
+        <version>1.0.4.Final</version>
+        <type>war</type>
       </dependency>
 
       <dependency>
@@ -231,6 +218,12 @@
         <groupId>org.hawkular.commons</groupId>
         <artifactId>hawkular-rest-status</artifactId>
         <version>${version.org.hawkular.commons}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.keycloak.secretstore</groupId>
+        <artifactId>secret-store-undertow-filter</artifactId>
+        <version>1.0.3.Final-SNAPSHOT</version>
       </dependency>
 
     </dependencies>
