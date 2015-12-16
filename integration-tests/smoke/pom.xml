@@ -75,25 +75,17 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
+        <groupId>org.wildfly.build</groupId>
+        <artifactId>wildfly-server-provisioning-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>unpack</id>
-            <phase>generate-test-resources</phase>
+            <id>server-provisioning</id>
             <goals>
-              <goal>unpack</goal>
+              <goal>build</goal>
             </goals>
+            <phase>compile</phase>
             <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.hawkular.accounts</groupId>
-                  <artifactId>hawkular-accounts-distribution</artifactId>
-                  <type>zip</type>
-                  <overWrite>false</overWrite>
-                  <outputDirectory>target/hawkular-accounts-distribution-${project.version}</outputDirectory>
-                </artifactItem>
-              </artifactItems>
+              <config-file>server-provisioning.xml</config-file>
             </configuration>
           </execution>
         </executions>
@@ -112,17 +104,29 @@
             <configuration>
               <transformationSets>
                 <transformationSet>
-                  <dir>${project.basedir}/target/hawkular-accounts-distribution-${project.version}/standalone/configuration</dir>
+                  <dir>${project.basedir}/target/hawkular-accounts-integration-tests-smoke-${project.version}/standalone/configuration</dir>
                   <stylesheet>${project.basedir}/src/test/resources/change-smtp-port.xsl</stylesheet>
                   <includes>
                     <include>standalone*.xml</include>
                   </includes>
-                  <outputDir>${project.basedir}/target/hawkular-accounts-distribution-${project.version}/standalone/configuration</outputDir>
+                  <outputDir>${project.basedir}/target/hawkular-accounts-integration-tests-smoke-${project.version}/standalone/configuration</outputDir>
                 </transformationSet>
               </transformationSets>
             </configuration>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+            <jboss.home>${project.basedir}/target/hawkular-accounts-integration-tests-smoke-${project.version}/</jboss.home>
+          </systemPropertyVariables>
+          <redirectTestOutputToFile>false</redirectTestOutputToFile>
+        </configuration>
       </plugin>
 
     </plugins>

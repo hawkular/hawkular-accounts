@@ -238,14 +238,6 @@
 
   <profiles>
     <profile>
-      <id>distribution</id>
-      <modules>
-        <module>dist</module>
-        <module>feature-pack</module>
-        <module>feature-pack-resources</module>
-      </modules>
-    </profile>
-    <profile>
       <id>sample</id>
       <modules>
         <module>sample</module>
@@ -257,7 +249,18 @@
     <profile>
       <id>itest</id>
       <modules>
-        <module>dist</module>
+        <module>feature-pack</module>
+        <module>feature-pack-resources</module>
+        <module>integration-tests</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>release</id>
+      <modules>
+        <module>sample</module>
+        <module>sample-websocket-secured</module>
+        <module>sample-websocket-backend</module>
+        <module>sample-websocket-frontend</module>
         <module>feature-pack</module>
         <module>feature-pack-resources</module>
         <module>integration-tests</module>

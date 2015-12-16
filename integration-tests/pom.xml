@@ -44,9 +44,23 @@
     <dependencies>
       <dependency>
         <groupId>org.hawkular.accounts</groupId>
-        <artifactId>hawkular-accounts-distribution</artifactId>
+        <artifactId>hawkular-accounts-feature-pack</artifactId>
+        <version>2.0.8.Final-SNAPSHOT</version>
+        <type>pom</type>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hawkular.accounts</groupId>
+        <artifactId>hawkular-accounts-feature-pack</artifactId>
         <version>2.0.8.Final-SNAPSHOT</version>
         <type>zip</type>
+        <exclusions>
+          <exclusion>
+            <groupId>*</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
@@ -82,21 +96,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <!-- Fork every test because it will launch a separate AS instance -->
-          <!--<forkMode>always</forkMode>-->
-          <systemPropertyVariables>
-            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-            <!-- the maven dependency plugin will have already downloaded the server on /target -->
-            <jboss.home>${project.basedir}/target/hawkular-accounts-distribution-${project.version}/</jboss.home>
-          </systemPropertyVariables>
-          <redirectTestOutputToFile>false</redirectTestOutputToFile>
-        </configuration>
-      </plugin>
-
       <!-- We want to clean the environment for the tests all the time we run -->
       <plugin>
         <artifactId>maven-clean-plugin</artifactId>

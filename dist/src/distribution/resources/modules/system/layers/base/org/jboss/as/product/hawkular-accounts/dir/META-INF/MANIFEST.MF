@@ -1,2 +1,0 @@
-JBoss-Product-Release-Name: ${project.artifactId}
-JBoss-Product-Release-Version: ${project.version}

@@ -35,11 +35,6 @@
   </description>
 
   <dependencies>
-    <dependency>
-      <groupId>org.hawkular.accounts</groupId>
-      <artifactId>hawkular-accounts-distribution</artifactId>
-      <type>zip</type>
-    </dependency>
   </dependencies>
 </project>
 
