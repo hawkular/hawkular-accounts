@@ -50,10 +50,10 @@
       <jms-queue name="DLQ" entries="java:/jms/queue/DLQ" />
       <jms-topic name="HawkularAccountsEvents" entries="java:/topic/HawkularAccountsEvents"/>
 
-      <connection-factory name="InVmConnectionFactory" connectors="in-vm" entries="java:/ConnectionFactory" />
+      <connection-factory name="InVmConnectionFactory" connectors="in-vm" entries="java:/ConnectionFactory java:/HawkularBusConnectionFactory" />
             <?REMOTE-CONNECTION-FACTORY?>
 
-      <pooled-connection-factory name="activemq-ra" transaction="xa" connectors="in-vm" entries="java:/JmsXA java:/HawkularBusConnectionFactory java:jboss/DefaultJMSConnectionFactory"/>
+      <pooled-connection-factory name="activemq-ra" transaction="xa" connectors="in-vm" entries="java:/JmsXA java:jboss/DefaultJMSConnectionFactory"/>
     </server>
   </subsystem>
   <supplement name="default">
