@@ -43,6 +43,8 @@
     <module>keycloak-event-listener-rest</module>
     <module>keycloak-event-listener-jms</module>
     <module>keycloak-theme</module>
+    <module>feature-pack-resources</module>
+    <module>feature-pack</module>
   </modules>
 
   <inceptionYear>2015</inceptionYear>
@@ -242,8 +244,6 @@
     <profile>
       <id>itest</id>
       <modules>
-        <module>feature-pack</module>
-        <module>feature-pack-resources</module>
         <module>integration-tests</module>
       </modules>
     </profile>
@@ -254,8 +254,6 @@
         <module>sample-websocket-secured</module>
         <module>sample-websocket-backend</module>
         <module>sample-websocket-frontend</module>
-        <module>feature-pack</module>
-        <module>feature-pack-resources</module>
         <module>integration-tests</module>
       </modules>
     </profile>
