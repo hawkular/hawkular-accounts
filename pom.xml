@@ -109,7 +109,7 @@
   </distributionManagement>
 
   <properties>
-    <version.org.hawkular.commons>0.3.1.Final</version.org.hawkular.commons>
+    <version.org.hawkular.commons>0.3.2.Final-SRC-revision-2acedc8832053cc0bcc145c3424478b415b9c95d</version.org.hawkular.commons>
 
     <!-- Accounts should be the only place where the KeyCloak version is defined -->
     <version.org.keycloak>1.8.0.Alpha1</version.org.keycloak>
