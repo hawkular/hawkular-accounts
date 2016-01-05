@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,67 +14,104 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+.login-pf body {
+    background: #161616 url("../img/bg-login.jpg") top left no-repeat;
+    background-size: cover;
+}
+
 #kc-logo-wrapper {
     background-image: url("../img/brand.svg");
     background-repeat: no-repeat;
-    background-position: top right;
-    height: 65px;
-    margin: 100px;
-}
-.login-pf body {
-    background: #161616 url("../img/bg-login.jpg") top left no-repeat;
-    background-size: 100% auto;
-}
-
-#kc-container-wrapper {
-    position: absolute;
-    width: 100%;
-    bottom: 13%
+    margin-bottom: 50px;
 }
 
 #kc-header-wrapper {
-    margin-bottom: 10px;
-    margin-left: 60px;
     color: #fff;
     text-transform: uppercase;
     font-size: 22px
 }
 
+#kc-content {
+  background-color: transparent;
+  padding-bottom: 0;
+  padding-top: 25px;
+}
+
 #kc-feedback {
     font-size: 13px;
-    margin-top: 10px;
 }
 
 .feedback-error {
     color: #a30000;
 }
 
-#kc-content {
-    padding-bottom: 30px;
-    padding-top: 30px;
-    position: static;
-}
+
+/*------------------------------------*\
+     RESPONSIVE STYLES
+\*------------------------------------*/
 
 @media(max-width:767px) {
-    #kc-logo-wrapper {
-        height: 40px;
-        margin: 50px 20px;
-    }
+  #kc-logo-wrapper {
+    background-position: center top;
+    height: 40px;
+    margin-top: 20px;
+  }
 
-    #kc-container-wrapper {
-        position: static;
-    }
+  #kc-container-wrapper {
+      position: static;
+  }
 
-    #kc-header-wrapper {
-        margin-left: 0;
-    }
+  #kc-header-wrapper {
+      margin-left: 0;
+  }
 
-    #kc-feedback {
-        margin-top: 0;
-        margin-bottom: 10px;
-    }
+  #kc-feedback {
+    margin-bottom: -10px;
+    margin-top: 20px;
+  }
 
-    #kc-content {
-        clear: both;
-    }
+  #kc-content {
+      clear: both;
+  }
+
+  #kc-info-wrapper {
+    border-top: 1px solid #474747;
+    padding-top: 25px;
+    margin-top: 25px;
+  }
+}
+
+@media (min-width: 768px) {
+  #kc-logo-wrapper {
+    background-position: top right;
+    height: 40px;
+    margin-right: 64px;
+    margin-top: 50px;
+  }
+
+  #kc-container-wrapper {
+    bottom: 13%;
+    position: absolute;
+    width: 100%;
+  }
+
+  #kc-header {
+    padding-left: 80px;
+  }
+
+  #kc-feedback {
+    margin-top: 10px;
+  }
+
+  .login-pf .container {
+    padding-right: 0;
+    position: static;
+  }
+}
+
+@media (min-width: 992px) {
+  #kc-container-wrapper {
+    bottom: 20%;
+  }
 }
