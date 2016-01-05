@@ -157,6 +157,16 @@
       </dependency>
       <dependency>
         <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-admin-client</artifactId>
+        <version>${version.org.keycloak}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-model-api</artifactId>
+        <version>${version.org.keycloak}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.keycloak</groupId>
         <artifactId>keycloak-war-dist-all</artifactId>
         <version>${version.org.keycloak}</version>
         <type>zip</type>

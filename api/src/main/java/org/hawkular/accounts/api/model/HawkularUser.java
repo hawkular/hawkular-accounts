@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,12 @@ import java.util.UUID;
  */
 public class HawkularUser extends Persona {
     private String name;
+    private String email;
+
+    // required for JSON/XML marshalling
+    protected HawkularUser() {
+        this(UUID.randomUUID().toString());
+    }
 
     public HawkularUser(String id) {
         super(id);
@@ -37,10 +43,22 @@ public class HawkularUser extends Persona {
         this.name = name;
     }
 
+    public HawkularUser(UUID id, String name, String email) {
+        super(id);
+        this.name = name;
+    }
+
     public HawkularUser(UUID id, ZonedDateTime createdAt, ZonedDateTime updatedAt,
                         String name) {
         super(id, createdAt, updatedAt);
         this.name = name;
+    }
+
+    public HawkularUser(UUID id, ZonedDateTime createdAt, ZonedDateTime updatedAt,
+                        String name, String email) {
+        super(id, createdAt, updatedAt);
+        this.name = name;
+        this.email = email;
     }
 
     @Override
@@ -52,15 +70,28 @@ public class HawkularUser extends Persona {
         this.name = name;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public static class Builder extends BaseEntity.Builder {
         private String name;
+        private String email;
         public Builder name(String name) {
             this.name = name;
             return this;
         }
+        public Builder email(String email) {
+            this.email = email;
+            return this;
+        }
 
         public HawkularUser build() {
-            return new HawkularUser(id, createdAt, updatedAt, name);
+            return new HawkularUser(id, createdAt, updatedAt, name, email);
         }
     }
 }

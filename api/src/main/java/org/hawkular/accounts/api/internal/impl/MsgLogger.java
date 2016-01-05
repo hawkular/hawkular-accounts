@@ -49,4 +49,11 @@ public interface MsgLogger {
     @Message(id = 100003, value = "Failed to properly shutdown the Cassandra driver for Accounts. Reason")
     void failedToShutdownDriver(@Cause Throwable t);
 
+    @LogMessage(level = Logger.Level.DEBUG)
+    @Message(id = 100004, value = "Organization [%s] created. ID: [%s]")
+    void organizationCreated(String organizationName, String organizationId);
+
+    @LogMessage(level = Logger.Level.DEBUG)
+    @Message(id = 100005, value = "Join request from [%s] to join organization [%s] created. ID: [%s]")
+    void joinRequestCreated(String userId, String organizationId, String joinRequestId);
 }

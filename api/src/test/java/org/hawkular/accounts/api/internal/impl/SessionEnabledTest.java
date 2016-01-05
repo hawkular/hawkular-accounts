@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -61,6 +61,7 @@ public abstract class SessionEnabledTest {
     PersonaServiceImpl personaService = new PersonaServiceImpl();
     PermissionCheckerImpl permissionChecker = new PermissionCheckerImpl();
     UserSettingsServiceImpl settingsService = new UserSettingsServiceImpl();
+    OrganizationJoinRequestServiceImpl joinRequestService = new OrganizationJoinRequestServiceImpl();
     Role superUser;
     Role administrator;
     Role auditor;
@@ -146,12 +147,14 @@ public abstract class SessionEnabledTest {
         organizationService.resourceService = resourceService;
         organizationService.invitationService = invitationService;
         organizationService.personaService = personaService;
+        organizationService.joinRequestService = joinRequestService;
         organizationService.stmtCreateInstance = getMocked(BoundStatements.ORGANIZATION_CREATE);
         organizationService.stmtGetByIdInstance = getMocked(BoundStatements.ORGANIZATION_GET_BY_ID);
         organizationService.stmtGetByNameInstance = getMocked(BoundStatements.ORGANIZATION_GET_BY_NAME);
         organizationService.stmtGetByOwnerInstance = getMocked(BoundStatements.ORGANIZATION_GET_BY_OWNER);
         organizationService.stmtTransferInstance = getMocked(BoundStatements.ORGANIZATION_TRANSFER);
         organizationService.stmtRemoveInstance = getMocked(BoundStatements.ORGANIZATION_REMOVE);
+        organizationService.stmtGetApplyInstance = getMocked(BoundStatements.ORGANIZATION_GET_APPLY);
 
         invitationService.session = session;
         invitationService.zonedDateTimeAdapter = zonedDateTimeAdapter;
@@ -174,6 +177,19 @@ public abstract class SessionEnabledTest {
         settingsService.stmtCreateInstance = getMocked(BoundStatements.SETTINGS_CREATE);
         settingsService.stmtUpdateInstance = getMocked(BoundStatements.SETTINGS_UPDATE);
 
+        joinRequestService.session = session;
+        joinRequestService.zonedDateTimeAdapter = zonedDateTimeAdapter;
+        joinRequestService.stmtRemove = getMocked(BoundStatements.JOIN_REQUEST_REMOVE);
+        joinRequestService.stmtGetById = getMocked(BoundStatements.JOIN_REQUEST_GET_BY_ID);
+        joinRequestService.stmtCreate = getMocked(BoundStatements.JOIN_REQUEST_CREATE);
+        joinRequestService.stmtListByOrganization = getMocked(BoundStatements.JOIN_REQUEST_LIST_BY_ORGANIZATION);
+        joinRequestService.stmtUpdateStatus = getMocked(BoundStatements.JOIN_REQUEST_UPDATE_STATUS);
+        joinRequestService.stmtListByPersona = getMocked(BoundStatements.JOIN_REQUEST_LIST_BY_PERSONA);
+        joinRequestService.resourceService = resourceService;
+        joinRequestService.organizationService = organizationService;
+        joinRequestService.personaService = personaService;
+        joinRequestService.membershipService = membershipService;
+
         personaService.membershipService = membershipService;
         personaService.organizationService = organizationService;
         personaService.userService = userService;
@@ -195,6 +211,7 @@ public abstract class SessionEnabledTest {
 
         resourceService.superUser = superUser;
         organizationService.superUser = superUser;
+        joinRequestService.superUser = superUser;
     }
 
     private void prepareCassandra() throws IOException, TTransportException, InterruptedException {

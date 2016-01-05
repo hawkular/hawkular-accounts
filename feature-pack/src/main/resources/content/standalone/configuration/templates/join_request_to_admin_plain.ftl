@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
+<#--
 
     Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
     and other contributors as indicated by the @author tags.
@@ -17,12 +16,7 @@
     limitations under the License.
 
 -->
-<arquillian xmlns="http://jboss.org/schema/arquillian" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
-  <container qualifier="jboss" default="true">
-    <configuration>
-      <property name="startupTimeoutInSeconds">300</property>
-      <property name="javaVmArguments">-Dkeycloak.import=${keycloak.import}</property>
-    </configuration>
-  </container>
-</arquillian>
+The user ${requestor} has requested to join the organization ${orgName}. You can see all the pending requests at this
+address:
+
+${pendingRequestsUrl}

@@ -1,5 +1,5 @@
 --
--- Copyright 2015 Red Hat, Inc. and/or its affiliates
+-- Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
 -- and other contributors as indicated by the @author tags.
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +24,7 @@ CREATE KEYSPACE IF NOT EXISTS hawkular_accounts WITH replication = {'class': 'Si
 CREATE TABLE IF NOT EXISTS hawkular_accounts.users (
     id uuid,
     name text,
+    email text,
     createdAt timestamp,
     updatedAt timestamp,
     PRIMARY KEY (id)
@@ -36,6 +37,7 @@ CREATE TABLE IF NOT EXISTS hawkular_accounts.organizations (
     owner uuid,
     name text,
     description text,
+    visibility text,
     createdAt timestamp,
     updatedAt timestamp,
     PRIMARY KEY (id)
@@ -48,6 +50,10 @@ CREATE INDEX IF NOT EXISTS ON hawkular_accounts.organizations (owner);
 -- #
 
 CREATE INDEX IF NOT EXISTS ON hawkular_accounts.organizations (name);
+
+-- #
+
+CREATE INDEX IF NOT EXISTS ON hawkular_accounts.organizations (visibility);
 
 -- #
 
@@ -186,3 +192,27 @@ CREATE TABLE IF NOT EXISTS hawkular_accounts.user_settings (
 -- #
 
 CREATE INDEX IF NOT EXISTS ON hawkular_accounts.user_settings (persona);
+
+-- #
+
+CREATE TABLE IF NOT EXISTS hawkular_accounts.join_requests (
+    id uuid,
+    organization uuid,
+    persona uuid,
+    status text,
+    createdAt timestamp,
+    updatedAt timestamp,
+    PRIMARY KEY (id)
+);
+
+-- #
+
+CREATE INDEX IF NOT EXISTS ON hawkular_accounts.join_requests (organization);
+
+-- #
+
+CREATE INDEX IF NOT EXISTS ON hawkular_accounts.join_requests (status);
+
+-- #
+
+CREATE INDEX IF NOT EXISTS ON hawkular_accounts.join_requests (persona);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,7 @@ import java.util.UUID;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
 import org.hawkular.accounts.api.model.Persona;
+import org.hawkular.accounts.api.model.Visibility;
 
 /**
  * Service intended to handle data related to an {@link Organization}. Can be injected via CDI into managed beans as
@@ -41,8 +42,25 @@ import org.hawkular.accounts.api.model.Persona;
  */
 public interface OrganizationService {
     /**
+     * Retrieves all organizations that a specific persona can apply to join, removing the organizations that the
+     * persona already belongs or that the persona has already applied for.
+     *
+     * @return all non-private organizations, except for organizations the persona already belongs or already applied.
+     */
+    List<Organization> getFilteredOrganizationsToJoin(Persona persona);
+
+    /**
+     * Retrieves *all* organizations that are possible to get a join request. In other words: returns all non-private
+     * organizations.
+     *
+     *
+     * @return all non-private organizations
+     */
+    List<Organization> getOrganizationsToJoin();
+
+    /**
      * Retrieves the Organizations to which a given Persona directly is member/owner of.
-     * <br/><br/>
+     * <br/>
      * Example:<br/>
      * User "jdoe" is member of "Operations"<br/>
      * Organization "Operations" is a member of "Acme, Inc"<br/>
@@ -63,7 +81,8 @@ public interface OrganizationService {
     List<Organization> getOrganizationsFromMemberships(List<OrganizationMembership> memberships);
 
     /**
-     * Creates a new organization and a "SuperUser" membership for the persona.
+     * Creates a new organization and a "SuperUser" membership for the persona. When using this method, the default
+     * visibility PRIVATE will be used.
      *
      * @param name           the organization's name
      * @param description    the organization's description
@@ -71,6 +90,17 @@ public interface OrganizationService {
      * @return the newly created organization
      */
     Organization createOrganization(String name, String description, Persona owner);
+
+    /**
+     * Creates a new organization and a "SuperUser" membership for the persona.
+     *
+     * @param name           the organization's name
+     * @param description    the organization's description
+     * @param visibility     the organization's visibility.
+     * @param owner          the persona that owns the organization
+     * @return the newly created organization
+     */
+    Organization createOrganization(String name, String description, Visibility visibility, Persona owner);
 
     /**
      * Removes the organization and all related memberships

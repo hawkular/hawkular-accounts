@@ -16,44 +16,29 @@
  */
 package org.hawkular.accounts.backend.entity.rest;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
- * Represents an incoming request to the {@link org.hawkular.accounts.backend.boundary.OrganizationEndpoint}.
- *
  * @author Juraci Paixão Kröhling
  */
-public class OrganizationRequest {
-    private String name;
-    private String description;
-    private String visibility = "PRIVATE";
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class OrganizationJoinRequestDecisionRequest {
+    private String decision;
+    private String joinRequestId;
 
-    public OrganizationRequest() {
+    public String getDecision() {
+        return decision;
     }
 
-    public OrganizationRequest(String name) {
-        this.name = name;
+    public void setDecision(String decision) {
+        this.decision = decision;
     }
 
-    public String getName() {
-        return name;
+    public String getJoinRequestId() {
+        return joinRequestId;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getVisibility() {
-        return visibility;
-    }
-
-    public void setVisibility(String visibility) {
-        this.visibility = visibility;
+    public void setJoinRequestId(String joinRequestId) {
+        this.joinRequestId = joinRequestId;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -67,11 +67,23 @@ public class UserServiceImpl extends BaseServiceImpl<HawkularUser> implements Us
         KeycloakPrincipal principal = (KeycloakPrincipal) sessionContext.getCallerPrincipal();
         String id = principal.getName();
         String name = principal.getKeycloakSecurityContext().getToken().getName();
+        String email = principal.getKeycloakSecurityContext().getToken().getEmail();
         HawkularUser user = getOrCreateByIdAndName(id, name);
+
+        boolean needsUpdate = false;
         if (!name.equals(user.getName())) {
             user.setName(name);
+            needsUpdate = true;
+        }
+        if (null != email && !email.equals(user.getEmail())) {
+            user.setEmail(email);
+            needsUpdate = true;
+        }
+
+        if (needsUpdate) {
             return update(user);
         }
+
         return user;
     }
 
@@ -110,12 +122,18 @@ public class UserServiceImpl extends BaseServiceImpl<HawkularUser> implements Us
         HawkularUser user = new HawkularUser(id, name);
         bindBasicParameters(user, stmtCreate);
         stmtCreate.setString("name", user.getName());
+        stmtCreate.setString("email", user.getEmail());
         session.execute(stmtCreate);
         return user;
     }
 
     private HawkularUser update(HawkularUser user) {
-        return update(user, stmtUpdateInstance.get().setString("name", user.getName()));
+        return update(
+                user,
+                stmtUpdateInstance.get()
+                        .setString("name", user.getName())
+                        .setString("email", user.getEmail())
+        );
     }
 
     private HawkularUser create(String id, String name) {
@@ -130,6 +148,6 @@ public class UserServiceImpl extends BaseServiceImpl<HawkularUser> implements Us
     HawkularUser getFromRow(Row row) {
         HawkularUser.Builder builder = new HawkularUser.Builder();
         mapBaseFields(row, builder);
-        return builder.name(row.getString("name")).build();
+        return builder.name(row.getString("name")).email(row.getString("email")).build();
     }
 }

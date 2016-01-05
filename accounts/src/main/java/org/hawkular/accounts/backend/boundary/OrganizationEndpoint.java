@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,9 @@
  */
 package org.hawkular.accounts.backend.boundary;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
@@ -33,6 +35,7 @@ import javax.ws.rs.core.Response;
 
 import org.hawkular.accounts.api.CurrentUser;
 import org.hawkular.accounts.api.NamedOperation;
+import org.hawkular.accounts.api.OrganizationJoinRequestService;
 import org.hawkular.accounts.api.OrganizationService;
 import org.hawkular.accounts.api.PermissionChecker;
 import org.hawkular.accounts.api.PersonaService;
@@ -42,6 +45,7 @@ import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
+import org.hawkular.accounts.api.model.Visibility;
 import org.hawkular.accounts.backend.entity.rest.ErrorResponse;
 import org.hawkular.accounts.backend.entity.rest.OrganizationRequest;
 import org.hawkular.accounts.backend.entity.rest.OrganizationTransferRequest;
@@ -93,6 +97,9 @@ public class OrganizationEndpoint {
     @Inject
     PersonaService personaService;
 
+    @Inject
+    OrganizationJoinRequestService joinRequestService;
+
     /**
      * Retrieves all organizations to which this {@link org.hawkular.accounts.api.model.HawkularUser} has access to.
      *
@@ -102,8 +109,30 @@ public class OrganizationEndpoint {
     @GET
     @Path("/")
     public Response getOrganizationsForPersona() {
-        List<Organization> organizations = organizationService.getOrganizationsForPersona(personaInstance.get());
-        return Response.ok().entity(organizations).build();
+        Persona persona = personaInstance.get();
+        List<Organization> organizations = organizationService.getOrganizationsForPersona(persona);
+
+        List<Organization> filteredOrganizations = organizations
+                .stream()
+                .filter(o -> permissionChecker.isAllowedTo(operationRead, o.getId(), persona))
+                .collect(Collectors.toList());
+
+        return Response.ok().entity(filteredOrganizations).build();
+    }
+
+    /**
+     * Retrieves all organizations to which this {@link org.hawkular.accounts.api.model.HawkularUser} can apply to join.
+     *
+     * @return a {@link javax.ws.rs.core.Response} whose entity is a {@link java.util.List} of
+     * {@link org.hawkular.accounts.api.model.Organization}
+     */
+    @GET
+    @Path("/join")
+    public Response getOrganizationsToJoin() {
+        Persona persona = personaInstance.get();
+        // we'll subtract these from the list of possible organizations to join
+        List<Organization> organizationsToJoin = organizationService.getFilteredOrganizationsToJoin(persona);
+        return Response.ok().entity(organizationsToJoin).build();
     }
 
     /**
@@ -132,14 +161,36 @@ public class OrganizationEndpoint {
             return Response.status(Response.Status.FORBIDDEN).entity(message).build();
         }
 
+        if (request.getName() == null || request.getName().isEmpty()) {
+            String message = "Missing organization name.";
+            return Response.status(Response.Status.BAD_REQUEST).entity(message).build();
+        }
+
         if (null != organizationService.getByName(request.getName())) {
             ErrorResponse response = new ErrorResponse("There's already an organization with this name");
+            return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
+        }
+
+        // we *could* use Enum.valueOf here, but it might throw exceptions in two situations: null or unknown value.
+        // As throwing an exception at an endpoint is a bit dangerous, we do a manual check here.
+        Visibility visibility = null;
+        for (Visibility value : Visibility.values()) {
+            if (value.name().equalsIgnoreCase(request.getVisibility())) {
+                visibility = value;
+            }
+        }
+
+        if (null == visibility) {
+            ErrorResponse response = new ErrorResponse(
+                    "Visibility is invalid. Possible values: " + Arrays.toString(Visibility.values())
+            );
             return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
         }
 
         Organization organization = organizationService.createOrganization(
                 request.getName(),
                 request.getDescription(),
+                visibility,
                 persona
         );
         return Response.ok().entity(organization).build();

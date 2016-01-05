@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,6 +30,7 @@ public class Organization extends Persona {
     private Persona owner;
     private String name;
     private String description;
+    private Visibility visibility;
 
     public Organization(String id, Persona owner) {
         super(id);
@@ -43,10 +44,16 @@ public class Organization extends Persona {
 
     public Organization(UUID id, ZonedDateTime createdAt, ZonedDateTime updatedAt,
                         Persona owner, String name, String description) {
+        this(id, createdAt, updatedAt, owner, name, description, Visibility.PRIVATE);
+    }
+
+    public Organization(UUID id, ZonedDateTime createdAt, ZonedDateTime updatedAt,
+                        Persona owner, String name, String description, Visibility visibility) {
         super(id, createdAt, updatedAt);
         this.owner = owner;
         this.name = name;
         this.description = description;
+        this.visibility = visibility;
     }
 
     public Persona getOwner() {
@@ -74,10 +81,19 @@ public class Organization extends Persona {
         this.description = description;
     }
 
+    public Visibility getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(Visibility visibility) {
+        this.visibility = visibility;
+    }
+
     public static class Builder extends BaseEntity.Builder {
         private Persona owner;
         private String name;
         private String description;
+        private Visibility visibility;
 
         public Builder owner(Persona owner) {
             this.owner = owner;
@@ -94,8 +110,13 @@ public class Organization extends Persona {
             return this;
         }
 
+        public Builder visibility(String visibility) {
+            this.visibility = Visibility.valueOf(visibility);
+            return this;
+        }
+
         public Organization build() {
-            return new Organization(id, createdAt, updatedAt, owner, name, description);
+            return new Organization(id, createdAt, updatedAt, owner, name, description, visibility);
         }
     }
 }

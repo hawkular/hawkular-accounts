@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -88,14 +88,14 @@ public enum BoundStatements {
 
     USER_CREATE(
             "INSERT INTO hawkular_accounts.users " +
-            "  (id, createdAt, updatedAt, name) " +
+            "  (id, createdAt, updatedAt, name, email) " +
             "VALUES " +
-            "  (:id, :createdAt, :updatedAt, :name);"
+            "  (:id, :createdAt, :updatedAt, :name, :email);"
     ),
 
     USER_UPDATE(
             "UPDATE hawkular_accounts.users " +
-            "SET updatedAt = :updatedAt, name = :name " +
+            "SET updatedAt = :updatedAt, name = :name, email = :email " +
             "WHERE id = :id"
     ),
 
@@ -160,13 +160,14 @@ public enum BoundStatements {
     // Organization statements
     ORGANIZATION_GET_BY_ID("SELECT * FROM hawkular_accounts.organizations WHERE id = :id"),
     ORGANIZATION_GET_BY_NAME("SELECT * FROM hawkular_accounts.organizations WHERE name = :name"),
+    ORGANIZATION_GET_APPLY("SELECT * FROM hawkular_accounts.organizations WHERE visibility = 'APPLY'"),
     ORGANIZATION_GET_BY_OWNER("SELECT * FROM hawkular_accounts.organizations WHERE owner = :owner"),
     ORGANIZATION_REMOVE("DELETE FROM hawkular_accounts.organizations WHERE id = :id"),
     ORGANIZATION_CREATE(
             "INSERT INTO hawkular_accounts.organizations" +
-            " (id, owner, name, description, createdAt, updatedAt) " +
+            " (id, owner, name, description, visibility, createdAt, updatedAt) " +
             "VALUES " +
-            " (:id, :owner, :name, :description, :createdAt, :updatedAt)"
+            " (:id, :owner, :name, :description, :visibility, :createdAt, :updatedAt)"
     ),
     ORGANIZATION_TRANSFER(
             "UPDATE hawkular_accounts.organizations SET owner = :owner, updatedAt = :updatedAt WHERE id = :id"
@@ -203,6 +204,20 @@ public enum BoundStatements {
             " (:id, :persona, :createdAt, :updatedAt) "
     ),
 
+    // Organization Join Requests
+    JOIN_REQUEST_GET_BY_ID("SELECT * FROM hawkular_accounts.join_requests WHERE id = :id"),
+    JOIN_REQUEST_REMOVE("DELETE FROM hawkular_accounts.join_requests WHERE id = :id"),
+    JOIN_REQUEST_CREATE("INSERT INTO hawkular_accounts.join_requests " +
+            "(id, organization, persona, status, createdAt, updatedAt)" +
+            " VALUES " +
+            "(:id, :organization, :persona, :status, :createdAt, :updatedAt)"),
+    JOIN_REQUEST_UPDATE_STATUS("UPDATE hawkular_accounts.join_requests " +
+            "SET status = :status, updatedAt = :updatedAt " +
+            "WHERE id = :id"),
+    JOIN_REQUEST_LIST_BY_ORGANIZATION("SELECT * FROM hawkular_accounts.join_requests " +
+            "WHERE organization = :organization"),
+    JOIN_REQUEST_LIST_BY_PERSONA("SELECT * FROM hawkular_accounts.join_requests " +
+            "WHERE persona = :persona"),
     ;
 
     private String value;

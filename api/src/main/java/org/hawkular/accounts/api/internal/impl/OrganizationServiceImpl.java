@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,17 +27,21 @@ import javax.inject.Inject;
 
 import org.hawkular.accounts.api.InvitationService;
 import org.hawkular.accounts.api.NamedRole;
+import org.hawkular.accounts.api.OrganizationJoinRequestService;
 import org.hawkular.accounts.api.OrganizationMembershipService;
 import org.hawkular.accounts.api.OrganizationService;
 import org.hawkular.accounts.api.PersonaService;
 import org.hawkular.accounts.api.ResourceService;
 import org.hawkular.accounts.api.internal.BoundStatements;
 import org.hawkular.accounts.api.internal.NamedStatement;
+import org.hawkular.accounts.api.model.JoinRequestStatus;
 import org.hawkular.accounts.api.model.Organization;
+import org.hawkular.accounts.api.model.OrganizationJoinRequest;
 import org.hawkular.accounts.api.model.OrganizationMembership;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
 import org.hawkular.accounts.api.model.Role;
+import org.hawkular.accounts.api.model.Visibility;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Row;
@@ -48,6 +52,8 @@ import com.datastax.driver.core.Row;
 @Stateless
 @PermitAll
 public class OrganizationServiceImpl extends BaseServiceImpl<Organization> implements OrganizationService {
+    MsgLogger logger = MsgLogger.LOGGER;
+
     @Inject
     OrganizationMembershipService membershipService;
 
@@ -58,6 +64,9 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
     InvitationService invitationService;
 
     @Inject
+    OrganizationJoinRequestService joinRequestService;
+
+    @Inject
     PersonaService personaService;
 
     @Inject
@@ -66,6 +75,9 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
 
     @Inject @NamedStatement(BoundStatements.ORGANIZATION_GET_BY_ID)
     Instance<BoundStatement> stmtGetByIdInstance;
+
+    @Inject @NamedStatement(BoundStatements.ORGANIZATION_GET_APPLY)
+    Instance<BoundStatement> stmtGetApplyInstance;
 
     @Inject @NamedStatement(BoundStatements.ORGANIZATION_GET_BY_NAME)
     Instance<BoundStatement> stmtGetByNameInstance;
@@ -108,6 +120,30 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
     }
 
     @Override
+    public List<Organization> getFilteredOrganizationsToJoin(Persona persona) {
+        List<Organization> organizationsJoined = getOrganizationsForPersona(persona);
+        List<Organization> organizationsToJoin = getOrganizationsToJoin();
+        List<OrganizationJoinRequest> joinRequestsForPersona = joinRequestService.getAllRequestsForPersona(persona);
+
+        // do not filter out the REJECTED, so that the user can apply again
+        List<Organization> organizationsApplied = joinRequestsForPersona.stream()
+                .filter(j -> j.getStatus() == JoinRequestStatus.PENDING)
+                .map(OrganizationJoinRequest::getOrganization)
+                .distinct()
+                .collect(Collectors.toList());
+
+        organizationsToJoin.removeAll(organizationsJoined);
+        organizationsToJoin.removeAll(organizationsApplied);
+        return organizationsToJoin;
+    }
+
+    @Override
+    public List<Organization> getOrganizationsToJoin() {
+        // TODO: this is dangerous!! we need pagination here, but for now, this is sufficient
+        return getFromRows(session.execute(stmtGetApplyInstance.get()).all());
+    }
+
+    @Override
     public List<Organization> getOrganizationsForPersona(Persona persona) {
         return getOrganizationsFromMemberships(membershipService.getMembershipsForPersona(persona));
     }
@@ -123,6 +159,11 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
 
     @Override
     public Organization createOrganization(String name, String description, Persona owner) {
+        return createOrganization(name, description, Visibility.PRIVATE, owner);
+    }
+
+    @Override
+    public Organization createOrganization(String name, String description, Visibility visibility, Persona owner) {
         BoundStatement stmtCreate = stmtCreateInstance.get();
         if (null != getByName(name)) {
             throw new IllegalArgumentException("There's already an organization with this name.");
@@ -131,6 +172,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
         Organization organization = new Organization(owner);
         organization.setName(name);
         organization.setDescription(description);
+        organization.setVisibility(visibility);
 
         // this is for the permission checker itself
         Resource resource = resourceService.create(organization.getId(), owner);
@@ -141,8 +183,17 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
         stmtCreate.setString("name", organization.getName());
         stmtCreate.setString("description", organization.getDescription());
         stmtCreate.setUUID("owner", organization.getOwner().getIdAsUUID());
+        stmtCreate.setString("visibility", organization.getVisibility().name());
         session.execute(stmtCreate);
+
+        // the owner us the super user
         membershipService.create(organization, owner, superUser);
+
+        // the organization is the super user of itself
+        // the permissions are reduced based on the membership of individual members
+        resourceService.addRoleToPersona(resource, organization, superUser);
+
+        logger.organizationCreated(organization.getName(), organization.getId());
         return organization;
     }
 
@@ -155,6 +206,13 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
                 resourceService.revokeAllForPersona(resource, invitation.getAcceptedBy());
             }
             invitationService.remove(invitation);
+        });
+
+        joinRequestService.getAllRequestsForOrganization(organization).stream().forEach(request -> {
+            if (request.getStatus().equals(JoinRequestStatus.ACCEPTED)) {
+                resourceService.revokeAllForPersona(resource, request.getPersona());
+            }
+            joinRequestService.remove(request);
         });
 
         membershipService.getMembershipsForOrganization(organization).stream().forEach(membershipService::remove);
@@ -194,9 +252,10 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
         Persona owner = personaService.getById(row.getUUID("owner"));
         String name = row.getString("name");
         String description = row.getString("description");
+        String visibility = row.getString("visibility");
 
         Organization.Builder builder = new Organization.Builder();
         mapBaseFields(row, builder);
-        return builder.owner(owner).name(name).description(description).build();
+        return builder.owner(owner).name(name).description(description).visibility(visibility).build();
     }
 }
