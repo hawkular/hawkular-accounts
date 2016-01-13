@@ -98,6 +98,7 @@
     <plugins>
       <!-- We want to clean the environment for the tests all the time we run -->
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-clean-plugin</artifactId>
         <executions>
           <execution>
