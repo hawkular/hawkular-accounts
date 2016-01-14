@@ -45,6 +45,11 @@
     <module>keycloak-theme</module>
     <module>feature-pack-resources</module>
     <module>feature-pack</module>
+    <module>integration-tests</module>
+    <module>sample</module>
+    <module>sample-websocket-secured</module>
+    <module>sample-websocket-backend</module>
+    <module>sample-websocket-frontend</module>
   </modules>
 
   <inceptionYear>2015</inceptionYear>
@@ -112,7 +117,7 @@
     <version.org.hawkular.commons>0.3.2.Final</version.org.hawkular.commons>
 
     <!-- Accounts should be the only place where the KeyCloak version is defined -->
-    <version.org.keycloak>1.8.0.Alpha1</version.org.keycloak>
+    <version.org.keycloak>1.8.0.CR1</version.org.keycloak>
 
     <failOnMissingWebXml>false</failOnMissingWebXml>
     <jboss.releases.repo.url>
@@ -230,34 +235,6 @@
 
     </dependencies>
   </dependencyManagement>
-
-  <profiles>
-    <profile>
-      <id>sample</id>
-      <modules>
-        <module>sample</module>
-        <module>sample-websocket-secured</module>
-        <module>sample-websocket-backend</module>
-        <module>sample-websocket-frontend</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>itest</id>
-      <modules>
-        <module>integration-tests</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>release</id>
-      <modules>
-        <module>sample</module>
-        <module>sample-websocket-secured</module>
-        <module>sample-websocket-backend</module>
-        <module>sample-websocket-frontend</module>
-        <module>integration-tests</module>
-      </modules>
-    </profile>
-  </profiles>
 
   <build>
     <testResources>
