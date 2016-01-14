@@ -24,35 +24,35 @@
   <!-- <xsl:strip-space elements="*" /> -->
 
   <!-- //*[local-name()='config']/*[local-name()='supplement' and @name='default'] is an xPath's 1.0
-       way of saying of xPath's 2.0 prefix-less selector //*:config/*:supplement[@name='default']  -->
+    way of saying of xPath's 2.0 prefix-less selector //*:config/*:supplement[@name='default'] -->
   <xsl:template match="//*[local-name()='config']/*[local-name()='supplement' and @name='default']/*[local-name()='replacement' and @placeholder='ADDITIONAL_SECURITY_DOMAINS']">
     <xsl:copy>
-      <xsl:apply-templates select="@*|node()"/>
+      <xsl:apply-templates select="@*|node()" />
 
-        <xsl:element name="security-domain" namespace="{namespace-uri()}">
-          <xsl:attribute name="name">keycloak</xsl:attribute>
-          <xsl:element name="authentication">
-            <xsl:element name="login-module">
-              <xsl:attribute name="code">org.keycloak.adapters.jboss.KeycloakLoginModule</xsl:attribute>
-              <xsl:attribute name="flag">required</xsl:attribute>
-            </xsl:element>
+      <xsl:element name="security-domain" namespace="{namespace-uri()}">
+        <xsl:attribute name="name">keycloak</xsl:attribute>
+        <xsl:element name="authentication">
+          <xsl:element name="login-module">
+            <xsl:attribute name="code">org.keycloak.adapters.jboss.KeycloakLoginModule</xsl:attribute>
+            <xsl:attribute name="flag">required</xsl:attribute>
           </xsl:element>
         </xsl:element>
-        <xsl:element name="security-domain" namespace="{namespace-uri()}">
-          <xsl:attribute name="name">sp</xsl:attribute>
-          <xsl:attribute name="cache-type">default</xsl:attribute>
-          <xsl:element name="authentication">
-            <xsl:element name="login-module">
-              <xsl:attribute name="code">org.picketlink.identity.federation.bindings.wildfly.SAML2LoginModule</xsl:attribute>
-              <xsl:attribute name="flag">required</xsl:attribute>
-            </xsl:element>
+      </xsl:element>
+      <xsl:element name="security-domain" namespace="{namespace-uri()}">
+        <xsl:attribute name="name">sp</xsl:attribute>
+        <xsl:attribute name="cache-type">default</xsl:attribute>
+        <xsl:element name="authentication">
+          <xsl:element name="login-module">
+            <xsl:attribute name="code">org.picketlink.identity.federation.bindings.wildfly.SAML2LoginModule</xsl:attribute>
+            <xsl:attribute name="flag">required</xsl:attribute>
           </xsl:element>
         </xsl:element>
+      </xsl:element>
     </xsl:copy>
   </xsl:template>
 
   <!-- Empty template effectively removes the matching nodes -->
-  <xsl:template match="//*[local-name()='replacement' and @placeholder='ADDITIONAL_SECURITY_DOMAINS']/*[local-name()='security-domain' and @name='jaspitest']"/>
+  <xsl:template match="//*[local-name()='replacement' and @placeholder='ADDITIONAL_SECURITY_DOMAINS']/*[local-name()='security-domain' and @name='jaspitest']" />
 
   <!-- copy everything else as-is -->
   <xsl:template match="node()|@*">
