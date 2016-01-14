@@ -54,7 +54,6 @@
     <dependency>
       <groupId>org.keycloak.secretstore</groupId>
       <artifactId>secret-store-undertow-filter</artifactId>
-      <version>1.0.4.Final</version>
     </dependency>
 
     <dependency>
