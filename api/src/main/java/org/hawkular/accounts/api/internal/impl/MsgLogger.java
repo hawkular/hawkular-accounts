@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,4 +44,9 @@ public interface MsgLogger {
     @LogMessage(level = Logger.Level.DEBUG)
     @Message(id = 100002, value = "Shutting down Cassandra driver for Accounts")
     void shuttingDownCassandraDriver();
+
+    @LogMessage(level = Logger.Level.FATAL)
+    @Message(id = 100003, value = "Failed to properly shutdown the Cassandra driver for Accounts. Reason")
+    void failedToShutdownDriver(@Cause Throwable t);
+
 }
