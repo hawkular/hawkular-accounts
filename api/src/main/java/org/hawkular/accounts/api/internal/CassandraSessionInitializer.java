@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -69,9 +69,13 @@ public class CassandraSessionInitializer {
     }
 
     @PreDestroy
-    public void destroy() throws Exception {
+    public void destroy() {
         logger.shuttingDownCassandraDriver();
-        sessionFuture.get().getCluster().closeAsync();
+        try {
+            sessionFuture.get().getCluster().closeAsync();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.failedToShutdownDriver(e);
+        }
     }
 
     /**
