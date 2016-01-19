@@ -33,6 +33,7 @@
     <xsl:copy select=".">
       <xsl:apply-templates select="@*|node()" />
       <xsl:attribute name="entries"><xsl:value-of select="@entries"/> java:/HawkularBusConnectionFactory</xsl:attribute>
+      <xsl:attribute name="confirmation-window-size">10024</xsl:attribute>
     </xsl:copy>
   </xsl:template>
 
