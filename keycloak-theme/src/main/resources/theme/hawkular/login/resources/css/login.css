@@ -18,6 +18,7 @@
 .login-pf body {
     background: #161616 url("../img/bg-login.jpg") top left no-repeat;
     background-size: cover;
+    overflow: hidden;
 }
 
 #kc-logo-wrapper {
