@@ -16,6 +16,7 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,6 +47,8 @@ import com.datastax.driver.core.Row;
 @Stateless
 @PermitAll
 public class UserServiceImpl extends BaseServiceImpl<HawkularUser> implements UserService {
+    MsgLogger logger = MsgLogger.LOGGER;
+
     @SuppressWarnings("EjbEnvironmentInspection") @Resource
     SessionContext sessionContext;
 
@@ -64,7 +67,13 @@ public class UserServiceImpl extends BaseServiceImpl<HawkularUser> implements Us
     @Produces @CurrentUser
     @Override
     public HawkularUser getCurrent() {
-        KeycloakPrincipal principal = (KeycloakPrincipal) sessionContext.getCallerPrincipal();
+        Principal p = sessionContext.getCallerPrincipal();
+        if (!(p instanceof KeycloakPrincipal)) {
+            logger.nonAuthRequestWantsPersona();
+            return null;
+        }
+
+        KeycloakPrincipal principal = (KeycloakPrincipal) p;
         String id = principal.getName();
         String name = principal.getKeycloakSecurityContext().getToken().getName();
         String email = principal.getKeycloakSecurityContext().getToken().getEmail();

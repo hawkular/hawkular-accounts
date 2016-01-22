@@ -56,4 +56,12 @@ public interface MsgLogger {
     @LogMessage(level = Logger.Level.DEBUG)
     @Message(id = 100005, value = "Join request from [%s] to join organization [%s] created. ID: [%s]")
     void joinRequestCreated(String userId, String organizationId, String joinRequestId);
+
+    @LogMessage(level = Logger.Level.ERROR)
+    @Message(id = 100006, value = "There's an incoming request for an non-secure location, but a component has " +
+            "requested information about the current persona. This probably indicates a mismatch in the integration " +
+            "of the component. Either the component should accept non-secure requests and not ask for a Persona, or " +
+            "should only accept secure requests. Hawkular Accounts is returning NULL to the component. Lookout for " +
+            "NullPointerExceptions!")
+    void nonAuthRequestWantsPersona();
 }
