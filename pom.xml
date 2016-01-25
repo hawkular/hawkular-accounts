@@ -115,6 +115,7 @@
 
   <properties>
     <version.org.hawkular.commons>0.3.4.Final</version.org.hawkular.commons>
+    <version.org.keycloak.secretstore>1.0.7.Final</version.org.keycloak.secretstore>
 
     <!-- Accounts should be the only place where the KeyCloak version is defined -->
     <version.org.keycloak>1.8.0.CR1</version.org.keycloak>
@@ -211,6 +212,11 @@
         <artifactId>secret-store</artifactId>
         <version>${version.org.keycloak.secretstore}</version>
         <type>war</type>
+      </dependency>
+      <dependency>
+        <groupId>org.keycloak.secretstore</groupId>
+        <artifactId>secret-store-undertow-filter</artifactId>
+        <version>${version.org.keycloak.secretstore}</version>
       </dependency>
 
       <dependency>
