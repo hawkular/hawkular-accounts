@@ -35,6 +35,7 @@ import org.hawkular.accounts.api.ResourceService;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
 import org.hawkular.accounts.api.model.Role;
+import org.hawkular.accounts.backend.control.MsgLogger;
 
 /**
  * @author Juraci Paixão Kröhling
@@ -45,6 +46,7 @@ import org.hawkular.accounts.api.model.Role;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class RoleEndpoint {
+    MsgLogger logger = MsgLogger.LOGGER;
 
     @Inject
     Instance<Persona> personaInstance;
@@ -58,13 +60,20 @@ public class RoleEndpoint {
     @GET
     public Response getRoleForResource(@QueryParam("resourceId") String resourceId) {
         if (null == resourceId) {
+            logger.missingResource();
             String message = "The given resource ID is invalid (null).";
             return Response.status(Response.Status.BAD_REQUEST).entity(message).build();
         }
 
         Resource resource = resourceService.get(resourceId);
-        Set<Role> roles = personaService.getEffectiveRolesForResource(personaInstance.get(), resource);
+        if (null == resource) {
+            logger.resourceNotFound(resourceId);
+            String message = "Resource not found.";
+            return Response.status(Response.Status.NOT_FOUND).entity(message).build();
+        }
 
+        Set<Role> roles = personaService.getEffectiveRolesForResource(personaInstance.get(), resource);
+        logger.numberOfRolesForPersonaOnResource(personaInstance.get().getId(), resourceId, roles.size());
         return Response.ok(roles).build();
     }
 

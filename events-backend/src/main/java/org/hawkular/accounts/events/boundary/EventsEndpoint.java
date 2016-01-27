@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -61,7 +61,7 @@ public class EventsEndpoint {
 
     @POST
     public Response create(EventCreateRequest request) throws JMSException {
-        logger.eventReceived();
+        logger.eventReceived(request.getAction(), request.getUserId(), request.getEventId());
         Message message = topicSession.createMessage();
         message.setStringProperty("action", request.getAction());
         message.setStringProperty("userId", request.getUserId());

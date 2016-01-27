@@ -152,6 +152,7 @@ public class OrganizationJoinRequestServiceImpl
                 role
         );
 
+        logger.joinRequestAccepted(request.getId());
         return update(request, stmtUpdateStatus.get().setString("status", request.getStatus().name()));
     }
 
@@ -162,11 +163,13 @@ public class OrganizationJoinRequestServiceImpl
         }
 
         request.setStatus(JoinRequestStatus.REJECTED);
+        logger.joinRequestRejected(request.getId());
         return update(request, stmtUpdateStatus.get().setString("status", request.getStatus().name()));
     }
 
     @Override
     public void remove(OrganizationJoinRequest request) {
+        logger.joinRequestRemoved(request.getId());
         session.execute(stmtRemove.get().setUUID("id", request.getIdAsUUID()));
     }
 

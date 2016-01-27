@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,6 +49,8 @@ import com.datastax.driver.core.Row;
 @Stateless
 @PermitAll
 public class OperationServiceImpl extends BaseServiceImpl<Operation> implements OperationService {
+    MsgLogger logger = MsgLogger.LOGGER;
+
     @Inject
     PermissionService permissionService;
 
@@ -115,6 +117,7 @@ public class OperationServiceImpl extends BaseServiceImpl<Operation> implements 
     Operation create(String name) {
         BoundStatement stmtCreate = stmtCreateInstance.get();
         if (null != getByName(name)) {
+            logger.duplicateOperation(name);
             // we already have a role with this name...
             throw new InvalidParameterException("There's already an operation with the given name.");
         }
@@ -124,6 +127,7 @@ public class OperationServiceImpl extends BaseServiceImpl<Operation> implements 
         stmtCreate.setString("name", name);
 
         session.execute(stmtCreate);
+        logger.operationCreated(name);
         return operation;
     }
 
@@ -214,6 +218,7 @@ public class OperationServiceImpl extends BaseServiceImpl<Operation> implements 
 
         private void doPersist() {
             if (rolesHaveChanged) {
+                logger.operationHasChanged(operation.getName());
                 // for now, the simple thing: one by one delete... if it's too problematic, bulk remove them!
                 Set<Permission> permissions = permissionService.getPermissionsForOperation(operation);
                 permissions.forEach(permissionService::remove);

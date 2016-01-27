@@ -122,8 +122,13 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
     @Override
     public List<Organization> getFilteredOrganizationsToJoin(Persona persona) {
         List<Organization> organizationsJoined = getOrganizationsForPersona(persona);
+        logger.organizationsPersonaJoined(persona.getId(), organizationsJoined.size());
+
         List<Organization> organizationsToJoin = getOrganizationsToJoin();
+        logger.organizationsPersonaToJoin(persona.getId(), organizationsToJoin.size());
+
         List<OrganizationJoinRequest> joinRequestsForPersona = joinRequestService.getAllRequestsForPersona(persona);
+        logger.personaJoinRequests(persona.getId(), joinRequestsForPersona.size());
 
         // do not filter out the REJECTED, so that the user can apply again
         List<Organization> organizationsApplied = joinRequestsForPersona.stream()
@@ -131,9 +136,11 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
                 .map(OrganizationJoinRequest::getOrganization)
                 .distinct()
                 .collect(Collectors.toList());
+        logger.personaJoinRequestsPending(persona.getId(), organizationsApplied.size());
 
         organizationsToJoin.removeAll(organizationsJoined);
         organizationsToJoin.removeAll(organizationsApplied);
+        logger.organizationsPersonaToJoinFiltered(persona.getId(), organizationsToJoin.size());
         return organizationsToJoin;
     }
 
@@ -199,6 +206,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
 
     @Override
     public void deleteOrganization(Organization organization) {
+        logger.startingRemovalOfOrganization(organization.getId());
         Resource resource = resourceService.get(organization.getId());
 
         invitationService.getInvitationsForOrganization(organization).stream().forEach(invitation -> {
@@ -219,10 +227,12 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
         resourceService.revokeAllForPersona(resource, organization.getOwner());
         resourceService.delete(organization.getId());
         session.execute(stmtRemoveInstance.get().setUUID("id", organization.getIdAsUUID()));
+        logger.finishedRemovalOfOrganization(organization.getId());
     }
 
     @Override
     public void transfer(Organization organization, Persona newOwner) {
+        logger.startingTransferOfOrganization(organization.getId(), organization.getOwner().getId(), newOwner.getId());
         BoundStatement stmtTransfer = stmtTransferInstance.get();
         // first, we remove all the current memberships of the new owner, as it will now be super user
         membershipService.getPersonaMembershipsForOrganization(newOwner, organization)
@@ -240,6 +250,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl<Organization> imple
         organization.setOwner(newOwner);
         stmtTransfer.setUUID("owner", organization.getOwner().getIdAsUUID());
         session.execute(stmtTransfer);
+        logger.finishedTransferOfOrganization(organization.getId(), organization.getOwner().getId(), newOwner.getId());
     }
 
     @Override

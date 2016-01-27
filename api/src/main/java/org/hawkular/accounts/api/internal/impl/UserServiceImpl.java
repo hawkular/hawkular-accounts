@@ -81,10 +81,12 @@ public class UserServiceImpl extends BaseServiceImpl<HawkularUser> implements Us
 
         boolean needsUpdate = false;
         if (!name.equals(user.getName())) {
+            logger.settingUsersName(id, name, user.getName());
             user.setName(name);
             needsUpdate = true;
         }
         if (null != email && !email.equals(user.getEmail())) {
+            logger.settingUsersEmail(id, email, user.getEmail());
             user.setEmail(email);
             needsUpdate = true;
         }
@@ -110,6 +112,7 @@ public class UserServiceImpl extends BaseServiceImpl<HawkularUser> implements Us
     public HawkularUser getOrCreateById(String id) {
         HawkularUser user = getById(id);
         if (null == user) {
+            logger.creatingUser(id);
             user = create(id, null);
         }
 
@@ -120,6 +123,7 @@ public class UserServiceImpl extends BaseServiceImpl<HawkularUser> implements Us
     public HawkularUser getOrCreateByIdAndName(String id, String name) {
         HawkularUser user = getById(id);
         if (null == user) {
+            logger.creatingUserWithName(id, name);
             user = create(id, name);
         }
 
@@ -150,6 +154,7 @@ public class UserServiceImpl extends BaseServiceImpl<HawkularUser> implements Us
     }
 
     List<HawkularUser> getAll() {
+        logger.listingAllUsers();
         return getList(stmtAllUsersInstance.get());
     }
 

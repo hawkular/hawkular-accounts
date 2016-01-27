@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,6 +47,8 @@ import com.datastax.driver.core.Row;
 @Stateless
 @PermitAll
 public class InvitationServiceImpl extends BaseServiceImpl<Invitation> implements InvitationService {
+    MsgLogger logger = MsgLogger.LOGGER;
+
     @Inject
     RoleService roleService;
 
@@ -121,6 +123,7 @@ public class InvitationServiceImpl extends BaseServiceImpl<Invitation> implement
         stmtCreateStatement.setUUID("organization", invitation.getOrganization().getIdAsUUID());
         stmtCreateStatement.setUUID("role", invitation.getRole().getIdAsUUID());
         session.execute(stmtCreateStatement);
+        logger.invitationCreated(invitation.getId());
         return invitation;
     }
 
@@ -141,6 +144,7 @@ public class InvitationServiceImpl extends BaseServiceImpl<Invitation> implement
         );
         update(invitation, stmtAccept);
 
+        logger.invitationAccepted(invitation.getId());
         return invitation;
     }
 
@@ -150,6 +154,7 @@ public class InvitationServiceImpl extends BaseServiceImpl<Invitation> implement
         if (null != invitation) {
             stmtDelete.setUUID("id", invitation.getIdAsUUID());
             session.execute(stmtDelete);
+            logger.invitationRemoved(invitation.getId());
         }
     }
 
@@ -162,6 +167,7 @@ public class InvitationServiceImpl extends BaseServiceImpl<Invitation> implement
                 zonedDateTimeAdapter.convertToDatabaseColumn(invitation.getDispatchedAt())
         );
         update(invitation, stmtDispatched);
+        logger.invitationDispatched(invitation.getId());
     }
 
     @Override

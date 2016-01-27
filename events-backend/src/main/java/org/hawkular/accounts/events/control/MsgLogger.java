@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,8 +32,8 @@ public interface MsgLogger {
     MsgLogger LOGGER = Logger.getMessageLogger(MsgLogger.class, MsgLogger.class.getPackage().getName());
 
     @LogMessage(level = Logger.Level.DEBUG)
-    @Message(id = 130000, value = "Event received by Accounts.")
-    void eventReceived();
+    @Message(id = 130000, value = "Event received by Accounts. Action: [%s], userId: [%s], eventId: [%s]")
+    void eventReceived(String action, String userId, String eventId);
 
     @LogMessage(level = Logger.Level.DEBUG)
     @Message(id = 130001, value = "Event published to the queue by Accounts")

@@ -34,6 +34,7 @@ import org.hawkular.accounts.api.CurrentUser;
 import org.hawkular.accounts.api.UserSettingsService;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.UserSettings;
+import org.hawkular.accounts.backend.control.MsgLogger;
 
 /**
  * @author Juraci Paixão Kröhling
@@ -44,6 +45,8 @@ import org.hawkular.accounts.api.model.UserSettings;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class UserSettingsEndpoint {
+    MsgLogger logger = MsgLogger.LOGGER;
+
     @Inject
     UserSettingsService service;
 
@@ -54,6 +57,7 @@ public class UserSettingsEndpoint {
     public Response getByUser() {
         HawkularUser user = userInstance.get();
         UserSettings settings = service.getOrCreateByUser(user);
+        logger.settingsForPersona(user.getId(), settings.size());
         return Response.ok(settings.getProperties()).build();
     }
 
@@ -62,6 +66,7 @@ public class UserSettingsEndpoint {
         HawkularUser user = userInstance.get();
         properties.forEach((key, value) -> service.store(user, key, value));
         UserSettings settings = service.getByUser(user);
+        logger.settingsForPersona(user.getId(), settings.size());
         return Response.ok(settings.getProperties()).build();
     }
 }

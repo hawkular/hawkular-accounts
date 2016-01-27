@@ -108,22 +108,26 @@ public class OrganizationJoinEndpoint {
     @POST
     public Response applyToJoin(@PathParam("organizationId") String organizationId) {
         if (null == organizationId || organizationId.isEmpty()) {
+            logger.missingOrganization();
             ErrorResponse response = new ErrorResponse("Invalid organization (null)");
             return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
         }
 
         Organization organization = organizationService.getById(UUID.fromString(organizationId));
         if (null == organization) {
+            logger.organizationNotFound(organizationId);
             ErrorResponse response = new ErrorResponse("Organization not found");
             return Response.status(Response.Status.NOT_FOUND).entity(response).build();
         }
 
         if (membershipService.getPersonaMembershipsForOrganization(personaInstance.get(), organization).size() > 0) {
+            logger.alreadyMemberOfOrganization(personaInstance.get().getId(), organizationId);
             ErrorResponse response = new ErrorResponse("You are already a member of the requested organization.");
             return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
         }
 
         if (organization.getVisibility().equals(Visibility.PRIVATE)) {
+            logger.privateOrganizationCannotAcceptJoinRequests(personaInstance.get().getId(), organizationId);
             ErrorResponse response = new ErrorResponse("This organization doesn't accept applications. You need to be" +
                     " invited in order to join this organization.");
             return Response.status(Response.Status.FORBIDDEN).entity(response).build();
@@ -131,6 +135,7 @@ public class OrganizationJoinEndpoint {
 
         OrganizationJoinRequest request = joinRequestService.create(organization, userInstance.get());
         event.fire(new OrganizationJoinRequestEvent(request));
+        logger.joinRequestCreated(personaInstance.get().getId(), organizationId);
         return Response.ok(request).build();
     }
 
@@ -139,22 +144,30 @@ public class OrganizationJoinEndpoint {
     public Response requestDecision(OrganizationJoinRequestDecisionRequest request,
                                     @PathParam("organizationId") String organizationId) {
         if (null == organizationId || organizationId.isEmpty()) {
+            logger.missingOrganization();
             ErrorResponse response = new ErrorResponse("Invalid organization (null)");
             return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
         }
 
         if (null == request.getDecision() || request.getDecision().isEmpty()) {
+            logger.missingDecision();
             ErrorResponse response = new ErrorResponse("Invalid decision (null)");
             return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
         }
 
         OrganizationJoinRequest joinRequest = joinRequestService.getById(UUID.fromString(request.getJoinRequestId()));
         if (null == joinRequest) {
+            logger.joinRequestNotFound(request.getJoinRequestId());
             ErrorResponse response = new ErrorResponse("Join request not found");
             return Response.status(Response.Status.NOT_FOUND).entity(response).build();
         }
 
         if (!joinRequest.getOrganization().getIdAsUUID().toString().equals(organizationId)) {
+            logger.joinRequestBelongsToAnotherCompany(
+                    personaInstance.get().getId(),
+                    organizationId,
+                    joinRequest.getOrganization().getId()
+            );
             ErrorResponse response = new ErrorResponse("Organization mismatch: the join request doesn't belong to " +
                     "this organization.");
             return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
@@ -162,7 +175,8 @@ public class OrganizationJoinEndpoint {
 
         // a decision has already been made about this request
         if (!joinRequest.getStatus().equals(JoinRequestStatus.PENDING)) {
-            ErrorResponse response = null;
+            logger.joinRequestAlreadyDecidedUpon(personaInstance.get().getId(), joinRequest.getId());
+            ErrorResponse response;
 
             // it has already been accepted, and the admin wants to accept it again
             // no harm done, just let them know we "accepted" the request, but not acted upon it
@@ -191,6 +205,7 @@ public class OrganizationJoinEndpoint {
         String resourceId = joinRequest.getIdAsUUID().toString();
         Persona persona = personaInstance.get();
         if (!permissionChecker.isAllowedTo(operationDecision, resourceId, persona)) {
+            logger.notAllowedToPerformOperationOnResource(operationDecision.getName(), resourceId, persona.getId());
             ErrorResponse response = new ErrorResponse("Insufficient permissions to accept/reject a request on this " +
                     "organization.");
             return Response.status(Response.Status.FORBIDDEN).entity(response).build();
@@ -202,6 +217,7 @@ public class OrganizationJoinEndpoint {
         );
 
         if (memberships.size() > 0) {
+            logger.alreadyMemberOfOrganization(persona.getId(), organizationId);
             ErrorResponse response = new ErrorResponse("The persona who requested access is already a member of the " +
                     "organization. Marking the request as REJECTED.");
             joinRequest = joinRequestService.reject(joinRequest);
@@ -217,10 +233,12 @@ public class OrganizationJoinEndpoint {
                 joinRequest = joinRequestService.reject(joinRequest);
                 break;
             default:
+                logger.unknownDecision(request.getDecision());
                 ErrorResponse response = new ErrorResponse("Invalid decision: " + request.getDecision());
                 return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
         }
 
+        logger.decisionMade(joinRequest.getId(), request.getDecision());
         event.fire(new OrganizationJoinRequestEvent(joinRequest));
         return Response.ok(joinRequest).build();
     }
@@ -229,11 +247,17 @@ public class OrganizationJoinEndpoint {
     @GET
     public Response list(@PathParam("organizationId") String organizationId, @QueryParam("filter") String filter) {
         if (null == organizationId || organizationId.isEmpty()) {
+            logger.missingOrganization();
             ErrorResponse response = new ErrorResponse("Invalid organization (null)");
             return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
         }
 
         if (!permissionChecker.isAllowedTo(operationRead, organizationId, personaInstance.get())) {
+            logger.notAllowedToPerformOperationOnResource(
+                    operationRead.getName(),
+                    organizationId,
+                    personaInstance.get().getId()
+            );
             ErrorResponse response = new ErrorResponse("Insufficient permissions to see join requests for this " +
                     "organization.");
             return Response.status(Response.Status.FORBIDDEN).entity(response).build();
@@ -246,14 +270,17 @@ public class OrganizationJoinEndpoint {
 
         Organization organization = organizationService.getById(UUID.fromString(organizationId));
         if (null == organization) {
+            logger.organizationNotFound(organizationId);
             ErrorResponse response = new ErrorResponse("Organization not found");
             return Response.status(Response.Status.NOT_FOUND).entity(response).build();
         }
 
         List<OrganizationJoinRequest> requests;
         if (onlyPending) {
+            logger.listOnlyPendingJoinRequests();
             requests = joinRequestService.getPendingRequestsForOrganization(organization);
         } else {
+            logger.listAllJoinRequests();
             requests = joinRequestService.getAllRequestsForOrganization(organization);
         }
 
@@ -264,12 +291,14 @@ public class OrganizationJoinEndpoint {
     @GET
     public Response listOwnRequests() {
         List<OrganizationJoinRequest> joinRequests = joinRequestService.getAllRequestsForPersona(personaInstance.get());
+        logger.listAllJoinRequestsForPersona(personaInstance.get().getId(), joinRequests.size());
 
         joinRequests = joinRequests
                 .stream()
                 .filter(j -> !j.getStatus().equals(JoinRequestStatus.ACCEPTED))
                 .collect(Collectors.toList());
 
+        logger.listPendingJoinRequestsForPersona(personaInstance.get().getId(), joinRequests.size());
         return Response.ok(joinRequests).build();
     }
 }

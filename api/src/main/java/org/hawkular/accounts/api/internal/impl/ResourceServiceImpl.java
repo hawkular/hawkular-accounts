@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,6 +49,8 @@ import com.datastax.driver.core.Row;
 @Stateless
 @PermitAll
 public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements ResourceService {
+    MsgLogger logger = MsgLogger.LOGGER;
+
     private static final Pattern UUID_PATTERN =
             Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}");
 
@@ -83,8 +85,8 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
     public Resource get(String id) {
         UUID uuid;
         if (!UUID_PATTERN.matcher(id).matches()) {
-            // not an UUID, can't be a token
             uuid = UUID.nameUUIDFromBytes(id.getBytes());
+            logger.resourceIdIsntUUID(id, uuid.toString());
         } else {
             uuid = UUID.fromString(id);
         }
@@ -119,12 +121,14 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
         bindBasicParameters(resource, stmtCreate);
 
         if (null != persona) {
+            logger.resourceBeingCreatedWithPersona(resource.getId(), persona.getId());
             stmtCreate.setUUID("persona", resource.getPersona().getIdAsUUID());
         } else {
             stmtCreate.setToNull("persona");
         }
 
         if (null != parent) {
+            logger.resourceBeingCreatedWithParent(resource.getId(), resource.getParent().getId());
             stmtCreate.setUUID("parent", resource.getParent().getIdAsUUID());
         } else {
             stmtCreate.setToNull("parent");
@@ -136,6 +140,7 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
             personaResourceRoleService.create(persona, resource, superUser);
         }
 
+        logger.resourceCreated(resource.getId());
         return resource;
     }
 
@@ -149,6 +154,9 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
         if (resource != null) {
             personaResourceRoleService.getByResource(resource).stream().forEach(personaResourceRoleService::remove);
         }
+
+        // TODO: why aren't we actually removing a resource??
+        logger.resourceRemoved(id);
     }
 
     @Override
@@ -162,6 +170,11 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
 
     @Override
     public void transfer(Resource resource, Persona persona) {
+        if (null != resource.getPersona()) {
+            logger.resourceTransferring(resource.getId(), resource.getPersona().getId(), persona.getId());
+        } else {
+            logger.resourceTransferringNoOwner(resource.getId(), persona.getId());
+        }
         resource.setPersona(persona);
         update(resource, stmtTransferInstance.get().setUUID("persona", persona.getIdAsUUID()));
         revokeAllForPersona(resource, persona);
@@ -170,6 +183,7 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
 
     @Override
     public void revokeAllForPersona(Resource resource, Persona persona) {
+        logger.revokingAllForPersona(resource.getId(), persona.getId());
         personaResourceRoleService.getByPersonaAndResource(persona, resource)
                 .stream()
                 .forEach(personaResourceRoleService::remove);
@@ -184,6 +198,7 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
                 .collect(Collectors.toList());
 
         if (existingList.size() > 0) {
+            logger.personaAlreadyHaveRoleOnResource(persona.getId(), role.getName(), resource.getId());
             return existingList.get(0);
         }
 

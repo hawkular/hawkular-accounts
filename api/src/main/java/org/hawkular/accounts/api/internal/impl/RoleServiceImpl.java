@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,6 +43,8 @@ import com.datastax.driver.core.Row;
 @Stateless
 @PermitAll
 public class RoleServiceImpl extends BaseServiceImpl<Role> implements RoleService {
+    MsgLogger logger = MsgLogger.LOGGER;
+
     @Inject @NamedStatement(BoundStatements.ROLES_GET_BY_ID)
     Instance<BoundStatement> stmtGetByIdInstance;
 
@@ -70,6 +72,7 @@ public class RoleServiceImpl extends BaseServiceImpl<Role> implements RoleServic
         stmtCreate.setString("name", name);
         stmtCreate.setString("description", description);
         session.execute(stmtCreate);
+        logger.roleCreated(name);
         return role;
     }
 
