@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,6 +41,7 @@ import org.hawkular.accounts.api.model.Role;
 @Stateless
 @PermitAll
 public class PermissionCheckerImpl implements PermissionChecker {
+    MsgLogger logger = MsgLogger.LOGGER;
 
     @Inject
     PermissionService permissionService;
@@ -68,21 +69,31 @@ public class PermissionCheckerImpl implements PermissionChecker {
             throw new IllegalArgumentException("Persona that performs the operation is invalid (null).");
         }
 
+        logger.checkPermission(persona.getId(), operation.getName(), resource.getId());
+
         if (null == resource.getPersona()) {
             // if we have an empty persona it means that we should have a parent and that we should assume whatever
             // the parent sets for ownership
+            logger.checkingParentsPermission(resource.getId(), resource.getParent().getId());
             return isAllowedTo(operation, resource.getParent(), persona);
         }
 
         if (persona.equals(resource.getPersona())) {
             // owner is always allowed
+            logger.permissionGrantedToOwner(operation.getName(), resource.getId(), persona.getId());
             return true;
         }
 
         // TODO: should we *always* add SuperUser to the permitted roles?
         Set<Role> permittedRoles = permissionService.getPermittedRoles(operation);
+        logger.operationPermittedToRoles(operation.getName(), permittedRoles.size());
+
         Set<Role> personaRoles = personaService.getEffectiveRolesForResource(persona, resource);
-        return personaRoles.stream().anyMatch(permittedRoles::contains);
+        logger.personaHasRoles(persona.getId(), permittedRoles.size());
+
+        boolean allowed = personaRoles.stream().anyMatch(permittedRoles::contains);
+        logger.checkPermissionResult(persona.getId(), operation.getName(), resource.getId(), allowed);
+        return allowed;
     }
 
     @Override

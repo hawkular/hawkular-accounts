@@ -55,7 +55,7 @@ public class SetupHawkularAccountsImpl implements ServletContextListener {
     }
 
     public void setup() {
-        logger.infoStartedSetupAccounts();
+        logger.startedSetupAccounts();
         roles.add(monitor);
         roles.add(operator);
         roles.add(maintainer);
@@ -104,7 +104,7 @@ public class SetupHawkularAccountsImpl implements ServletContextListener {
                 .add("Administrator")
                 .persist();
 
-        logger.infoFinishedSetupAccounts();
+        logger.finishedSetupAccounts();
     }
 
     private void addRoleIfDoesntExists(Role role) {

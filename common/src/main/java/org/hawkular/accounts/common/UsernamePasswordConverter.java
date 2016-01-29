@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +25,8 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
+import org.hawkular.accounts.common.internal.MsgLogger;
+
 /**
  * Converts an username/password into a token.
  *
@@ -32,6 +34,8 @@ import javax.json.JsonReader;
  */
 @ApplicationScoped
 public class UsernamePasswordConverter {
+    MsgLogger logger = MsgLogger.LOGGER;
+
     @Inject @AuthServerUrl
     private String baseUrl;
 
@@ -42,11 +46,13 @@ public class UsernamePasswordConverter {
     AuthServerRequestExecutor executor;
 
     public String getAccessToken(String username, String password) throws Exception {
+        logger.accessTokenForUsername(username);
         JsonObject response = getResponse(username, password);
         return response.getString("access_token");
     }
 
     public String getRefreshToken(String username, String password) throws Exception {
+        logger.refreshTokenForUsername(username);
         JsonObject response = getResponse(username, password);
         return response.getString("refresh_token");
     }
@@ -55,6 +61,7 @@ public class UsernamePasswordConverter {
         if (username == null || username.isEmpty()) {
             throw new UsernamePasswordConversionException("Username is not provided.");
         }
+        logger.offlineTokenForUsername(username);
 
         String tokenUrl = baseUrl + "/realms/" + URLEncoder.encode(realm, "UTF-8") + "/protocol/openid-connect/token";
         String urlParameters = "grant_type=password&username=" + URLEncoder.encode(username, "UTF-8");

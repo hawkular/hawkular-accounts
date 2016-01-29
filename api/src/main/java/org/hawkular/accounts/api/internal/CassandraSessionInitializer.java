@@ -84,15 +84,16 @@ public class CassandraSessionInitializer {
      */
     @Produces @ApplicationScoped
     public Session getSession() {
-        //noinspection Duplicates
         try {
             // on the first boot, this might take some time to return, specially for "during the boot calls"
             // but for subsequent calls, this should be quite fast.
             Session session = sessionFuture.get();
+            logger.cassandraSessionAcquired();
 
             // now that we have a session, let's first initialize the schema...
             // as of now, our CQL script is idempotent, so, we just execute it.
             InputStream input = getClass().getResourceAsStream("/hawkular_accounts.cql");
+            //noinspection Duplicates
             try (BufferedReader buffer = new BufferedReader(new InputStreamReader(input))) {
                 String content = buffer.lines().collect(Collectors.joining("\n"));
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,6 +43,8 @@ import com.datastax.driver.core.Row;
 @Stateless
 @PermitAll
 public class PermissionServiceImpl extends BaseServiceImpl<Permission> implements PermissionService {
+    MsgLogger logger = MsgLogger.LOGGER;
+
     @Inject
     OperationService operationService;
 
@@ -91,12 +93,18 @@ public class PermissionServiceImpl extends BaseServiceImpl<Permission> implement
         stmtCreate.setUUID("role", permission.getRole().getIdAsUUID());
 
         session.execute(stmtCreate);
+        logger.permissionCreated(permission.getId(), operation.getName(), role.getName());
         return permission;
     }
 
     @Override
     public void remove(Permission permission) {
         session.execute(stmtDeleteInstance.get().setUUID("id", permission.getIdAsUUID()));
+        logger.permissionRemoved(
+                permission.getId(),
+                permission.getOperation().getName(),
+                permission.getRole().getName()
+        );
     }
 
     @Override

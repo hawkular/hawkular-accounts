@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,11 +25,15 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.servlet.ServletContext;
 
+import org.hawkular.accounts.common.internal.MsgLogger;
+
 /**
  * @author Juraci Paixão Kröhling
  */
 @ApplicationScoped
 public class ApplicationResources {
+    MsgLogger logger = MsgLogger.LOGGER;
+
     private static final String REALM_CONFIG_KEY = "org.keycloak.json.adapterConfig";
     private String realmConfiguration = null;
     private ServletContext servletContext;
@@ -54,6 +58,7 @@ public class ApplicationResources {
             if (null == cassandraNodes || cassandraNodes.isEmpty()) {
                 cassandraNodes = "127.0.0.1";
             }
+            logger.cassandraNodesToUse(cassandraNodes);
         }
         return cassandraNodes;
     }
@@ -65,6 +70,7 @@ public class ApplicationResources {
             if (null == cassandraPort || cassandraPort.isEmpty()) {
                 cassandraPort = "9042";
             }
+            logger.cassandraPortToUse(cassandraPort);
         }
         return cassandraPort;
     }
@@ -73,6 +79,7 @@ public class ApplicationResources {
     public String getRealmConfiguration() {
         if (null == realmConfiguration) {
             realmConfiguration = servletContext.getInitParameter(REALM_CONFIG_KEY);
+            logger.realmConfiguration(realmConfiguration);
         }
         return realmConfiguration;
     }
@@ -110,6 +117,7 @@ public class ApplicationResources {
     }
 
     private void parseRealmConfiguration() {
+        logger.parsingRealmConfiguration();
         JsonReader jsonReader = Json.createReader(new StringReader(getRealmConfiguration()));
         JsonObject configurationJson = jsonReader.readObject();
         JsonObject credentials = configurationJson.getJsonObject("credentials");
@@ -120,22 +128,26 @@ public class ApplicationResources {
 
         if (configurationJson.containsKey("auth-server-url-for-backend-requests")) {
             serverUrl = configurationJson.getString("auth-server-url-for-backend-requests");
+            logger.backendUrlIsSet(serverUrl);
         } else {
+            logger.backendUrlIsNotSet();
             String authContextPath = "/auth";
             if (configurationJson.containsKey("auth-server-url")) {
                 authContextPath = configurationJson.getString("auth-server-url");
+                logger.authServerUrlIsSet(authContextPath);
             }
-
-            int portOffset = Integer.parseInt(System.getProperty("jboss.socket.binding.port-offset", "0"));
-            int defaultPort = Integer.parseInt(System.getProperty("jboss.http.port", "8080"));
-            String host = System.getProperty("jboss.bind.address", "127.0.0.1");
 
             if (authContextPath.toLowerCase().startsWith("http")) {
                 serverUrl = authContextPath;
             } else {
+                int portOffset = Integer.parseInt(System.getProperty("jboss.socket.binding.port-offset", "0"));
+                int defaultPort = Integer.parseInt(System.getProperty("jboss.http.port", "8080"));
+                String host = System.getProperty("jboss.bind.address", "127.0.0.1");
+
                 serverUrl = "http://" + host + ":" + (defaultPort+portOffset) + authContextPath;
             }
 
+            logger.settingAuthServerUrl(serverUrl);
         }
 
         realmConfigurationParsed = true;

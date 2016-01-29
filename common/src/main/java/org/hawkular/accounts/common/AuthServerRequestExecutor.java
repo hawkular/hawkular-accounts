@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,11 +28,15 @@ import java.util.Base64;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.hawkular.accounts.common.internal.MsgLogger;
+
 /**
  * @author Juraci Paixão Kröhling
  */
 @ApplicationScoped
 public class AuthServerRequestExecutor {
+    MsgLogger logger = MsgLogger.LOGGER;
+
     @Inject @RealmResourceName
     private String clientId;
 
@@ -63,6 +67,7 @@ public class AuthServerRequestExecutor {
      */
     public String execute(String url, String urlParameters, String clientId, String secret, String method) throws
             Exception {
+        logger.executingAuthServerRequest(url, clientId, method);
 
         HttpURLConnection connection;
         String credentials = clientId + ":" + secret;
@@ -96,14 +101,17 @@ public class AuthServerRequestExecutor {
         int statusCode;
         try {
             statusCode = connection.getResponseCode();
+            logger.requestExecuted(statusCode);
         } catch (SocketTimeoutException timeoutException) {
             throw new UsernamePasswordConversionException("Timed out when trying to contact the Keycloak server.");
         }
 
         InputStream inputStream;
         if (statusCode < 300) {
+            logger.statusCodeSuccess();
             inputStream = connection.getInputStream();
         } else {
+            logger.statusCodeNotSuccess();
             inputStream = connection.getErrorStream();
         }
 
@@ -113,8 +121,9 @@ public class AuthServerRequestExecutor {
             }
         }
 
-        return response.toString();
-
+        String responseAsString = response.toString();
+        logger.responseBody(responseAsString);
+        return responseAsString;
     }
 
 }

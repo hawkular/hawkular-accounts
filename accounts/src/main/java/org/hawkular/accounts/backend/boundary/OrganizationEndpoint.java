@@ -49,6 +49,7 @@ import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Resource;
 import org.hawkular.accounts.api.model.Visibility;
+import org.hawkular.accounts.backend.control.MsgLogger;
 import org.hawkular.accounts.backend.entity.rest.ErrorResponse;
 import org.hawkular.accounts.backend.entity.rest.OrganizationRequest;
 import org.hawkular.accounts.backend.entity.rest.OrganizationTransferRequest;
@@ -64,6 +65,8 @@ import org.hawkular.accounts.backend.entity.rest.OrganizationTransferRequest;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class OrganizationEndpoint {
+    MsgLogger logger = MsgLogger.LOGGER;
+
     @Inject
     Instance<Persona> personaInstance;
 
@@ -116,11 +119,13 @@ public class OrganizationEndpoint {
     public Response getOrganizationsForPersona() {
         Persona persona = personaInstance.get();
         List<Organization> organizations = organizationService.getOrganizationsForPersona(persona);
+        logger.numberOfOrganizationsForPersona(persona.getId(), organizations.size());
 
         List<Organization> filteredOrganizations = organizations
                 .stream()
                 .filter(o -> permissionChecker.isAllowedTo(operationRead, o.getId(), persona))
                 .collect(Collectors.toList());
+        logger.filteredOrganizationsWithReadPermission(persona.getId(), organizations.size());
 
         return Response.ok().entity(filteredOrganizations).build();
     }
@@ -137,6 +142,8 @@ public class OrganizationEndpoint {
         Persona persona = personaInstance.get();
         // we'll subtract these from the list of possible organizations to join
         List<Organization> organizationsToJoin = organizationService.getFilteredOrganizationsToJoin(persona);
+        logger.filteredOrganizationsToJoin(persona.getId(), organizationsToJoin.size());
+
         return Response.ok().entity(organizationsToJoin).build();
     }
 
@@ -162,16 +169,19 @@ public class OrganizationEndpoint {
             // HAWKULAR-180 - organizations cannot create other organizations
             // so, we check if the current persona is the same as the current user, as users can only
             // impersonate organizations, and organizations exist only when impersonated.
+            logger.organizationTryingToCreateOrganization(persona.getId());
             String message = "Organizations cannot create sub-organizations.";
             return Response.status(Response.Status.FORBIDDEN).entity(message).build();
         }
 
         if (request.getName() == null || request.getName().isEmpty()) {
+            logger.missingOrganizationName();
             String message = "Missing organization name.";
             return Response.status(Response.Status.BAD_REQUEST).entity(message).build();
         }
 
         if (null != organizationService.getByName(request.getName())) {
+            logger.duplicateOrganizationName();
             ErrorResponse response = new ErrorResponse("There's already an organization with this name");
             return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
         }
@@ -186,6 +196,7 @@ public class OrganizationEndpoint {
         }
 
         if (null == visibility) {
+            logger.missingVisibility();
             ErrorResponse response = new ErrorResponse(
                     "Visibility is invalid. Possible values: " + Arrays.toString(Visibility.values())
             );
@@ -198,6 +209,7 @@ public class OrganizationEndpoint {
                 visibility,
                 persona
         );
+        logger.createdOrganization(organization.getId(), organization.getName(), organization.getVisibility().name());
         return Response.ok().entity(organization).build();
     }
 
@@ -215,6 +227,7 @@ public class OrganizationEndpoint {
         List<Organization> subOrganizations = organizationService.getSubOrganizations(organization);
 
         if (subOrganizations.size() > 0) {
+            logger.organizationHasSuborganizations(organization.getId());
             ErrorResponse response = new ErrorResponse("This organization has sub-organizations. Please, remove those" +
                     " before removing this organization.");
 
@@ -224,6 +237,7 @@ public class OrganizationEndpoint {
         // check if there are resources
         List<Resource> resources = resourceService.getByPersona(organization);
         if (resources.size() > 0) {
+            logger.organizationHasResources(organization.getId());
             ErrorResponse response = new ErrorResponse("This organization is the owner of resources. Please, remove " +
                     "or transfer those resources before removing this organization.");
 
@@ -232,10 +246,12 @@ public class OrganizationEndpoint {
 
         // check if it's allowed to remove
         if (permissionChecker.isAllowedTo(operationDelete, id, personaInstance.get())) {
+            logger.organizationRemoved(organization.getId());
             organizationService.deleteOrganization(organization);
             return Response.ok().build();
         }
 
+        logger.notAllowedToPerformOperationOnResource(operationDelete.getName(), id, personaInstance.get().getId());
         return Response.status(Response.Status.FORBIDDEN).build();
     }
 
@@ -250,14 +266,17 @@ public class OrganizationEndpoint {
         Organization organization = organizationService.get(id);
 
         if (organization == null) {
+            logger.organizationNotFound(id);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
         if (!permissionChecker.isAllowedTo(operationRead, organization.getId(), personaInstance.get())) {
+            logger.notAllowedToPerformOperationOnResource(operationRead.getName(), id, personaInstance.get().getId());
             String message = "The specified organization could not be found for this persona.";
             return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
         }
 
+        logger.organizationFound(id);
         return Response.ok().entity(organization).build();
     }
 
@@ -265,11 +284,13 @@ public class OrganizationEndpoint {
     @Path("/{id}")
     public Response transferOrganization(@PathParam("id") String id, OrganizationTransferRequest request) {
         if (null == id || id.isEmpty()) {
+            logger.missingOrganization();
             String message = "The given organization ID is invalid (null).";
             return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(message)).build();
         }
 
         if (null == request || null == request.getOwner() || request.getOwner().getId().isEmpty()) {
+            logger.missingUser();
             String message = "The given user ID is invalid (null).";
             return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(message)).build();
         }
@@ -278,21 +299,29 @@ public class OrganizationEndpoint {
         Persona newOwner = personaService.get(request.getOwner().getId());
 
         if (null == organization) {
+            logger.organizationNotFound(id);
             String message = "The specified organization is invalid (not found).";
             return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
         }
 
         if (null == newOwner) {
+            logger.userNotFound(request.getOwner().getId());
             String message = "The specified new owner is invalid (not found).";
             return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
         }
 
         if (!permissionChecker.isAllowedTo(operationTransfer, organization.getId())) {
+            logger.notAllowedToPerformOperationOnResource(
+                    operationTransfer.getName(),
+                    id,
+                    personaInstance.get().getId()
+            );
             String message = "Insufficient permissions to change the role of users of this organization.";
             return Response.status(Response.Status.FORBIDDEN).entity(new ErrorResponse(message)).build();
         }
 
         organizationService.transfer(organization, newOwner);
+        logger.organizationTransferred(organization.getId(), newOwner.getId());
         return Response.ok().entity(organization).build();
     }
 }

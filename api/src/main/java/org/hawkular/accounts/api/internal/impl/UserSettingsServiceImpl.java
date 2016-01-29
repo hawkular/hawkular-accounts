@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,6 +44,8 @@ import com.datastax.driver.core.Row;
 @Stateless
 @PermitAll
 public class UserSettingsServiceImpl extends BaseServiceImpl<UserSettings> implements UserSettingsService {
+    MsgLogger logger = MsgLogger.LOGGER;
+
     @Inject @CurrentUser
     Instance<HawkularUser> userInstance;
 
@@ -92,6 +94,7 @@ public class UserSettingsServiceImpl extends BaseServiceImpl<UserSettings> imple
         BoundStatement stmtCreate = stmtCreateInstance.get();
         UserSettings settings = getByUser(user);
         if (null == settings) {
+            logger.creatingSettings(user.getId());
             settings = new UserSettings(user);
             bindBasicParameters(settings, stmtCreate);
             stmtCreate.setUUID("persona", user.getIdAsUUID());
@@ -130,6 +133,7 @@ public class UserSettingsServiceImpl extends BaseServiceImpl<UserSettings> imple
         UserSettings settings = getOrCreateByUser(user);
         settings.put(key, value);
         update(settings, stmtUpdateInstance.get().setMap("properties", settings.getProperties()));
+        logger.storedSetting(user.getId(), key, value);
         return settings;
     }
 
@@ -146,6 +150,7 @@ public class UserSettingsServiceImpl extends BaseServiceImpl<UserSettings> imple
         }
         settings.remove(key);
         update(settings, stmtUpdateInstance.get().setMap("properties", settings.getProperties()));
+        logger.removedSetting(user.getId(), key);
         return settings;
     }
 

@@ -43,6 +43,7 @@ import org.hawkular.accounts.api.model.Organization;
 import org.hawkular.accounts.api.model.OrganizationMembership;
 import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Role;
+import org.hawkular.accounts.backend.control.MsgLogger;
 import org.hawkular.accounts.backend.entity.rest.ErrorResponse;
 import org.hawkular.accounts.backend.entity.rest.OrganizationMembershipUpdateRequest;
 
@@ -57,6 +58,8 @@ import org.hawkular.accounts.backend.entity.rest.OrganizationMembershipUpdateReq
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class OrganizationMembershipEndpoint {
+    MsgLogger logger = MsgLogger.LOGGER;
+
     @Inject
     OrganizationMembershipService membershipService;
 
@@ -84,12 +87,14 @@ public class OrganizationMembershipEndpoint {
     @Path("/{membershipId}")
     public Response getMembership(@PathParam("membershipId") String membershipId) {
         if (null == membershipId || membershipId.isEmpty()) {
+            logger.missingMembershipId();
             String message = "The given membership ID is invalid (null).";
             return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(message)).build();
         }
 
         OrganizationMembership membership = membershipService.getMembershipById(membershipId);
         if (null == membership) {
+            logger.membershipNotFound(membershipId);
             String message = "The specified membership is invalid (not found).";
             return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
         }
@@ -97,23 +102,46 @@ public class OrganizationMembershipEndpoint {
         if (!permissionChecker.isAllowedTo(readOrganization,
                 membership.getOrganization().getId(),
                 personaInstance.get())) {
+            logger.notAllowedToPerformOperationOnResource(
+                    readOrganization.getName(),
+                    membership.getOrganization().getId(),
+                    personaInstance.get().getId()
+            );
             String message = "The specified organization could not be found for this persona.";
             return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
         }
 
+        logger.membershipFound(membershipId);
         return Response.ok().entity(membership).build();
     }
 
     @GET
     public Response getOrganizationMembershipsForOrganization(@QueryParam("organizationId") String organizationId) {
+        if (null == organizationId || organizationId.isEmpty()) {
+            logger.missingOrganization();
+            String message = "The given organization is invalid (null).";
+            return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
+        }
+
         Organization organization = organizationService.get(organizationId);
+        if (null == organization) {
+            logger.organizationNotFound(organizationId);
+            String message = "The specified organization could not be found.";
+            return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
+        }
 
         if (!permissionChecker.isAllowedTo(readOrganization, organization.getId(), personaInstance.get())) {
+            logger.notAllowedToPerformOperationOnResource(
+                    readOrganization.getName(),
+                    organizationId,
+                    personaInstance.get().getId()
+            );
             String message = "The specified organization could not be found for this persona.";
             return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
         }
 
         List<OrganizationMembership> memberships = membershipService.getMembershipsForOrganization(organization);
+        logger.numberOfMembershipsForOrganization(organizationId, memberships.size());
         return Response.ok().entity(memberships).build();
     }
 
@@ -122,11 +150,13 @@ public class OrganizationMembershipEndpoint {
     public Response updateMembership(@PathParam("membershipId") String membershipId,
                                      @NotNull OrganizationMembershipUpdateRequest request) {
         if (null == membershipId || membershipId.isEmpty()) {
+            logger.missingMembershipId();
             String message = "The given membership ID is invalid (null).";
             return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(message)).build();
         }
 
         if (null == request.getRole() || null == request.getRole().getName()) {
+            logger.missingRole();
             String message = "The given role is invalid (null).";
             return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(message)).build();
         }
@@ -135,21 +165,29 @@ public class OrganizationMembershipEndpoint {
         Role role = roleService.getByName(request.getRole().getName());
 
         if (null == membership) {
+            logger.membershipFound(membershipId);
             String message = "The specified membership is invalid (not found).";
             return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
         }
 
         if (null == role) {
+            logger.roleNotFound(request.getRole().getName());
             String message = "The specified role is invalid (not found).";
             return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
         }
 
         if (!permissionChecker.isAllowedTo(changeMemberRole, membership.getOrganization().getId())) {
+            logger.notAllowedToPerformOperationOnResource(
+                    changeMemberRole.getName(),
+                    membership.getOrganization().getId(),
+                    personaInstance.get().getId()
+            );
             String message = "Insufficient permissions to change the role of users of this organization.";
             return Response.status(Response.Status.FORBIDDEN).entity(new ErrorResponse(message)).build();
         }
 
         membership = membershipService.changeRole(membership, role);
+        logger.roleForMembershipChanged(membershipId, role.getName());
         return Response.ok(membership).build();
      }
 }

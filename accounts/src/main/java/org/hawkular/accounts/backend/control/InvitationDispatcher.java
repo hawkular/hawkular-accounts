@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,7 +51,11 @@ public class InvitationDispatcher {
     public void dispatchInvitation(@Observes InvitationCreatedEvent event) {
         Invitation invitation = event.getInvitation();
         if (null == invitation) {
-            throw new IllegalArgumentException("Invitation event doesn't contain an invitation.");
+            logger.invitationEventWithoutInvitation();
+            // we don't throw an exception here because it wouldn't show that much information here...
+            // we have enough logging on parts that dispatch this event, so, hopefully, we can get information
+            // based on that
+            return;
         }
 
         invitation = invitationService.get(invitation.getId());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,6 +47,7 @@ import com.datastax.driver.core.Row;
 public class PersonaResourceRoleServiceImpl
         extends BaseServiceImpl<PersonaResourceRole>
         implements PersonaResourceRoleService {
+    MsgLogger logger = MsgLogger.LOGGER;
 
     @Inject
     PersonaService personaService;
@@ -97,17 +98,24 @@ public class PersonaResourceRoleServiceImpl
         stmtCreate.setUUID("resource", resource.getIdAsUUID());
         stmtCreate.setUUID("role", role.getIdAsUUID());
         session.execute(stmtCreate);
+        logger.personaResourceRoleCreated(persona.getId(), resource.getId(), role.getName());
         return prr;
     }
 
     @Override
     public void remove(UUID id) {
+        logger.personaResourceRoleRemoved(id.toString());
         session.execute(stmtRemoveInstance.get().setUUID("id", id));
     }
 
     @Override
     public void remove(PersonaResourceRole personaResourceRole) {
         remove(personaResourceRole.getIdAsUUID());
+        logger.personaResourceRoleRemoved(
+                personaResourceRole.getPersona().getId(),
+                personaResourceRole.getResource().getId(),
+                personaResourceRole.getRole().getName()
+        );
     }
 
     @Override

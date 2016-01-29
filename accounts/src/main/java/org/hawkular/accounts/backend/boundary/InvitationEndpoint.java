@@ -42,6 +42,7 @@ import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Invitation;
 import org.hawkular.accounts.api.model.Operation;
 import org.hawkular.accounts.api.model.Organization;
+import org.hawkular.accounts.api.model.Persona;
 import org.hawkular.accounts.api.model.Role;
 import org.hawkular.accounts.backend.control.MsgLogger;
 import org.hawkular.accounts.backend.entity.InvitationCreatedEvent;
@@ -74,6 +75,9 @@ public class InvitationEndpoint {
     Instance<HawkularUser> userInstance;
 
     @Inject
+    Instance<Persona> personaInstance;
+
+    @Inject
     Event<InvitationCreatedEvent> event;
 
     @Inject
@@ -89,37 +93,72 @@ public class InvitationEndpoint {
 
     @GET
     public Response listPendingInvitations(@QueryParam("organizationId") String organizationId) {
+        if (null == organizationId || organizationId.isEmpty()) {
+            logger.missingOrganization();
+            ErrorResponse errorResponse = new ErrorResponse("Missing organization ID.");
+            return Response.status(Response.Status.BAD_REQUEST).entity(errorResponse).build();
+        }
+
         Organization organization = organizationService.get(organizationId);
 
         if (null == organization) {
-            String message = "The organization could not be found.";
-            return Response.status(Response.Status.NOT_FOUND).entity(message).build();
+            logger.organizationNotFound(organizationId);
+            ErrorResponse errorResponse = new ErrorResponse("The organization could not be found.");
+            return Response.status(Response.Status.NOT_FOUND).entity(errorResponse).build();
         }
 
         if (!permissionChecker.isAllowedTo(operationListInvitations, organizationId)) {
-            String message = "Insufficient permissions to list the pending invitations for this organization.";
-            return Response.status(Response.Status.FORBIDDEN).entity(message).build();
+            logger.notAllowedToPerformOperationOnResource(
+                    operationListInvitations.getName(),
+                    organizationId,
+                    personaInstance.get().getId()
+            );
+            ErrorResponse errorResponse = new ErrorResponse(
+                    "Insufficient permissions to list the pending invitations for this organization."
+            );
+            return Response.status(Response.Status.FORBIDDEN).entity(errorResponse).build();
         }
 
+        logger.listPendingInvitations(organizationId);
         return Response.ok(invitationService.getPendingInvitationsForOrganization(organization)).build();
     }
 
     @POST
     public Response inviteUserToOrganization(@NotNull InvitationRequest request) {
+        if (null == request.getOrganizationId() || request.getOrganizationId().isEmpty()) {
+            logger.missingOrganization();
+            ErrorResponse errorResponse = new ErrorResponse("Missing organization ID.");
+            return Response.status(Response.Status.BAD_REQUEST).entity(errorResponse).build();
+        }
+
         HawkularUser user = userInstance.get();
         Organization organization = organizationService.get(request.getOrganizationId());
 
         if (null == organization) {
-            String message = "The organization could not be found.";
-            return Response.status(Response.Status.NOT_FOUND).entity(message).build();
+            logger.organizationNotFound(request.getOrganizationId());
+            ErrorResponse errorResponse = new ErrorResponse("The organization could not be found.");
+            return Response.status(Response.Status.NOT_FOUND).entity(errorResponse).build();
         }
 
         if (!permissionChecker.isAllowedTo(operationInvite, organization.getId())) {
-            String message = "Insufficient permissions to list the pending invitations for this organization.";
-            return Response.status(Response.Status.FORBIDDEN).entity(message).build();
+            logger.notAllowedToPerformOperationOnResource(
+                    operationInvite.getName(),
+                    request.getOrganizationId(),
+                    personaInstance.get().getId()
+            );
+            ErrorResponse errorResponse = new ErrorResponse(
+                    "Insufficient permissions to invite users for this organization."
+            );
+            return Response.status(Response.Status.FORBIDDEN).entity(errorResponse).build();
         }
 
         Role role = roleService.getByName(DEFAULT_ROLE);
+
+        if (null == request.getEmails() || request.getEmails().isEmpty()) {
+            logger.missingEmails();
+            ErrorResponse errorResponse = new ErrorResponse("Missing emails to send the invitation to.");
+            return Response.status(Response.Status.BAD_REQUEST).entity(errorResponse).build();
+        }
 
         String[] emails = request.getEmails().split("[, ]");
         for (String email : emails) {
@@ -127,23 +166,35 @@ public class InvitationEndpoint {
                 continue;
             }
             Invitation invitation = invitationService.create(email, user, organization, role);
+            logger.invitationSentToDispatch(invitation.getId(), email, organization.getName());
             event.fire(new InvitationCreatedEvent(invitation));
         }
 
+        logger.invitationsSentToDispatch();
         return Response.noContent().build();
     }
 
     @PUT
     public Response acceptInvitation(@NotNull InvitationAcceptRequest request) {
         HawkularUser user = userInstance.get();
+
+        if (null == request.getToken() || request.getToken().isEmpty()) {
+            logger.missingToken();
+            ErrorResponse errorResponse = new ErrorResponse("The invitation couldn't be determined. Make sure " +
+                    "the invitation link is correct.");
+            return Response.status(Response.Status.BAD_REQUEST).entity(errorResponse).build();
+        }
+
         Invitation invitation = invitationService.getByToken(request.getToken());
 
         if (null == invitation) {
+            logger.invitationNotFound(request.getToken());
             String message = "The invitation has not been found.";
             return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(message)).build();
         }
 
         if (user.equals(invitation.getInvitedBy())) {
+            logger.invitationAcceptedBySameUser(request.getToken(), user.getId());
             String message = "The invitation has been created by the same user who is accepting it.";
             return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(message)).build();
         }
@@ -159,6 +210,7 @@ public class InvitationEndpoint {
             return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(message)).build();
         }
 
+        logger.invitationAccepted(invitation.getId(), user.getId());
         invitation = invitationService.accept(invitation, user);
         return Response.ok(invitation).build();
     }

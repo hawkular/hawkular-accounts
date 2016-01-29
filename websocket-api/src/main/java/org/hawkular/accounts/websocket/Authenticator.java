@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,6 +39,7 @@ import org.hawkular.accounts.common.TokenVerifier;
 import org.hawkular.accounts.common.UsernamePasswordConverter;
 import org.hawkular.accounts.websocket.internal.AuthenticationMode;
 import org.hawkular.accounts.websocket.internal.CachedSession;
+import org.hawkular.accounts.websocket.internal.MsgLogger;
 
 /**
  * Helper integration for Server Web Socket Endpoints. Each message coming to a Web Socket should be passed to this
@@ -57,6 +58,7 @@ import org.hawkular.accounts.websocket.internal.CachedSession;
  */
 @ApplicationScoped
 public class Authenticator {
+    MsgLogger logger = MsgLogger.LOGGER;
 
     @Inject
     UsernamePasswordConverter usernamePasswordConverter;
@@ -92,6 +94,7 @@ public class Authenticator {
      * session.
      */
     public void authenticateWithMessage(String message, Session session) throws WebsocketAuthenticationException {
+        logger.messageBasedAuth();
         try (JsonReader jsonReader = Json.createReader(new StringReader(message))) {
             JsonObject jsonMessage = jsonReader.readObject();
             JsonObject jsonAuth = jsonMessage.getJsonObject("authentication");
@@ -114,6 +117,7 @@ public class Authenticator {
      */
     public void authenticateWithToken(String token, String personaId, Session session)
             throws WebsocketAuthenticationException {
+        logger.tokenBasedAuth(token, personaId);
         authenticate(TOKEN, personaId, session, null, token, null, null);
     }
 
@@ -128,6 +132,7 @@ public class Authenticator {
      */
     public void authenticateWithCredentials(String username, String password, String personaId, Session session)
             throws WebsocketAuthenticationException {
+        logger.credentialsBasedAuth(username);
         authenticate(CREDENTIALS, personaId, session, null, null, username, password);
     }
 
@@ -146,6 +151,7 @@ public class Authenticator {
 
         if (isSessionValid) {
             // the session is still valid, so, just return
+            logger.sessionInCache(session.getId());
             return;
         }
 
@@ -170,7 +176,6 @@ public class Authenticator {
             throw new RuntimeException(e);
         }
 
-        // cached session is valid!
         if (null != cachedSession) {
             this.cachedSessions.putIfAbsent(session.getId(), cachedSession);
         } else {
@@ -211,6 +216,7 @@ public class Authenticator {
             return null;
         }
 
+        logger.retrievingTokenForCredentials(username);
         String token = usernamePasswordConverter.getAccessToken(username, password);
         return doAuthenticationWithToken(personaId, token);
     }
@@ -276,6 +282,7 @@ public class Authenticator {
         }
 
         if (personaId != null && !cachedSession.getPersona().getId().equals(personaId)) {
+            logger.personaMismatch(cachedSession.getPersona().getId(), personaId);
             // session is for a different persona, force a new authentication
             return false;
         }
@@ -289,9 +296,12 @@ public class Authenticator {
 
         if (!cachedSession.getAuthToken().equals(authToken)) {
             // this is a new token, validate it again!
+            logger.backingTokenChanged(cachedSession.getAuthToken(), authToken);
             return false;
         }
 
-        return System.currentTimeMillis() < cachedSession.getExpiresAt();
+        boolean stillValid = System.currentTimeMillis() < cachedSession.getExpiresAt();
+        logger.isTokenStillValid(stillValid);
+        return stillValid;
     }
 }

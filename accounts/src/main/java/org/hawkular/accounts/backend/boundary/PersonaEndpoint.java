@@ -37,6 +37,7 @@ import org.hawkular.accounts.api.CurrentUser;
 import org.hawkular.accounts.api.OrganizationService;
 import org.hawkular.accounts.api.model.HawkularUser;
 import org.hawkular.accounts.api.model.Persona;
+import org.hawkular.accounts.backend.control.MsgLogger;
 
 /**
  * @author Juraci Paixão Kröhling
@@ -47,6 +48,8 @@ import org.hawkular.accounts.api.model.Persona;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class PersonaEndpoint {
+    MsgLogger logger = MsgLogger.LOGGER;
+
     @Inject
     Instance<Persona> personaInstance;
 
@@ -70,12 +73,13 @@ public class PersonaEndpoint {
         // here, we purposely get the personas for the *user*, not for the current persona
         personas.addAll(organizationService.getOrganizationsForPersona(user));
         personas.add(user);
+        logger.userWithPersonas(user.getId(), personas.size());
 
         return Response.ok().entity(personas).build();
     }
 
     /**
-     * Retrieves all personas to which this {@link org.hawkular.accounts.api.model.HawkularUser} has access to.
+     * Retrieves a requested persona, if the current user has access to it.
      *
      * @return a {@link javax.ws.rs.core.Response} whose entity is a {@link java.util.List} of
      * {@link org.hawkular.accounts.api.model.Persona}
@@ -92,8 +96,10 @@ public class PersonaEndpoint {
                 .findFirst();
 
         if (optionalPersona.isPresent()) {
+            logger.userCanAccessPersona(user.getId(), personaId);
             return Response.ok().entity(optionalPersona.get()).build();
         } else {
+            logger.userCannotAccessPersona(user.getId(), personaId);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
@@ -107,7 +113,9 @@ public class PersonaEndpoint {
     @GET
     @Path("/current")
     public Response getCurrentPersona() {
-        return Response.ok().entity(personaInstance.get()).build();
+        Persona persona = personaInstance.get();
+        logger.personaForRequest(persona.getId());
+        return Response.ok().entity(persona).build();
     }
 
 }

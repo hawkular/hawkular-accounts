@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -53,6 +53,8 @@ import org.hawkular.accounts.api.model.Role;
 @Stateless
 @PermitAll
 public class PersonaServiceImpl implements PersonaService {
+    MsgLogger logger = MsgLogger.LOGGER;
+
     @Inject
     OrganizationMembershipService membershipService;
 
@@ -98,6 +100,15 @@ public class PersonaServiceImpl implements PersonaService {
 
     @Override
     public Set<Role> getEffectiveRolesForResource(Persona persona, Resource resource) {
+        if (null == persona) {
+            throw new IllegalArgumentException("Missing persona (null).");
+        }
+
+        if (null == resource) {
+            throw new IllegalArgumentException("Missing resource (null).");
+        }
+
+        logger.determiningEffectiveRolesForPersonaOnResource(persona.getId(), resource.getId());
         // rules:
         // if the persona has explicit roles for this resource, that's what is effective.
         // if the persona has *no* explicit roles, traverse the Organizations that this persona is part of
@@ -108,12 +119,15 @@ public class PersonaServiceImpl implements PersonaService {
         // Therefore, jdoe is only "Auditor" of "node1".
 
         List<PersonaResourceRole> results = personaResourceRoleService.getByPersonaAndResource(persona, resource);
+        logger.numOfDirectRolesOnResource(persona.getId(), resource.getId(), results.size());
         if (results.size() == 0) {
+            logger.noDirectRolesOnResource(persona.getId(), resource.getId());
             // this means: this persona has no direct roles on the resource, let's check the organizations it belongs to
             List<Organization> organizations = organizationService.getOrganizationsForPersona(persona);
 
             Set<Role> roles = new HashSet<>();
             for (Organization organization : organizations) {
+                logger.checkingIndirectRolesViaOrganization(persona.getId(), resource.getId(), organization.getId());
                 List<OrganizationMembership> memberships =
                         membershipService.getPersonaMembershipsForOrganization(persona, organization);
                 // here, we basically filter what are the minimum set of roles a persona has on a resource
@@ -140,8 +154,15 @@ public class PersonaServiceImpl implements PersonaService {
                                 // roles that the organization has on the resource
                         .collect(Collectors.toSet());
 
+                logger.numOfEffectiveRolesViaOrganization(
+                        persona.getId(),
+                        resource.getId(),
+                        organization.getId(),
+                        effectiveRoles.size()
+                );
                 roles.addAll(effectiveRoles);
             }
+            logger.totalEffectiveRolesOnResource(persona.getId(), resource.getId(), roles.size());
             return roles;
         }
 
@@ -159,13 +180,13 @@ public class PersonaServiceImpl implements PersonaService {
                         .collect(Collectors.toSet())
         );
 
+        logger.totalEffectiveRolesOnResourceWithImplicitRoles(persona.getId(), resource.getId(), roles.size());
         return roles;
     }
 
     @Override
     @Produces
     public Persona getCurrent() {
-        // for now, this is sufficient. In a future improvement, we'll have a way to switch users
         String personaId = httpRequest.getHeader("Hawkular-Persona");
         if (personaId != null && !personaId.isEmpty()) {
             Persona persona = get(personaId);
