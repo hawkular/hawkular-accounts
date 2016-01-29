@@ -22,6 +22,7 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
 
 import org.hawkular.accounts.api.OperationService;
 import org.hawkular.accounts.api.RoleService;
@@ -33,6 +34,7 @@ import org.hawkular.accounts.api.model.Role;
  *
  * @author Juraci Paixão Kröhling
  */
+@WebListener
 public class SetupHawkularAccountsImpl implements ServletContextListener {
     private final MsgLogger logger = MsgLogger.LOGGER;
 
