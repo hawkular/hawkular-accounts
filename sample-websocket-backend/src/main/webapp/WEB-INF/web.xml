@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2015 Red Hat, Inc. and/or its affiliates
+    Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
     and other contributors as indicated by the @author tags.
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,10 +22,6 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          version="3.0">
   <display-name>Hawkular Accounts - WebSocket Backend Sample</display-name>
-
-  <listener>
-    <listener-class>org.hawkular.accounts.common.ServletContextEnhancer</listener-class>
-  </listener>
 
   <security-constraint>
     <web-resource-collection>

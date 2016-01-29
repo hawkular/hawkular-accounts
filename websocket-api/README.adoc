@@ -59,16 +59,6 @@ On the server side, the first step is to add the Maven dependency to this API:
  </dependency>
 ----
 
-Add a Context Listener to your web.xml, which will serve as our repository for the Servlet Context (as there's
-currently no way to get it from a Web Socket):
-
-[source,java]
-----
-  <listener>
-    <listener-class>org.hawkular.accounts.common.ServletContextEnhancer</listener-class>
-  </listener>
-----
-
 Then, just inject the authenticator into your Web Socket and call the `authenticate` method:
 
 [source,java]
