@@ -118,7 +118,7 @@
     <version.org.keycloak.secretstore>1.0.11.Final</version.org.keycloak.secretstore>
 
     <!-- Accounts should be the only place where the KeyCloak version is defined -->
-    <version.org.keycloak>1.8.0.CR3</version.org.keycloak>
+    <version.org.keycloak>1.8.0.Final</version.org.keycloak>
 
     <failOnMissingWebXml>false</failOnMissingWebXml>
     <jboss.releases.repo.url>
