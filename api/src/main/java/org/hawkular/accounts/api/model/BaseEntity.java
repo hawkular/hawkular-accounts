@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,8 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Base entity, providing some common properties that all entities should have.
@@ -75,6 +77,7 @@ public class BaseEntity implements Serializable {
         }
     }
 
+    @JsonIgnore
     public UUID getIdAsUUID() {
         return id;
     }
