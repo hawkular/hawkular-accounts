@@ -29,7 +29,7 @@
   <parent>
     <groupId>org.hawkular</groupId>
     <artifactId>hawkular-parent</artifactId>
-    <version>33</version>
+    <version>35</version>
   </parent>
 
   <modules>
@@ -114,7 +114,7 @@
   </distributionManagement>
 
   <properties>
-    <version.org.hawkular.commons>0.3.4.Final</version.org.hawkular.commons>
+    <version.org.hawkular.commons>0.3.5.Final</version.org.hawkular.commons>
     <version.org.keycloak.secretstore>1.0.11.Final</version.org.keycloak.secretstore>
 
     <!-- Accounts should be the only place where the KeyCloak version is defined -->
