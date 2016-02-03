@@ -43,7 +43,6 @@
     <module>keycloak-event-listener-rest</module>
     <module>keycloak-event-listener-jms</module>
     <module>keycloak-theme</module>
-    <module>feature-pack-resources</module>
     <module>feature-pack</module>
     <module>integration-tests</module>
     <module>sample</module>

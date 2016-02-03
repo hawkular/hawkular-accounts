@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2015 Red Hat, Inc. and/or its affiliates
+    Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
     and other contributors as indicated by the @author tags.
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,16 +29,18 @@
     <fileSet>
       <directory>target/${project.artifactId}-${project.version}</directory>
       <excludes>
-        <!-- hawkular-realm*json needs filtering -->
+        <!-- hawkular-realm*json and the adapter.xml need filtering -->
         <exclude>**/hawkular-realm*json</exclude>
+        <exclude>**/hawkular-accounts-keycloak-adapter.xml</exclude>
       </excludes>
       <outputDirectory/>
     </fileSet>
     <fileSet>
       <directory>target/${project.artifactId}-${project.version}</directory>
       <includes>
-        <!-- hawkular-realm*json needs filtering -->
+        <!-- hawkular-realm*json and the adapter.xml need filtering -->
         <include>**/hawkular-realm*json</include>
+        <include>**/hawkular-accounts-keycloak-adapter.xml</include>
       </includes>
       <filtered>true</filtered>
       <outputDirectory/>
