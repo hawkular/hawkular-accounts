@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -75,6 +75,40 @@ class PersonaITest extends BaseSmokeTest {
             client.get(path: "/hawkular/accounts/personas/${UUID.randomUUID().toString()}")
         } catch (HttpResponseException exception) {
             assertEquals(404, exception.response.status)
+        }
+    }
+
+    @Test
+    void canAuthenticateWithAsPersona() {
+        def response = client.get(path: "/hawkular/accounts/personas/current")
+        assertEquals(200, response.status)
+        def jdoeId = response.data.id
+
+        response = client.post(
+                path: '/hawkular/accounts/organizations',
+                body: [name: UUID.randomUUID().toString()]
+        )
+        assertEquals(200, response.status)
+        def organizationId = response.data.id
+
+        client.defaultRequestHeaders."Hawkular-Persona" = organizationId
+        response = client.get(path: "/hawkular/accounts/personas/current")
+        assertEquals(200, response.status)
+        assertEquals("Should be recognized as Acme, Inc", organizationId, response.data.id)
+    }
+
+    @Test
+    void unknownPersona() {
+        def response = client.get(path: "/hawkular/accounts/personas/current")
+        assertEquals(200, response.status)
+
+        try {
+            client.defaultRequestHeaders."Hawkular-Persona" = UUID.randomUUID().toString()
+            client.get(path: "/hawkular/accounts/personas/current")
+        } catch (HttpResponseException exception) {
+            assertEquals(500, exception.response.status)
+        } finally {
+            client.defaultRequestHeaders.remove("Hawkular-Persona")
         }
     }
 }

@@ -29,6 +29,7 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
+import org.hawkular.accounts.api.AccessDeniedException;
 import org.hawkular.accounts.api.OrganizationMembershipService;
 import org.hawkular.accounts.api.OrganizationService;
 import org.hawkular.accounts.api.PersonaResourceRoleService;
@@ -190,10 +191,14 @@ public class PersonaServiceImpl implements PersonaService {
         String personaId = httpRequest.getHeader("Hawkular-Persona");
         if (personaId != null && !personaId.isEmpty()) {
             Persona persona = get(personaId);
+            if (null == persona) {
+                throw new AccessDeniedException("Invalid persona.");
+            }
+
             if (isAllowedToImpersonate(userService.getCurrent(), persona)) {
                 return persona;
             } else {
-                throw new RuntimeException("User is not allowed to impersonate this persona.");
+                throw new AccessDeniedException("User is not allowed to impersonate this persona.");
             }
         }
 
