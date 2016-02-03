@@ -87,8 +87,8 @@
       "bearerOnly" : false,
       "publicClient": false,
       "directAccessGrantsEnabled" : true,
-      "redirectUris": ["/*", "http://localhost:2772/*"],
-      "webOrigins": ["http://localhost:2772"],
+      "redirectUris": ["/*", "http://localhost:2772/*", "http://localhost:3000/*"],
+      "webOrigins": ["http://localhost:2772","http://localhost:3000"],
       "secret" : "${uuid.hawkular.accounts.backend}"
     },
     {
@@ -100,10 +100,12 @@
       "fullScopeAllowed": false,
       "redirectUris": [
         "/*",
-        "http://localhost:2772/*"
+        "http://localhost:2772/*",
+        "http://localhost:3000/*"
       ],
       "webOrigins": [
-        "http://localhost:2772"
+        "http://localhost:2772",
+        "http://localhost:3000"
       ],
       "claims": {
         "username": true,
