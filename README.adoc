@@ -196,19 +196,7 @@ $ mvn clean install
 To build a distribution with Wildfly and Keycloak, use:
 [source,bash]
 ----
-$ mvn clean install -Pdistribution
-----
-
-To build all modules, including sample and distribution, use:
-[source,bash]
-----
-$ mvn clean install -Pdistribution,sample
-----
-
-To build all modules, including sample and distribution and additionally run the integration tests:
-[source,bash]
-----
-$ mvn clean install -Psample,itest
+$ mvn clean install
 ----
 
 == Releasing
@@ -219,7 +207,7 @@ permissions to the GitHub repository and execute the following:
 [source,bash]
 ----
 mvn clean
-mvn release:prepare release:perform -Psample,itest -DautoVersionSubmodules=true
+mvn release:prepare release:perform -DautoVersionSubmodules=true
 ----
 
 And accept all the default values (for versions and tags).
