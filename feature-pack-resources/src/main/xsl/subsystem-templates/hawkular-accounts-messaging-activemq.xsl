@@ -37,6 +37,14 @@
     </xsl:copy>
   </xsl:template>
 
+  <xsl:template match="//*[local-name()='replacement' and @placeholder='ADDRESS-SETTINGS']/*[local-name()='address-setting']">
+    <xsl:copy select=".">
+      <xsl:apply-templates select="@*|node()" />
+      <xsl:attribute name="auto-create-jms-queues">true</xsl:attribute>
+      <xsl:attribute name="auto-delete-jms-queues">true</xsl:attribute>
+    </xsl:copy>
+  </xsl:template>
+
   <!-- copy everything else as-is -->
   <xsl:template match="node()|@*">
     <xsl:copy>
