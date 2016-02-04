@@ -44,14 +44,12 @@
     <dependency>
       <groupId>org.hawkular.commons</groupId>
       <artifactId>hawkular-commons-email</artifactId>
-<!-- Uncomment this once WF updates to 2.3.23 or higher.
       <exclusions>
         <exclusion>
           <groupId>org.freemarker</groupId>
           <artifactId>freemarker</artifactId>
         </exclusion>
       </exclusions>
--->
     </dependency>
 
     <dependency>
@@ -138,20 +136,5 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestEntries>
-              <Dependencies>org.infinispan export,org.hawkular.commons.cassandra-driver</Dependencies>
-            </manifestEntries>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>
 

@@ -43,6 +43,7 @@
     <dependency>
       <groupId>org.jboss.spec.javax.json</groupId>
       <artifactId>jboss-json-api_1.0_spec</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>javax.enterprise</groupId>
@@ -57,6 +58,7 @@
     <dependency>
       <groupId>org.jboss.spec.javax.enterprise.concurrent</groupId>
       <artifactId>jboss-concurrency-api_1.0_spec</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.spec.javax.annotation</groupId>
