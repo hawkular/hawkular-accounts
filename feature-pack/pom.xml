@@ -54,12 +54,6 @@
 
     <dependency>
       <groupId>org.hawkular.accounts</groupId>
-      <artifactId>hawkular-accounts-feature-pack-resources</artifactId>
-      <version>2.0.19.Final-SNAPSHOT</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.hawkular.accounts</groupId>
       <artifactId>hawkular-accounts-keycloak-event-listener-rest</artifactId>
       <version>2.0.19.Final-SNAPSHOT</version>
     </dependency>
@@ -174,6 +168,103 @@
               </descriptors>
               <appendAssemblyId>false</appendAssemblyId>
               <tarLongFileMode>gnu</tarLongFileMode>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Unpack the upstream artifacts that host standalone*.xml stubs that we want to adapt in the next steps -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack-deps</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/upstream-subsystem-templates</outputDirectory>
+              <includes>subsystem-templates/*.xml</includes>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.wildfly</groupId>
+                  <artifactId>wildfly-ejb3</artifactId>
+                  <version>${version.org.wildfly}</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.wildfly</groupId>
+                  <artifactId>wildfly-messaging-activemq</artifactId>
+                  <version>${version.org.wildfly}</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.wildfly</groupId>
+                  <artifactId>wildfly-security</artifactId>
+                  <version>${version.org.wildfly}</version>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Generate the standalone*.xml stubs from the upstream originals using XSL transformations -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>xml-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>transform-standalone-xml</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>transform</goal>
+            </goals>
+            <configuration>
+              <transformationSets>
+                <transformationSet>
+                  <dir>${project.build.directory}/upstream-subsystem-templates</dir>
+                  <stylesheet>${basedir}/src/main/xsl/subsystem-templates/hawkular-accounts-ejb3.xsl</stylesheet>
+                  <includes>
+                    <include>subsystem-templates/ejb3.xml</include>
+                  </includes>
+                  <outputDir>${project.build.directory}/${project.artifactId}-${project.version}</outputDir>
+                  <fileMappers>
+                    <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
+                      <pattern>^subsystem-templates/(.*)\.xml$</pattern>
+                      <replacement>subsystem-templates/hawkular-accounts-$1.xml</replacement>
+                    </fileMapper>
+                  </fileMappers>
+                </transformationSet>
+                <transformationSet>
+                  <dir>${project.build.directory}/upstream-subsystem-templates</dir>
+                  <stylesheet>${basedir}/src/main/xsl/subsystem-templates/hawkular-accounts-messaging-activemq.xsl</stylesheet>
+                  <includes>
+                    <include>subsystem-templates/messaging-activemq.xml</include>
+                  </includes>
+                  <outputDir>${project.build.directory}/${project.artifactId}-${project.version}</outputDir>
+                  <fileMappers>
+                    <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
+                      <pattern>^subsystem-templates/(.*)\.xml$</pattern>
+                      <replacement>subsystem-templates/hawkular-accounts-$1.xml</replacement>
+                    </fileMapper>
+                  </fileMappers>
+                </transformationSet>
+                <transformationSet>
+                  <dir>${project.build.directory}/upstream-subsystem-templates</dir>
+                  <stylesheet>${basedir}/src/main/xsl/subsystem-templates/hawkular-accounts-security.xsl</stylesheet>
+                  <includes>
+                    <include>subsystem-templates/security.xml</include>
+                  </includes>
+                  <outputDir>${project.build.directory}/${project.artifactId}-${project.version}</outputDir>
+                  <fileMappers>
+                    <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
+                      <pattern>^subsystem-templates/(.*)\.xml$</pattern>
+                      <replacement>subsystem-templates/hawkular-accounts-$1.xml</replacement>
+                    </fileMapper>
+                  </fileMappers>
+                </transformationSet>
+              </transformationSets>
             </configuration>
           </execution>
         </executions>
