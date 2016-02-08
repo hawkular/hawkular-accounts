@@ -203,6 +203,12 @@
                   <artifactId>wildfly-security</artifactId>
                   <version>${version.org.wildfly}</version>
                 </artifactItem>
+                <artifactItem>
+                  <groupId>org.hawkular.commons</groupId>
+                  <artifactId>hawkular-nest-feature-pack</artifactId>
+                  <version>${version.org.hawkular.commons}</version>
+                  <type>zip</type>
+                </artifactItem>
               </artifactItems>
             </configuration>
           </execution>
@@ -260,6 +266,20 @@
                   <fileMappers>
                     <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
                       <pattern>^subsystem-templates/(.*)\.xml$</pattern>
+                      <replacement>subsystem-templates/hawkular-accounts-$1.xml</replacement>
+                    </fileMapper>
+                  </fileMappers>
+                </transformationSet>
+                <transformationSet>
+                  <dir>${project.build.directory}/upstream-subsystem-templates</dir>
+                  <stylesheet>${basedir}/src/main/xsl/subsystem-templates/hawkular-accounts-datasources.xsl</stylesheet>
+                  <includes>
+                    <include>subsystem-templates/hawkular-nest-datasources.xml</include>
+                  </includes>
+                  <outputDir>${project.build.directory}/${project.artifactId}-${project.version}</outputDir>
+                  <fileMappers>
+                    <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
+                      <pattern>^subsystem-templates/.*-(.*)\.xml$</pattern>
                       <replacement>subsystem-templates/hawkular-accounts-$1.xml</replacement>
                     </fileMapper>
                   </fileMappers>
