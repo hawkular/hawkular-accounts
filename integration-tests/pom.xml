@@ -74,21 +74,21 @@
       <dependency>
         <groupId>org.wildfly</groupId>
         <artifactId>wildfly-arquillian-container-embedded</artifactId>
-        <version>8.2.1.Final</version>
+        <version>${version.org.wildfly.wildfly-arquillian-container-embedded}</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <groupId>org.wildfly</groupId>
         <artifactId>wildfly-arquillian-container-managed</artifactId>
-        <version>8.2.1.Final</version>
+        <version>${version.org.wildfly.wildfly-arquillian-container-managed}</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
-        <version>1.4.1</version>
+        <version>${version.com.icegreen.greenmail}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
