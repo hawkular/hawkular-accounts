@@ -115,7 +115,7 @@
   <properties>
     <version.com.icegreen.greenmail>1.4.1</version.com.icegreen.greenmail>
 
-    <version.org.hawkular.commons>0.3.5.Final</version.org.hawkular.commons>
+    <version.org.hawkular.commons>0.3.6.Final-SRC-revision-a148d66dd578b6b6fd553a21c71b5543b74b3c7f</version.org.hawkular.commons>
     <version.org.keycloak.secretstore>1.0.13.Final</version.org.keycloak.secretstore>
 
     <!-- Accounts should be the only place where the KeyCloak version is defined -->
@@ -162,6 +162,12 @@
       </dependency>
       <dependency>
         <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-adapter-feature-pack</artifactId>
+        <version>${version.org.keycloak}</version>
+        <type>zip</type>
+      </dependency>
+      <dependency>
+        <groupId>org.keycloak</groupId>
         <artifactId>keycloak-admin-client</artifactId>
         <version>${version.org.keycloak}</version>
       </dependency>
@@ -169,6 +175,12 @@
         <groupId>org.keycloak</groupId>
         <artifactId>keycloak-model-api</artifactId>
         <version>${version.org.keycloak}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-server-feature-pack</artifactId>
+        <version>${version.org.keycloak}</version>
+        <type>zip</type>
       </dependency>
       <dependency>
         <groupId>org.keycloak</groupId>
@@ -215,6 +227,13 @@
         <groupId>org.hawkular.commons</groupId>
         <artifactId>hawkular-commons-email</artifactId>
         <version>${version.org.hawkular.commons}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hawkular.commons</groupId>
+        <artifactId>hawkular-nest-feature-pack</artifactId>
+        <version>${version.org.hawkular.commons}</version>
+        <type>zip</type>
       </dependency>
 
       <dependency>
