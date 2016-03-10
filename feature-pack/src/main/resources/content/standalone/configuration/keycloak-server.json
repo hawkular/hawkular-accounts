@@ -1,6 +1,6 @@
 {
     "providers": [
-        "classpath:${jboss.server.config.dir}/providers/*",
+        "classpath:${jboss.home.dir}/providers/*",
         "module:org.hawkular.keycloak.events.rest",
         "module:org.hawkular.keycloak.events.jms"
     ],
@@ -17,55 +17,71 @@
     "admin": {
         "realm": "master"
     },
+
     "eventsStore": {
         "provider": "jpa",
         "jpa": {
-            "exclude-events": [
-                "REFRESH_TOKEN"
-            ]
+            "exclude-events": [ "REFRESH_TOKEN" ]
         }
     },
+
     "realm": {
         "provider": "jpa"
     },
+
     "user": {
         "provider": "jpa"
     },
+
+    "userCache": {
+        "default" : {
+            "enabled": true
+        }
+    },
+
+    "userSessionPersister": {
+        "provider": "jpa"
+    },
+
     "timer": {
         "provider": "basic"
     },
+
     "theme": {
-        "default": "keycloak",
         "staticMaxAge": 2592000,
         "cacheTemplates": true,
         "cacheThemes": true,
         "folder": {
-            "dir": "${jboss.server.config.dir}/themes"
-        },
-        "module": {
-            "modules": [ "org.hawkular.keycloak.theme" ]
+            "dir": "${jboss.home.dir}/themes"
         }
     },
+
     "scheduled": {
         "interval": 900
     },
+
     "connectionsHttpClient": {
-        "default": {
-            "disable-trust-manager": true
-        }
+        "default": {}
     },
+
     "connectionsJpa": {
         "default": {
             "dataSource": "java:jboss/datasources/KeycloakDS",
             "databaseSchema": "update"
         }
     },
-    "connectionsInfinispan": {
-        "default": {
-            "cacheContainer": "java:jboss/infinispan/Keycloak"
+
+    "realmCache": {
+        "provider": "default",
+        "default" : {
+            "enabled": true
         }
     },
-    "userSessionPersister": {
-        "provider": "jpa"
+
+    "connectionsInfinispan": {
+        "provider": "default",
+        "default": {
+            "cacheContainer" : "java:comp/env/infinispan/Keycloak"
+        }
     }
 }
