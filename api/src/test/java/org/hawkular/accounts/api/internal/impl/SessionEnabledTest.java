@@ -24,16 +24,19 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.stream.Collectors;
 
 import javax.enterprise.inject.Instance;
 
-import org.apache.cassandra.service.EmbeddedCassandraService;
 import org.apache.thrift.transport.TTransportException;
 import org.hawkular.accounts.api.internal.ApplicationResources;
 import org.hawkular.accounts.api.internal.BoundStatements;
 import org.hawkular.accounts.api.model.Role;
 import org.hawkular.accounts.common.ZonedDateTimeAdapter;
+import org.hawkular.commons.cassandra.EmbeddedCassandraService;
+import org.hawkular.commons.cassandra.EmbeddedConstants;
 import org.junit.Before;
 
 import com.datastax.driver.core.BoundStatement;
@@ -228,27 +231,36 @@ public abstract class SessionEnabledTest {
         try {
             session = new Cluster.Builder()
                     .addContactPoints("localhost")
+                    .withPort(9042)
                     .withProtocolVersion(ProtocolVersion.V3)
                     .build().connect();
         } catch (NoHostAvailableException e) {
-            String cassandraYmlLocation = findPathForCassandraYaml("./cassandra.yml");
-            if (null == cassandraYmlLocation || cassandraYmlLocation.isEmpty()) {
-                cassandraYmlLocation = findPathForCassandraYaml("./api/target/test-classes/cassandra.yml");
-            }
 
-            if (null == cassandraYmlLocation || cassandraYmlLocation.isEmpty()) {
-                throw new IllegalArgumentException("Could not find a cassandra.yml");
-            }
-
-            System.setProperty("cassandra.config", "file://" + cassandraYmlLocation);
+            Path tmpDir = Files.createTempDirectory("hawkular-accounts-api-cassandra");
+            System.setProperty(EmbeddedConstants.JBOSS_DATA_DIR, tmpDir.toAbsolutePath().toString());
+            System.setProperty(EmbeddedConstants.HAWKULAR_BACKEND_PROPERTY,
+                    EmbeddedConstants.EMBEDDED_CASSANDRA_OPTION);
             EmbeddedCassandraService service = new EmbeddedCassandraService();
             service.start();
 
-            session = new Cluster.Builder()
-                    .addContactPoints("localhost")
-                    .withPort(9142)
-                    .withProtocolVersion(ProtocolVersion.V3)
-                    .build().connect();
+            NoHostAvailableException lastException = null;
+            final int timeoutSeconds = 60;
+            for (int i = 0; i < timeoutSeconds; i++) {
+                try {
+                    session = new Cluster.Builder()
+                            .addContactPoints("localhost")
+                            .withPort(9042)
+                            .withProtocolVersion(ProtocolVersion.V3)
+                            .build().connect();
+                    return;
+                } catch (NoHostAvailableException t) {
+                    lastException = t;
+                }
+                Thread.sleep(1000);
+            }
+            if (lastException != null) {
+                throw lastException;
+            }
         }
     }
 
