@@ -34,6 +34,10 @@
     Set of smoke integration tests
   </description>
 
+  <properties>
+    <groovy.test>true</groovy.test>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>

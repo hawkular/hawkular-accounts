@@ -52,6 +52,12 @@
       <version>2.0.23.Final-SNAPSHOT</version>
     </dependency>
     <dependency>
+      <groupId>org.hawkular.commons</groupId>
+      <artifactId>hawkular-commons-embedded-cassandra-service</artifactId>
+      <version>${version.org.hawkular.commons}</version>
+      <type>ejb</type>
+    </dependency>
+    <dependency>
       <groupId>org.jboss.spec.javax.annotation</groupId>
       <artifactId>jboss-annotations-api_1.2_spec</artifactId>
       <scope>provided</scope>
