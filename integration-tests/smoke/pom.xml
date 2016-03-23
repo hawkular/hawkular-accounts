@@ -35,7 +35,7 @@
   </description>
 
   <properties>
-    <groovy.test>true</groovy.test>
+    <test.groovy>true</test.groovy>
   </properties>
 
   <dependencies>

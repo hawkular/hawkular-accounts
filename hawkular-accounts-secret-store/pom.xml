@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
+    and other contributors as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.hawkular.accounts</groupId>
+    <artifactId>hawkular-accounts-parent</artifactId>
+    <version>2.0.23.Final-SNAPSHOT</version>
+  </parent>
+
+  <name>Hawkular - Accounts - Secret Store</name>
+  <artifactId>hawkular-accounts-secret-store</artifactId>
+  <packaging>war</packaging>
+
+  <description>A customized version of org.keycloak.secretstore:secret-store</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.keycloak.secretstore</groupId>
+      <artifactId>secret-store</artifactId>
+      <type>war</type>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+            </manifest>
+          </archive>
+          <overlays>
+            <overlay>
+              <groupId>org.keycloak.secretstore</groupId>
+              <artifactId>secret-store</artifactId>
+              <includes>
+                <include>META-INF/**/*</include>
+                <include>WEB-INF/classes/**/*</include>
+                <include>WEB-INF/lib/secret-store-*.jar</include>
+                <include>WEB-INF/lib/core-*.jar</include>
+                <include>WEB-INF/*.xml</include>
+              </includes>
+            </overlay>
+          </overlays>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

@@ -16,6 +16,7 @@
  */
 package org.hawkular.accounts.api.internal.impl;
 
+import static org.hawkular.commons.cassandra.EmbeddedConstants.CASSANDRA_YAML;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -24,19 +25,20 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.stream.Collectors;
 
 import javax.enterprise.inject.Instance;
 
+import org.apache.cassandra.service.EmbeddedCassandraService;
 import org.apache.thrift.transport.TTransportException;
 import org.hawkular.accounts.api.internal.ApplicationResources;
 import org.hawkular.accounts.api.internal.BoundStatements;
 import org.hawkular.accounts.api.model.Role;
 import org.hawkular.accounts.common.ZonedDateTimeAdapter;
-import org.hawkular.commons.cassandra.EmbeddedCassandraService;
-import org.hawkular.commons.cassandra.EmbeddedConstants;
+import org.hawkular.commons.cassandra.CassandraYaml;
+import org.hawkular.commons.cassandra.CassandraYaml.CassandraYamlKey;
 import org.junit.Before;
 
 import com.datastax.driver.core.BoundStatement;
@@ -49,8 +51,14 @@ import com.datastax.driver.core.exceptions.NoHostAvailableException;
  * @author Juraci Paixão Kröhling
  */
 public abstract class SessionEnabledTest {
-    static boolean prepared;
     static Session session;
+    static EmbeddedCassandraService service;
+    static final int cassandraPortOffset = 100;
+    static final int cassandraPort;
+
+    static {
+        cassandraPort = cassandraPortOffset + ((Integer) CassandraYamlKey.native_transport_port.getDefaultValue());
+    }
 
     RoleServiceImpl roleService = new RoleServiceImpl();
     UserServiceImpl userService = new UserServiceImpl();
@@ -122,7 +130,7 @@ public abstract class SessionEnabledTest {
 
         personaResourceRoleService.session = session;
         personaResourceRoleService.zonedDateTimeAdapter = zonedDateTimeAdapter;
-        personaResourceRoleService.resourceService= resourceService;
+        personaResourceRoleService.resourceService = resourceService;
         personaResourceRoleService.personaService = personaService;
         personaResourceRoleService.roleService = roleService;
         personaResourceRoleService.stmtCreateInstance = getMocked(BoundStatements.PRR_CREATE);
@@ -133,7 +141,7 @@ public abstract class SessionEnabledTest {
 
         membershipService.session = session;
         membershipService.zonedDateTimeAdapter = zonedDateTimeAdapter;
-        membershipService.resourceService= resourceService;
+        membershipService.resourceService = resourceService;
         membershipService.personaService = personaService;
         membershipService.organizationService = organizationService;
         membershipService.roleService = roleService;
@@ -218,29 +226,40 @@ public abstract class SessionEnabledTest {
     }
 
     private void prepareCassandra() throws IOException, TTransportException, InterruptedException {
-        if (prepared) {
+        if (service != null) {
             return;
         }
 
         startServerIfNotRunning();
         cleanDatabase();
-        prepared = true;
     }
 
     private void startServerIfNotRunning() throws IOException, TTransportException, InterruptedException {
         try {
             session = new Cluster.Builder()
                     .addContactPoints("localhost")
-                    .withPort(9042)
+                    .withPort(cassandraPort)
                     .withProtocolVersion(ProtocolVersion.V3)
                     .build().connect();
         } catch (NoHostAvailableException e) {
 
-            Path tmpDir = Files.createTempDirectory("hawkular-accounts-api-cassandra");
-            System.setProperty(EmbeddedConstants.JBOSS_DATA_DIR, tmpDir.toAbsolutePath().toString());
-            System.setProperty(EmbeddedConstants.HAWKULAR_BACKEND_PROPERTY,
-                    EmbeddedConstants.EMBEDDED_CASSANDRA_OPTION);
-            EmbeddedCassandraService service = new EmbeddedCassandraService();
+            File baseDir = Files.createTempDirectory("hawkular-accounts-api-cassandra").toFile();
+            File cassandraYaml = new File(baseDir, "cassandra.yaml");
+
+            URL defaultCassandraYamlUrl = CassandraYaml.class.getResource("/" + CASSANDRA_YAML);
+            CassandraYaml.builder()
+                    .load(defaultCassandraYamlUrl)//
+                    .baseDir(baseDir)//
+                    .clusterName("hawkular-accounts-api-cassandra")//
+                    .portOffset(cassandraPortOffset)//
+                    .defaultKeyCacheSize()//
+                    .defaultNativeTransportMaxThreads()//
+                    .store(cassandraYaml)//
+                    .mkdirs()//
+                    .setCassandraConfigProp()//
+                    .setTriggersDirProp();
+
+            service = new EmbeddedCassandraService();
             service.start();
 
             NoHostAvailableException lastException = null;
@@ -249,7 +268,7 @@ public abstract class SessionEnabledTest {
                 try {
                     session = new Cluster.Builder()
                             .addContactPoints("localhost")
-                            .withPort(9042)
+                            .withPort(cassandraPort)
                             .withProtocolVersion(ProtocolVersion.V3)
                             .build().connect();
                     return;
@@ -269,7 +288,7 @@ public abstract class SessionEnabledTest {
                 .getCluster().getMetadata().getKeyspaces()
                 .stream()
                 .filter(k -> k.getName().equals("hawkular_accounts"))
-                .limit(1) // once we find it, no need to keep going through the stream
+                .limit(1)// once we find it, no need to keep going through the stream
                 .forEach(k -> session.execute("DROP KEYSPACE hawkular_accounts"));
 
         InputStream input = getClass().getResourceAsStream("/hawkular_accounts.cql");

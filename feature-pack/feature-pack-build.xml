@@ -32,7 +32,7 @@
   <copy-artifacts>
     <copy-artifact artifact="org.hawkular.accounts:hawkular-accounts" to-location="modules/system/layers/hawkular/org/hawkular/nest/main/deployments/hawkular-accounts.war" />
     <copy-artifact artifact="org.hawkular.accounts:hawkular-accounts-events-backend" to-location="modules/system/layers/hawkular/org/hawkular/nest/main/deployments/hawkular-accounts-events-backend.war" />
-    <copy-artifact artifact="org.keycloak.secretstore:secret-store" to-location="modules/system/layers/hawkular/org/hawkular/nest/main/deployments/secret-store.war" />
+    <copy-artifact artifact="org.hawkular.accounts:hawkular-accounts-secret-store" to-location="modules/system/layers/hawkular/org/hawkular/nest/main/deployments/secret-store.war" />
   </copy-artifacts>
 
 </build>
