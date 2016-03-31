@@ -100,6 +100,7 @@ public class CassandraSessionInitializer {
                 // we split the statements by "--#", as it's done in other Hawkular projects.
                 for (String cql : content.split("(?m)^-- #.*$")) {
                     if (!cql.startsWith("--")) { // if it doesn't look like a comment, execute it
+                        logger.debugf("Executing CQL [%s]", cql);
                         session.execute(cql);
                     }
                 }
