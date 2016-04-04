@@ -192,7 +192,7 @@ public class PersonaServiceImpl implements PersonaService {
         if (personaId != null && !personaId.isEmpty()) {
             Persona persona = get(personaId);
             if (null == persona) {
-                throw new AccessDeniedException("Invalid persona.");
+                throw new AccessDeniedException("Invalid personaId ["+ personaId +"].");
             }
 
             if (isAllowedToImpersonate(userService.getCurrent(), persona)) {

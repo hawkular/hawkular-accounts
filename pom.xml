@@ -29,7 +29,7 @@
   <parent>
     <groupId>org.hawkular</groupId>
     <artifactId>hawkular-parent</artifactId>
-    <version>38</version>
+    <version>39</version>
   </parent>
 
   <modules>
@@ -49,6 +49,7 @@
     <module>sample-websocket-secured</module>
     <module>sample-websocket-backend</module>
     <module>sample-websocket-frontend</module>
+    <module>hawkular-accounts-secret-store</module>
   </modules>
 
   <inceptionYear>2015</inceptionYear>
@@ -115,14 +116,13 @@
   <properties>
     <version.com.icegreen.greenmail>1.4.1</version.com.icegreen.greenmail>
 
-    <version.org.hawkular.commons>0.4.1.Final-SRC-revision-08475d8b05fd66e4eaa99aab841abd5a3dfd0d03</version.org.hawkular.commons>
+    <version.org.hawkular.commons>0.4.1.Final-SRC-revision-d63bea14d67228b2d3a9605510bc5e65209a69fa</version.org.hawkular.commons>
     <version.org.keycloak.secretstore>1.0.13.Final</version.org.keycloak.secretstore>
 
     <!-- Accounts should be the only place where the KeyCloak version is defined -->
     <version.org.keycloak>1.8.1.Final</version.org.keycloak>
 
-    <version.org.wildfly.wildfly-arquillian-container-embedded>8.2.1.Final</version.org.wildfly.wildfly-arquillian-container-embedded>
-    <version.org.wildfly.wildfly-arquillian-container-managed>8.2.1.Final</version.org.wildfly.wildfly-arquillian-container-managed>
+    <version.org.wildfly.arquillian>1.0.2.Final</version.org.wildfly.arquillian>
 
     <failOnMissingWebXml>false</failOnMissingWebXml>
     <jboss.releases.repo.url>
