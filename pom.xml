@@ -122,7 +122,7 @@
     <!-- Accounts should be the only place where the KeyCloak version is defined -->
     <version.org.keycloak>1.9.1.Final</version.org.keycloak>
 
-    <version.org.wildfly.arquillian>1.0.2.Final</version.org.wildfly.arquillian>
+    <version.org.wildfly.arquillian>2.0.0.Alpha1</version.org.wildfly.arquillian>
 
     <failOnMissingWebXml>false</failOnMissingWebXml>
     <jboss.releases.repo.url>
