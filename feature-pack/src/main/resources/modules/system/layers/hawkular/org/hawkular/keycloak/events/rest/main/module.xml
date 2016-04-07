@@ -23,7 +23,6 @@
   </resources>
   <dependencies>
     <module name="org.keycloak.keycloak-core"/>
-    <module name="org.keycloak.keycloak-model-api"/>
-    <module name="org.keycloak.keycloak-events-api"/>
+    <module name="org.keycloak.keycloak-server-spi"/>
   </dependencies>
 </module>

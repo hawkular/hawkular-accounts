@@ -43,13 +43,7 @@
     </dependency>
     <dependency>
       <groupId>org.keycloak</groupId>
-      <artifactId>keycloak-model-api</artifactId>
-      <version>${version.org.keycloak}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.keycloak</groupId>
-      <artifactId>keycloak-events-api</artifactId>
+      <artifactId>keycloak-server-spi</artifactId>
       <version>${version.org.keycloak}</version>
       <scope>provided</scope>
     </dependency>
