@@ -35,8 +35,8 @@
         <!-- The base set of subsystems from KC Server -->
         <xsl:variable name="kc-server-subsystems" select="document($kc-server-subsystems-path)/*[local-name()='config']/*[local-name()='subsystems']/*" />
         <xsl:comment> The base set of subsystems from KC Server </xsl:comment>
-        <!-- The experession in @select implements the minus operation for node sets - i.e. $kc-server-subsystems minus $hk-nest-subsystems -->
-        <xsl:copy-of select="$kc-server-subsystems" />
+        <!-- Use logging from nest -->
+        <xsl:copy-of select="$kc-server-subsystems[not(text() = 'logging.xml')]" />
 
 
         <!-- Add those subsystems from KC Adapter that are not there already -->
