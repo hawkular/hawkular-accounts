@@ -45,15 +45,15 @@ CREATE TABLE IF NOT EXISTS hawkular_accounts.organizations (
 
 -- #
 
-CREATE INDEX IF NOT EXISTS ON hawkular_accounts.organizations (owner);
+CREATE INDEX IF NOT EXISTS organizations_owner_idx ON hawkular_accounts.organizations (owner);
 
 -- #
 
-CREATE INDEX IF NOT EXISTS ON hawkular_accounts.organizations (name);
+CREATE INDEX IF NOT EXISTS organizations_name_idx ON hawkular_accounts.organizations (name);
 
 -- #
 
-CREATE INDEX IF NOT EXISTS ON hawkular_accounts.organizations (visibility);
+CREATE INDEX IF NOT EXISTS organizations_visibility_idx ON hawkular_accounts.organizations (visibility);
 
 -- #
 
@@ -69,11 +69,11 @@ CREATE TABLE IF NOT EXISTS hawkular_accounts.organization_memberships (
 
 -- #
 
-CREATE INDEX IF NOT EXISTS ON hawkular_accounts.organization_memberships (organization);
+CREATE INDEX IF NOT EXISTS organization_memberships_organization_idx ON hawkular_accounts.organization_memberships (organization);
 
 -- #
 
-CREATE INDEX IF NOT EXISTS ON hawkular_accounts.organization_memberships (member);
+CREATE INDEX IF NOT EXISTS organization_memberships_member_idx ON hawkular_accounts.organization_memberships (member);
 
 -- #
 
@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS hawkular_accounts.roles (
 
 -- #
 
-CREATE INDEX IF NOT EXISTS ON hawkular_accounts.roles (name);
+CREATE INDEX IF NOT EXISTS roles_name_idx ON hawkular_accounts.roles (name);
 
 -- #
 
@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS hawkular_accounts.operations (
 
 -- #
 
-CREATE INDEX IF NOT EXISTS ON hawkular_accounts.operations (name);
+CREATE INDEX IF NOT EXISTS operations_name_idx ON hawkular_accounts.operations (name);
 
 -- #
 
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS hawkular_accounts.permissions (
 
 -- #
 
-CREATE INDEX IF NOT EXISTS ON hawkular_accounts.permissions (operation);
+CREATE INDEX IF NOT EXISTS permissions_operation_idx ON hawkular_accounts.permissions (operation);
 
 -- #
 
@@ -137,7 +137,7 @@ CREATE TABLE IF NOT EXISTS hawkular_accounts.invitations (
 
 -- #
 
-CREATE INDEX IF NOT EXISTS ON hawkular_accounts.invitations (organization);
+CREATE INDEX IF NOT EXISTS invitations_organization_idx ON hawkular_accounts.invitations (organization);
 
 -- #
 
@@ -152,11 +152,11 @@ CREATE TABLE IF NOT EXISTS hawkular_accounts.resources (
 
 -- #
 
-CREATE INDEX IF NOT EXISTS ON hawkular_accounts.resources (persona);
+CREATE INDEX IF NOT EXISTS resources_persona_idx ON hawkular_accounts.resources (persona);
 
 -- #
 
-CREATE INDEX IF NOT EXISTS ON hawkular_accounts.resources (parent);
+CREATE INDEX IF NOT EXISTS resources_parent_idx ON hawkular_accounts.resources (parent);
 
 -- #
 
@@ -172,11 +172,11 @@ CREATE TABLE IF NOT EXISTS hawkular_accounts.persona_resource_roles (
 
 -- #
 
-CREATE INDEX IF NOT EXISTS ON hawkular_accounts.persona_resource_roles (persona);
+CREATE INDEX IF NOT EXISTS persona_resource_roles_persona_idx ON hawkular_accounts.persona_resource_roles (persona);
 
 -- #
 
-CREATE INDEX IF NOT EXISTS ON hawkular_accounts.persona_resource_roles (resource);
+CREATE INDEX IF NOT EXISTS persona_resource_roles_resource_idx ON hawkular_accounts.persona_resource_roles (resource);
 
 -- #
 
@@ -191,7 +191,7 @@ CREATE TABLE IF NOT EXISTS hawkular_accounts.user_settings (
 
 -- #
 
-CREATE INDEX IF NOT EXISTS ON hawkular_accounts.user_settings (persona);
+CREATE INDEX IF NOT EXISTS user_settings_persona_idx ON hawkular_accounts.user_settings (persona);
 
 -- #
 
@@ -207,12 +207,12 @@ CREATE TABLE IF NOT EXISTS hawkular_accounts.join_requests (
 
 -- #
 
-CREATE INDEX IF NOT EXISTS ON hawkular_accounts.join_requests (organization);
+CREATE INDEX IF NOT EXISTS join_requests_organization_idx ON hawkular_accounts.join_requests (organization);
 
 -- #
 
-CREATE INDEX IF NOT EXISTS ON hawkular_accounts.join_requests (status);
+CREATE INDEX IF NOT EXISTS join_requests_status_idx ON hawkular_accounts.join_requests (status);
 
 -- #
 
-CREATE INDEX IF NOT EXISTS ON hawkular_accounts.join_requests (persona);
+CREATE INDEX IF NOT EXISTS join_requests_persona_idx ON hawkular_accounts.join_requests (persona);
