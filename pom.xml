@@ -29,7 +29,7 @@
   <parent>
     <groupId>org.hawkular</groupId>
     <artifactId>hawkular-parent</artifactId>
-    <version>40</version>
+    <version>41</version>
   </parent>
 
   <modules>
@@ -116,7 +116,7 @@
   <properties>
     <version.com.icegreen.greenmail>1.4.1</version.com.icegreen.greenmail>
 
-    <version.org.hawkular.commons>0.5.0.Final</version.org.hawkular.commons>
+    <version.org.hawkular.commons>0.5.1.Final-SRC-revision-2cf2f5d158d57491da51ddbff316c2f69f6847e8</version.org.hawkular.commons>
     <version.org.keycloak.secretstore>1.0.14.Final</version.org.keycloak.secretstore>
 
     <!-- Accounts should be the only place where the KeyCloak version is defined -->
@@ -138,7 +138,7 @@
       <dependency>
         <groupId>org.wildfly.bom</groupId>
         <artifactId>wildfly-javaee7</artifactId>
-        <version>${version.org.wildfly}</version>
+        <version>${version.org.wildfly.bom}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
