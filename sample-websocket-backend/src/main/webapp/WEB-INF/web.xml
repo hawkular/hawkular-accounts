@@ -33,11 +33,6 @@
     </auth-constraint>
   </security-constraint>
 
-  <login-config>
-    <auth-method>KEYCLOAK</auth-method>
-    <realm-name>hawkular</realm-name>
-  </login-config>
-
   <security-role>
     <role-name>user</role-name>
   </security-role>
