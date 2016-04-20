@@ -116,7 +116,7 @@
   <properties>
     <version.com.icegreen.greenmail>1.4.1</version.com.icegreen.greenmail>
 
-    <version.org.hawkular.commons>0.5.1.Final-SRC-revision-2cf2f5d158d57491da51ddbff316c2f69f6847e8</version.org.hawkular.commons>
+    <version.org.hawkular.commons>0.6.0.Final</version.org.hawkular.commons>
     <version.org.keycloak.secretstore>1.0.15.Final</version.org.keycloak.secretstore>
 
     <!-- Accounts should be the only place where the KeyCloak version is defined -->
