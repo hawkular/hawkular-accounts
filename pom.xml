@@ -29,7 +29,7 @@
   <parent>
     <groupId>org.hawkular</groupId>
     <artifactId>hawkular-parent</artifactId>
-    <version>41</version>
+    <version>42</version>
   </parent>
 
   <modules>
@@ -116,7 +116,7 @@
   <properties>
     <version.com.icegreen.greenmail>1.4.1</version.com.icegreen.greenmail>
 
-    <version.org.hawkular.commons>0.6.0.Final</version.org.hawkular.commons>
+    <version.org.hawkular.commons>0.6.1.Final</version.org.hawkular.commons>
     <version.org.keycloak.secretstore>1.0.15.Final</version.org.keycloak.secretstore>
 
     <!-- Accounts should be the only place where the KeyCloak version is defined -->
