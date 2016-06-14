@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.hawkular.accounts</groupId>
     <artifactId>hawkular-accounts-parent</artifactId>
-    <version>2.0.29.Final-SNAPSHOT</version>
+    <version>2.0.29.Final</version>
   </parent>
 
   <name>Hawkular - Accounts - JAXB Adapters</name>
