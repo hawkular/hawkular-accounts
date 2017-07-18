@@ -1,5 +1,7 @@
 = Hawkular Accounts
 
+WARNING: Hawkular Accounts is deprecated. This repository can still be used as reference, but it's not currently being used by any Hawkular component.
+
 Hawkular Accounts is the user/organization module for Hawkular projects. It provides the registration feature,
 setting up of organizations and related features. The main registration and user login is provided by
 http://keycloak.jboss.org/[Keycloak], while organizations and permissions are implemented in Hawkular Accounts
